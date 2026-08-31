@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Join | Help</title>
+    <link rel="icon" href="./assets/img/favicon.png" />
+    <link rel="stylesheet" href="style/style.css" />
+    <link rel="stylesheet" href="style/text.css" />
+    <link rel="stylesheet" href="style/user_icon_menu.css" />
+    <link rel="stylesheet" href="style/nav_mobile.css" />
+
+    <script src="./script/script.js"></script>
+    <script src="./script/scripts.js"></script>
+  </head>
+
+  <body onload="setUserInitials();">
+    <header>
+      <div class="hl_logo_section">
+        <h1>Kanban Project Management Tool</h1>
+        <img class="header_logo" src="./assets/img/loginLogo.svg" alt="logo" />
+      </div>
+      <div class="dropdown_container" id="dropdown_container">
+        <div class="icon_header_section">
+          <button onclick="location.href='help.html'" class="help-button">
+            <img src="./assets/img/help.png" alt="help" />
+          </button>
+          <div class="contact_icon" id="contact_icon" onclick="toggleMenu()">
+            <div class="contact_icon_initials" id="first_icon_initials"></div>
+            <div class="contact_icon_initials" id="last_icon_initials"></div>
+          </div>
+        </div>
+        <div class="dropdown_menu" id="dropdown_menu">
+          <a class="dropdown_link" href="./privacy_policy.html"
+            >Privacy Policy</a
+          >
+          <a class="dropdown_link" href="./legal_notice.html">Legal Notes</a>
+          <div class="dropdown_link" onclick="logOut()">Log out</div>
+          <a class="dropdown_link help_link" href="help.html">Help</a>
+        </div>
+      </div>
+    </header>
+
+    <nav class="sidebar">
+      <img class="logonav" src="./assets/img/logo-white.svg" alt="logo" />
+      <div class="menu">
+        <button onclick="location.href='summary.html'" class="menu-button">
+          <img src="./assets/img/summary.png" alt="Summary" />
+          <span>Summary</span>
+        </button>
+        <button onclick="location.href='add_task.html'" class="menu-button">
+          <img src="./assets/img/add-task.png" alt="Add Task" />
+          <span>Add Task</span>
+        </button>
+        <button onclick="location.href='board.html'" class="menu-button">
+          <img src="./assets/img/board.png" alt="Board" />
+          <span>Board</span>
+        </button>
+        <button onclick="location.href='contacts.html'" class="menu-button">
+          <img src="./assets/img/contacts.png" alt="Contacts" />
+          <span>Contacts</span>
+        </button>
+      </div>
+
+      <div class="legal-policy">
+        <div class="legal-policy-background">
+          <button
+            onclick="location.href='privacy_policy.html'"
+            class="legal-policy-button"
+          >
+            Privacy Policy
+          </button>
+        </div>
+        <div class="legal-policy-background">
+          <button
+            onclick="location.href='legal_notice.html'"
+            class="legal-policy-button"
+          >
+            Legal Notice
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="headline-img-container">
+        <h2>Help</h2>
+
+        <div
+          onclick="goToUrl('summary.html')"
+          class="arrow-left"
+          id="arrow-left"
+        >
+          <img src="assets/icons/arrow-left.svg" alt="go back" />
+        </div>
+      </div>
+
+      <section>
+        <h3>Welcome to the Help Page</h3>
+        <p>
+          Welcome to the help page for Join, your guide to using our kanban
+          project management tool. Here, we'll provide an overview of what Join
+          is, how it can benefit you, and how to use it.
+        </p>
+      </section>
+
+      <section>
+        <h3>What is Join?</h3>
+        <p>
+          Join is a kanban-based project management tool designed and built by a
+          group of dedicated students as part of their web development bootcamp
+          at the Developer Akademie.
+        </p>
+        <p>
+          Kanban, a Japanese term meaning "billboard", is a highly effective
+          method to visualize work, limit work-in-progress, and maximize
+          efficiency (or flow). Join leverages the principles of kanban to help
+          users manage their tasks and projects in an intuitive, visual
+          interface.
+        </p>
+        <p>
+          It is important to note that Join is designed as an educational
+          exercise and is not intended for extensive business usage. While we
+          strive to ensure the best possible user experience, we cannot
+          guarantee consistent availability, reliability, accuracy, or other
+          aspects of quality regarding Join.
+        </p>
+      </section>
+
+      <section>
+        <h3>How to Use It</h3>
+        <ol>
+          <li>
+            <strong>Exploring the Board:</strong>
+            When you log in to Join, you'll find a default board. This board
+            represents your project and contains four default lists: "To Do",
+            "In Progress", "Await feedback" and "Done".
+          </li>
+          <li>
+            <strong>Creating Contacts:</strong>
+            In Join, you can add contacts to collaborate on your projects. Go to
+            the "Contacts" section, click on "New contact", and fill in the
+            required information. Once added, these contacts can be assigned
+            tasks and interact with the tasks on the board.
+          </li>
+          <li>
+            <strong>Adding Cards:</strong>
+            Now that you've added your contacts, you can start adding cards.
+            Cards represent individual tasks. Click the "+" button under the
+            appropriate list to create a new card. Fill in the task details in
+            the card, like task name, description, due date, assignees, etc.
+          </li>
+          <li>
+            <strong>Moving Cards:</strong>
+            As the task moves from one stage to another, you can reflect that on
+            the board by dragging and dropping the card from one list to
+            another.
+          </li>
+          <li>
+            <strong>Deleting Cards:</strong>
+            Once a task is completed, you can either move it to the "Done" list
+            or delete it. Deleting a card will permanently remove it from the
+            board. Please exercise caution when deleting cards, as this action
+            is irreversible.
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h3>Need More Help?</h3>
+        <p>
+          Remember that using Join effectively requires consistent updates from
+          you and your team to ensure the board reflects the current state of
+          your project.
+        </p>
+        <p>
+          Have more questions about Join? Feel free to contact us at [Your
+          Contact Email]. We're here to help you!
+        </p>
+        <p><strong>Enjoy using Join!</strong></p>
+      </section>
+    </div>
+
+    <ul class="nav-links">
+      <li class="link-button hide-before-log-in">
+        <a
+          onclick="toHrefFocus('summary.html', this); return false;"
+          href="summary.html"
+        >
+          <div class="img-box">
+            <img
+              class="boaimg"
+              src="assets/img/summary.png"
+              alt="Summary Icon"
+            />
+          </div>
+          <span>Summary</span>
+        </a>
+      </li>
+      <li class="link-button hide-before-log-in">
+        <a
+          onclick="toHrefFocus('add_task.html',this); return false;"
+          href="add_task.html"
+        >
+          <div class="img-box">
+            <img class="boaimg" src="assets/img/add-task.png" alt="Task Icon" />
+          </div>
+          <span>Add Task</span>
+        </a>
+      </li>
+      <li class="link-button active hide-before-log-in">
+        <a
+          onclick="toHrefFocus('board.html', this); return false;"
+          href="board.html"
+        >
+          <div class="img-box">
+            <img class="boaimg" src="assets/img/board.png" alt="Board Icon" />
+          </div>
+          <span>Board</span>
+        </a>
+      </li>
+      <li class="link-button hide-before-log-in">
+        <a
+          onclick="toHrefFocus('contacts.html', this); return false;"
+          href="contacts.html"
+        >
+          <div class="img-box">
+            <img
+              class="boaimg"
+              src="assets/img/contacts.png"
+              alt="Contacts Icon"
+            />
+          </div>
+          <span>Contacts</span>
+        </a>
+      </li>
+    </ul>
+  </body>
+</html>

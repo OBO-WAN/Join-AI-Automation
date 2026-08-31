@@ -1,0 +1,378 @@
+* {
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  margin: 0;
+  padding: 0;
+  font-family: "inter";
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("../assets/font/Inter-VariableFont_opsz\,wght.ttf")
+    format("truetype");
+}
+
+::-webkit-scrollbar {
+  width: 14px;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a3647;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+:root {
+  --font-size-12: 12px;
+  --font-size-14: 14px;
+  --font-size-16: 16px;
+  --font-size-18: 18px;
+  --font-size-20: 20px;
+  --font-size-24: 24px;
+  --font-size-28: 28px;
+  --font-size-32: 32px;
+  --font-size-16-20: clamp(16px, 1vw, 20px);
+  --font-size-16-21: clamp(16px, 1.5vw, 21px);
+  --font-size-heading: clamp(28px, 4vw, 48px); 
+
+  --font-weight-400: 400;
+  --font-weight-500: 500;
+  --font-weight-600: 600;
+  --font-weight-700: 700;
+
+  --primary-color-gray: #2a2a2a;
+  --primary-color-dark-gray: #091931;
+  --blue: #007bff;
+  --light-blue: #29abe2;
+  --red: #ff4d4f;
+  --light-gray-bg: #f4f4f4;
+  --light-gray-bg2: #d9d9e1;
+  --gray-a-links: #6b6b6b;
+
+  --border-radius: 12px;
+  --border-radius-buttons: 8px;
+  --border-radius-input-fields: 8px;
+  --border-buttons-gray: 1px solid #ccc;
+  --border-buttons-blue: 1px solid var(--blue);
+  --border-input-fields: 1px solid #ccc;
+
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --box-shadow-button: 0 4px 10px rgba(0, 123, 255, 0.3);
+
+  --transition-hover-effect: all 0.2s ease-in-out;
+  --scale-hover: 1.05;
+
+  --button-gap: 12px;
+  --form-gap: 32px;
+
+  --width-64-100: clamp(64px, 6vw, 100px);
+}
+
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background-color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0 0 348px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  z-index: 2;
+}
+
+@media (max-width: 768px) {
+  header {
+    padding: 0 20px;
+  }
+}
+
+header h1 {
+  font-size: 20px;
+  font-weight: 400;
+  font-family: "Inter";
+  color: #2a3647;
+}
+
+@media (max-width: 768px) {
+  header {
+    padding: 0 20px;
+  }
+}
+
+nav.sidebar {
+  background-color: #2a3647;
+  position: fixed;
+  top: 0;
+  font-size: 16px;
+  font-weight: 200;
+  height: 100vh;
+  width: 232px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  nav.sidebar {
+    display: none;
+  }
+
+  header {
+    padding: 0 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+}
+
+@media (min-width: 769px) {
+  header {
+    padding-left: 348px;
+  }
+}
+
+.logonav {
+  padding: 65px;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 200px;
+}
+
+.menu-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #2a3647;
+  border: none;
+  padding: 10px 65px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.menu-button:hover {
+  background-color: #2a3d59;
+}
+
+.menu-button.active {
+  background-color: #091931;
+}
+
+.menu-button.active img {
+  filter: brightness(0) invert(1);
+}
+
+.menu-button img {
+  width: 24px;
+  height: 24px;
+}
+
+.menu-button span {
+  font-family: "Inter";
+  font-weight: 200;
+  font-size: 16px;
+  color: #cdcdcd;
+}
+
+.menu-login {
+  padding-bottom: 400px;
+}
+
+.menu-button-login {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #2a3647;
+  border: none;
+  padding: 10px 79px;
+  cursor: pointer;
+  color: white;
+}
+
+.menu-button-login span {
+  font-family: "Inter";
+  font-weight: 200;
+  font-size: 16px;
+  color: #cdcdcd;
+}
+
+.menu-button-login:hover {
+  background-color: #2a3d59;
+}
+
+.headline-img-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-right: 10px;
+  margin-bottom: 26px;
+}
+
+.legal-policy {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 50px;
+  width: 100%;
+}
+
+.legal-policy-background {
+  width: 100%;
+  background-color: #2a3647;
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.legal-policy-background.active {
+  background-color: #091931;
+}
+
+.legal-policy-button {
+  border: none;
+  background: none;
+  font-family: "Inter";
+  color: #cdcdcd;
+  font-size: 16px;
+  font-weight: 200;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.3s, transform 0.2s;
+}
+
+.legal-policy-button:hover {
+  color: #29abe2;
+  transform: scale(1.05);
+}
+
+.arrow-left{
+  width: 35px;
+  aspect-ratio: 1 / 1;
+  border-radius: 100%;
+  cursor: pointer;
+}
+
+.arrow-left {
+  margin-top: 10px;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+}
+
+.arrow-left img {
+  width: 21px;
+}
+
+.arrow-left:hover {
+  background-color: var(--light-gray-bg2);
+}
+
+.arrow-left:hover img {
+  transform: scale(1.2);
+}
+
+@media screen and (max-width: 768px) {
+  .mobile-view-links-container {
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    align-items: center;
+  }
+}
+
+@media (max-width: 768px) {
+  nav {
+    display: none;
+  }
+
+  header {
+    padding: 20px;
+    z-index: 1;
+  }
+
+  .logonav {
+    padding: 20px;
+  }
+
+  .menu-button {
+    padding: 10px 20px;
+  }
+}
+
+@media (min-width: 769px) {
+  header {
+    padding-left: 348px;
+  }
+}
+
+body {
+  overflow-x: hidden;
+}
+
+#confirm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.modal-content {
+  position: relative;
+  background: white;
+  padding: 24px 32px;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  z-index: 1;
+  text-align: center;
+}
+
+.modal-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.confirm-btn,
+.cancel-btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.confirm-btn {
+  background-color: #ff3d00;
+  color: white;
+}
+
+.cancel-btn {
+  background-color: #ccc;
+  color: #333;
+}

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Join | Board</title>
+    <link rel="icon" href="./assets/img/favicon.png"/>
+    <link rel="stylesheet" href="style/style.css"/>
+    <link rel="stylesheet" href="style/board.css"/>
+    <link rel="stylesheet" href="style/board_responsive.css"/>
+    <link rel="stylesheet" href="style/board_taskoverlay.css"/>
+    <link rel="stylesheet" href="style/nav_mobile.css"/>
+    <link rel="stylesheet" href="style/add_task.css"/>
+    <link rel="stylesheet" href="style/add_task_board_responsive.css">
+    <link rel="stylesheet" href="style/user_icon_menu.css"/>
+  </head>
+  <body onload="init(); setUserInitials();">
+    <header>
+      <div class="hl_logo_section">
+        <h1>Kanban Project Management Tool</h1>
+        <img class="header_logo" src="./assets/img/loginLogo.svg" alt="logo"/>
+      </div>
+      <div class="dropdown_container">
+        <div class="icon_header_section">
+          <button onclick="location.href='help.html'" class="help-button">
+            <img src="./assets/img/help.png" alt="help" />
+          </button>
+          <div class="contact_icon" onclick="toggleMenu()">
+            <div class="contact_icon_initials" id="first_icon_initials"></div>
+            <div class="contact_icon_initials" id="last_icon_initials"></div>
+          </div>
+        </div>
+        <div class="dropdown_menu" id="dropdown_menu">
+          <a class="dropdown_link" href="./privacy_policy.html"
+            >Privacy Policy</a
+          >
+          <a class="dropdown_link" href="./legal_notice.html">Legal Notes</a>
+          <div class="dropdown_link" onclick="logOut()">Log out</div>
+          <a class="dropdown_link help_link" href="help.html">Help</a>
+        </div>
+      </div>
+    </header>
+
+    <nav class="sidebar">
+      <img class="logonav" src="./assets/img/logo-white.svg" alt="logo" />
+      <div class="menu">
+        <button onclick="location.href='summary.html'" class="menu-button">
+          <img src="./assets/img/summary.png" alt="Summary" />
+          <span>Summary</span>
+        </button>
+        <button onclick="location.href='add_task.html'" class="menu-button">
+          <img src="./assets/img/add-task.png" alt="Add Task" />
+          <span>Add Task</span>
+        </button>
+        <button onclick="location.href='board.html'" class="menu-button active">
+          <img src="./assets/img/board.png" alt="Board" />
+          <span>Board</span>
+        </button>
+        <button onclick="location.href='contacts.html'" class="menu-button">
+          <img src="./assets/img/contacts.png" alt="Contacts" />
+          <span>Contacts</span>
+        </button>
+      </div>
+
+      <div class="legal-policy">
+        <div class="legal-policy-background">
+          <button
+            onclick="location.href='privacy_policy.html'"
+            class="legal-policy-button"
+          >
+            Privacy Policy
+          </button>
+        </div>
+        <div class="legal-policy-background">
+          <button
+            onclick="location.href='legal_notice.html'"
+            class="legal-policy-button"
+          >
+            Legal Notice
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="board_container">
+      <div class="headline_container">
+         <p class="headline">Board</p>
+
+        <div class="Board_headline_responsive">
+          <div>
+            <p class="headline_responsive">Board</p>
+          </div>
+          <div>
+            <button onclick="addNewTask()" id="add_task_headline_responsive" class="add_task_headline_responsive hover ">
+            <img class="add_icon_responsive hover" src="./assets/icons/add.png" />
+            </button>
+          </div>
+        </div>
+
+        <div class="search_task_container">
+          <div class="search_container">
+            <input type="text" id="search-task" name="search-task" placeholder="Find task" class="search_input"/>
+            <div class="search_separator"></div>
+            <img src="./assets/icons/search.png" class="search_icon hover" />
+          </div>
+          <button onclick="addNewTask()" class="add_task_headline hover" id="add_task_headline">
+            Add task
+            <img class="add_icon hover" src="./assets/icons/add.png" />
+          </button>
+
+  
+        </div>
+      </div>
+    
+
+      <div class="kanban_container">
+        <div class="kanban_section" data-status="toDo" ondrop="moveTo('toDo')" ondragover="allowDrop(event)" ondragleave="hideDropPlaceholder(event)">
+          <div class="section_header">
+            <h3>To do</h3>
+            <button onclick="addNewTask()" class="add_task_btn hover">+</button>
+          </div>
+          <div id="toDoContainer">
+           
+          </div>
+          <div class="drop-placeholder"></div>
+        </div>
+        <div class="kanban_section" data-status="inProgress" ondrop="moveTo('inProgress')" ondragover="allowDrop(event)" ondragleave="hideDropPlaceholder(event)">
+          <div class="section_header">
+            <h3>In progress</h3>
+            <button onclick="addNewTask()" class="add_task_btn hover">+</button>
+          </div>
+
+          <div id="inProgressContainer">
+          </div>
+          <div class="drop-placeholder"></div>
+        </div>
+        <div class="kanban_section" data-status="awaitFeedback" ondrop="moveTo('awaitFeedback')" ondragover="allowDrop(event)" ondragleave="hideDropPlaceholder(event)"> 
+          <div class="section_header">
+            <h3>Await feedback</h3>
+            <button onclick="addNewTask()" class="add_task_btn hover">+</button>
+          </div>
+
+          <div id="awaitFeedbackContainer">
+          </div>
+          <div class="drop-placeholder"></div>
+        </div>
+        <div class="kanban_section" data-status="done" ondrop="moveTo('done')" ondragover="allowDrop(event)" ondragleave="hideDropPlaceholder(event)">
+          <div class="section_header">
+            <h3>Done</h3>
+          </div>
+
+          <div id="doneContainer">
+          </div>
+          <div class="drop-placeholder"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="overlay" class="overlay d-none"></div>
+
+    <ul class="nav-links">
+      <li class="link-button hide-before-log-in">
+        <a
+          onclick="toHrefFocus('summary.html', this); return false;"
+          href="summary.html"
+        >
+          <div class="img-box">
+            <img
+              class="boaimg"
+              src="assets/img/summary.png"
+              alt="Summary Icon"
+            />
+          </div>
+          <span>Summary</span>
+        </a>
+      </li>
+      <li class="link-button hide-before-log-in">
+        <a
+          onclick="toHrefFocus('add_task.html',this); return false;"
+          href="add_task.html"
+        >
+          <div class="img-box">
+            <img class="boaimg" src="assets/img/add-task.png" alt="Task Icon" />
+          </div>
+          <span>Add Task</span>
+        </a>
+      </li>
+      <li class="link-button active hide-before-log-in">
+        <a
+          onclick="toHrefFocus('board.html', this); return false;"
+          href="board.html"
+        >
+          <div class="img-box">
+            <img class="boaimg" src="assets/img/board.png" alt="Board Icon" />
+          </div>
+          <span>Board</span>
+        </a>
+      </li>
+      <li class="link-button hide-before-log-in">
+        <a
+          onclick="toHrefFocus('contacts.html', this); return false;"
+          href="contacts.html"
+        >
+          <div class="img-box">
+            <img
+              class="boaimg"
+              src="assets/img/contacts.png"
+              alt="Contacts Icon"
+            />
+          </div>
+          <span>Contacts</span>
+        </a>
+      </li>
+    </ul>
+
+    <div id="confirm-modal" class="d-none">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <p id="confirm-message">Are you sure?</p>
+        <div class="modal-buttons">
+          <button id="confirm-yes" class="confirm-btn">Yes</button>
+          <button id="confirm-no" class="cancel-btn">No</button>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="./script/script.js"></script>
+  <script src="./script/add_task_data.js"></script>
+  <script src="./script/add_task_form.js"></script>
+  <script src="./script/board.js"></script>
+  <script src="./script/board_templates.js"></script>
+  <script src="./script/board_overlay.js"></script>
+  <script src="./script/board_drag&drop.js"></script>
+</html>

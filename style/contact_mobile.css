@@ -1,0 +1,452 @@
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #ffffff; 
+}
+ 
+::-webkit-scrollbar-thumb {
+    background: #bebdbd; 
+    max-height: 30px;
+    width: 10px;
+    border-radius: 8px;
+}
+
+body{
+    width: 100%;
+    height: 100%;
+}
+
+.mobil_view_card_edit_section{
+    width: 100%;
+    height: 60px;   
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    
+}
+
+.mobile_view_card_edit_btn{
+    width: 50px;
+    height: 50px;
+    background-color: #2A3647;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 1px 1px 5px 1px rgba(150, 148, 148, 0.575);
+    margin-right: 20px;
+    position: absolute;
+    z-index: 1000;
+    margin-bottom: 10px;
+}
+
+.contact_view_edit_mobile_section{
+    width: 100%;
+    height: 100%;   
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    flex-direction: column;
+}
+
+.edtit_mobile_section{
+    height: 27px;
+    width: 80px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    border-radius: 4px;
+}
+
+.contactview_icon_mobile{
+    width: 20px;
+}
+
+.edit_txt_mobile{
+    color: #2A3647;
+    font-size: 16px;
+    font-weight: 500;
+    margin-left: 5px; 
+}
+
+.delete_mobile_section{
+    height: 27px;
+    width: 80px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    border-radius: 4px;
+}
+
+.delete_txt_mobile{
+    color: #2A3647;
+    font-size: 16px;
+    font-weight: 500; 
+    margin-left: 5px;  
+}
+
+.edtit_mobile_section:hover,
+.delete_mobile_section:hover{
+    color: #1baefd;
+    transform: scale(1.1); 
+    cursor: pointer; 
+    background-color: #cfcfcf9c;
+}
+
+.edtit_mobile_section:hover .edit_txt_mobile,
+.delete_mobile_section:hover .delete_txt_mobile {
+    color: #1baefd;
+    transform: scale(1.1); 
+    cursor: pointer; 
+}
+
+.edtit_mobile_section:hover img{
+    content: url(../assets/img/edit_blue.png);
+}
+
+.delete_mobile_section:hover img{
+    content: url(../assets/img/delete_blue.png);
+}
+
+.mobile_view_card_edit_btn:hover{
+    background-color: #1baefd;
+}
+
+.mobile_view_card_edit_icon{
+    width: 30px;
+}
+
+.mobile_view_card_edit_btn{
+    display: none;
+}
+
+.add_new_contact_mobile_ov{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(141, 139, 139, 0.178);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+}
+
+.mobile_contact_dialogbox{
+    width: 300px;
+    height: 600px;
+    background-color: white;
+    border-radius: 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile_contact_dialog_header{
+    width: 100%;
+    height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row-reverse;
+    background-color: #2A3647;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+    margin-bottom: 15px;
+}
+
+.close_mobile_contact_dialog_container{
+    width: 40px;
+    height: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.close_mobile_contact_dialog_btn_section{
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
+    margin-top: 10px;
+}
+
+.close_mobile_contact_dialog_btn_section:hover{
+    background-color: #1baefd;
+    cursor: pointer;
+}
+
+.close_mobile_contact_dialog_btn{
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+}
+
+.mobile_contact_dialog_header_text_section{
+    width: 100%;
+    height: 225px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+    margin-left: 20px;
+}
+
+.ov_hl_section_mobile{
+    width: 100%;
+    height: 60px;
+    display: flex;
+    align-items: flex-start;
+    justify-content:center;
+    flex-direction: column;
+}
+
+.ov_hl_mobile{
+    font-size: 35px;
+    font-weight: 600;
+    color: white;
+}
+
+.ov_slogan_mobile{
+    font-size: 16px;
+    font-weight: 300;
+    color: white;
+}
+
+.mobile_contact_dialog_avatar_section{
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    position: absolute;
+}
+
+.add_new_contact_avatar_mobile{
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #cfcfcf;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-color: white;
+    border-width: 2px;
+    border-style: solid;
+}
+
+.contact_mobile_dialog_avatar_icon{
+    width: 60px;
+    height: 60px;
+}
+
+.mobile_contact_dialog_input_section{
+    width: 100%;
+    height: 275px;
+    display: flex;
+    align-items: center;
+    padding-top: 30px;
+    flex-direction: column;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+}
+
+.add_new_contact_input_mobile{
+    width: 90%;
+    height: 30px; 
+    border-radius: 8px;
+    border: 1px solid #cfcfcf;
+    padding-left: 10px;
+    font-size: 16px;
+    font-weight: 400;
+    margin-top: 8px;
+}
+
+.create_btn_mobile {
+    width: 160px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: #2A3647;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 450;
+    color: white;
+    margin-top: 5px;
+}
+
+.create_btn_mobile:hover{
+    background-color: #1baefd;
+    box-shadow: 0px 2px 5px -1px #919192;
+    cursor: pointer;
+}
+
+
+@media (max-width: 560px) {
+.go_back_btn_section {
+    top: 16px;
+    left: 16px;
+    z-index: 20;
+    display: flex;
+}
+
+.contact_view_header{
+    display: flex;
+    margin-top: 0px;
+    margin-left: 10px;
+    width: 95%;
+    flex-direction: row;
+}
+
+.contact_view_header_section{
+    flex-direction: column;
+    width: 200px;
+    margin-left: 10px;
+}
+
+.contacts_view_seperator{
+    display: none;
+
+}
+
+.contacts_view_hl_section{
+    height: 60px;
+    margin-left: 35px;
+}
+
+.contacts_view_sloagen_section{
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-top: 5px;
+    width: 200px;
+    height: 30px;
+    flex-direction: column;
+    margin-left: 23px;
+}
+
+.contacts_view_sloagen{
+    font-size: 16px;
+    font-weight: 300;
+}
+
+.contacts_view_mobile_seperator_section{
+    width: 100%;
+    height: 5px;
+    margin-top: 10px;
+}
+
+.mobile_view_card_seperator{
+    width: 90px;
+    height: 3px;
+    background-color: #1baefd;
+    margin-left: 14px;
+}
+
+.contact_view_card_header{
+    margin-left: 15px;
+    margin-top: 20px;
+    height: 90px;
+    width: 95%;
+}
+
+.contact_view_avatar_section{
+    width: 100px;
+    height: 100px;
+}
+
+.contact_view_avatar{
+    width: 90px;
+    height: 90px;
+}
+
+.contact_view_avatar_initials{
+    font-size: 30px;
+    font-weight: 400;
+}
+
+.contact_view_head_info_section {
+    width: 100%;
+
+}
+
+.contact_view_name_section{
+    margin-left: 10px;
+}
+
+.contact_view_name{
+    font-size: 29px;
+    font-weight: 600;
+}
+
+.contact_view_edit_section{
+    display: none;
+}
+
+.contact_view_card_info_section{
+    margin-top: 8px;
+    width: 60%;
+    margin-left: 15px;
+}
+
+.contact_view_card_info_header{
+    margin-top: 5px;
+    margin-left: 10px;
+    margin-bottom: 5px;
+    height: 50px;
+    width: 100%;
+}
+
+.contact_view_mail_section{
+    margin-top: 5px;
+    margin-left: 10px;
+    margin-bottom: 8px;
+    height: 50px;
+}
+
+.contact_view_mail_hl{
+    margin-bottom: 5px;
+}
+
+.contact_view_phone_section{
+    margin-top: 5px;
+    margin-left: 10px;
+    height: 50px;
+}
+
+.contact_view_phone_hl{
+    margin-bottom: 5px;
+}
+
+.mobile_view_card_edit_btn{
+  
+    width: 50px;
+    height: 50px;
+    background-color: #2A3647;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 1px 1px 5px 1px rgba(150, 148, 148, 0.575);
+    margin-right: 20px;
+    position: absolute;
+    z-index: 1000;
+}
+}
+
+@media(max-width: 320px) {
+.contactslist_container{
+    width: 320px;
+}
+}

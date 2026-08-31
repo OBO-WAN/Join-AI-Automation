@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Join | Privace Policy</title>
+    <link rel="icon" href="./assets/img/favicon.png" />
+    <link rel="stylesheet" href="style/user_icon_menu.css" />
+    <link rel="stylesheet" href="style/style.css" />
+    <link rel="stylesheet" href="style/text.css" />
+    <link rel="stylesheet" href="style/nav_mobile.css" />
+
+    <script src="./script/script.js"></script>
+    <script src="./script/scripts.js"></script>   
+  </head>
+  <body onload="setUserInitials()">
+    <header>
+      <div class="hl_logo_section">
+        <h1>Kanban Project Management Tool</h1>
+        <img class="header_logo" src="./assets/img/loginLogo.svg" alt="logo" />
+      </div>
+      <div class="dropdown_container">
+        <div class="icon_header_section">
+          <button onclick="location.href='help.html'" class="help-button">
+            <img src="./assets/img/help.png" alt="help" />
+          </button>
+          <div class="contact_icon" onclick="toggleMenu()">
+            <div class="contact_icon_initials" id="first_icon_initials"></div>
+            <div class="contact_icon_initials" id="last_icon_initials"></div>
+          </div>
+        </div>
+        <div class="dropdown_menu" id="dropdown_menu">
+          <a class="dropdown_link" href="./privacy_policy.html"
+            >Privacy Policy</a
+          >
+          <a class="dropdown_link" href="./legal_notice.html">Legal Notes</a>
+          <div class="dropdown_link" onclick="logOut()">Log out</div>
+          <a class="dropdown_link help_link" href="help.html">Help</a>
+        </div>
+      </div>
+    </header>
+
+    <nav class="sidebar">
+      <img class="logonav" src="./assets/img/logo-white.svg" alt="logo" />
+      <div class="menu">
+        <button onclick="location.href='summary.html'" class="menu-button">
+          <img src="./assets/img/summary.png" alt="Summary" />
+          <span>Summary</span>
+        </button>
+        <button onclick="location.href='add_task.html'" class="menu-button">
+          <img src="./assets/img/add-task.png" alt="Add Task" />
+          <span>Add Task</span>
+        </button>
+        <button onclick="location.href='board.html'" class="menu-button">
+          <img src="./assets/img/board.png" alt="Board" />
+          <span>Board</span>
+        </button>
+        <button onclick="location.href='contacts.html'" class="menu-button">
+          <img src="./assets/img/contacts.png" alt="Contacts" />
+          <span>Contacts</span>
+        </button>
+      </div>
+
+      <div class="legal-policy">
+        <div class="legal-policy-background active">
+          <button
+            onclick="location.href='privacy_policy.html'"
+            class="legal-policy-button"
+          >
+            Privacy Policy
+          </button>
+        </div>
+        <div class="legal-policy-background">
+          <button
+            onclick="location.href='legal_notice.html'"
+            class="legal-policy-button"
+          >
+            Legal Notice
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="headline-img-container">
+        <h2>Privacy Policy</h2>
+
+        <div onclick="goToUrl('summary.html')" class="arrow-left" id="arrow-left">
+          <img src="assets/icons/arrow-left.svg" alt="go back" />
+        </div>
+      </div>
+      <p><strong>Effective Date:</strong> April 26, 2025</p>
+
+      <section>
+        <h3>1. Introduction</h3>
+        <p>
+          Welcome to Join! We value your privacy and are
+          committed to protecting your personal data. This Privacy Policy
+          outlines how we collect, use, and protect your information when you
+          use our website.
+        </p>
+      </section>
+
+      <section>
+        <h3>2. Data Collection</h3>
+        <p>
+          We do not actively collect any personal data when you visit our
+          website, except in the following cases:
+        </p>
+        <ul>
+          <li>
+            When you actively provide information (e.g., through contact forms).
+          </li>
+          <li>
+            When the browser automatically sends technical information (e.g., IP
+            address, browser type, operating system).
+          </li>
+        </ul>
+        <p>
+          We do not use cookies or tracking technologies unless stated
+          otherwise.
+        </p>
+      </section>
+
+      <section>
+        <h3>3. Use of Data</h3>
+        <p>
+          We use collected data solely to ensure the proper functioning of the
+          website and to improve our services and user experience. We do not
+          sell, rent, or share your personal data with third parties for
+          commercial purposes.
+        </p>
+      </section>
+
+      <section>
+        <h3>4. Data Security</h3>
+        <p>
+          We implement appropriate technical and organizational measures to
+          secure your personal information against unauthorized access,
+          alteration, disclosure, or destruction. However, no method of
+          transmission over the Internet is completely secure.
+        </p>
+      </section>
+
+      <section>
+        <h3>5. Third-Party Links</h3>
+        <p>
+          Our website may contain links to third-party websites. We are not
+          responsible for the privacy practices or the content of those
+          websites. Please review their privacy policies individually.
+        </p>
+      </section>
+
+      <section>
+        <h3>6. Your Rights</h3>
+        <p>You have the right to:</p>
+        <ul>
+          <li>Request access to your personal data.</li>
+          <li>Request correction or deletion of your data.</li>
+          <li>Object to the processing of your data.</li>
+        </ul>
+        <p>Contact us at XXX if you wish to exercise any of these rights.</p>
+      </section>
+
+      <section>
+        <h3>7. Changes to This Policy</h3>
+        <p>
+          We may update this Privacy Policy from time to time. The updated
+          version will be effective immediately upon posting.
+        </p>
+      </section>
+
+      <section>
+        <h3>8. Contact</h3>
+        <p>
+          If you have any questions about this Privacy Policy or our practices,
+          please contact us at:
+        </p>
+        <p><strong>Email:</strong> XXX</p>
+        <p><strong>Website:</strong> XXX</p>
+      </section>
+    </div>
+
+    <ul class="nav-links">
+      <li class="link-button hide-before-log-in">
+        <a
+          onclick="toHrefFocus('summary.html', this); return false;"
+          href="summary.html"
+        >
+          <div class="img-box">
+            <img
+              class="boaimg"
+              src="assets/img/summary.png"
+              alt="Summary Icon"
+            />
+          </div>
+          <span>Summary</span>
+        </a>
+      </li>
+      <li class="link-button hide-before-log-in">
+        <a
+          onclick="toHrefFocus('add_task.html',this); return false;"
+          href="add_task.html"
+        >
+          <div class="img-box">
+            <img class="boaimg" src="assets/img/add-task.png" alt="Task Icon" />
+          </div>
+          <span>Add Task</span>
+        </a>
+      </li>
+      <li class="link-button active hide-before-log-in">
+        <a
+          onclick="toHrefFocus('board.html', this); return false;"
+          href="board.html"
+        >
+          <div class="img-box">
+            <img class="boaimg" src="assets/img/board.png" alt="Board Icon" />
+          </div>
+          <span>Board</span>
+        </a>
+      </li>
+      <li class="link-button hide-before-log-in">
+        <a
+          onclick="toHrefFocus('contacts.html', this); return false;"
+          href="contacts.html"
+        >
+          <div class="img-box">
+            <img
+              class="boaimg"
+              src="assets/img/contacts.png"
+              alt="Contacts Icon"
+            />
+          </div>
+          <span>Contacts</span>
+        </a>
+      </li>
+    </ul>
+  </body>
+</html>

@@ -1,0 +1,518 @@
+#dropdown_container{
+  z-index: 4000;
+}
+input {
+  padding-left: 12px;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: #f6f7f8;
+}
+
+.form_erro_pc {
+  width: 300px;
+  height: 15px;
+  margin-top: 3px;
+  color: red;
+  font-size: 12px;
+  font-weight: 300;
+  margin-bottom: 10px; 
+}
+
+.form_erro_mobile{
+  width: 250px;
+  height: 12px;
+  margin-top: 3px;
+  color: red;
+  font-size: 12px;
+  font-weight: 300;
+  margin-bottom: 5px; 
+  margin-left: 12px;
+}
+
+.add_new_contact_form_pc{
+  height: 304px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 80px;
+}
+
+.contacts_main_content {
+  padding-top: 80px;
+  height: 100%;
+  width: calc(100% - 232px);
+  display: flex;
+  float: right;
+}
+
+.contactslist_container {
+  height: 100%;
+  width: 350px;
+  display: flex;
+  justify-content: center;
+  background-color: white;
+  flex-direction: column;
+  overflow-y: scroll;
+}
+
+.add_new_contact_section {
+  width: 100%;
+  height: 90px;
+  display: flex; 
+  justify-content: center;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 2500;
+}
+
+.add_new_contact_button {
+  width: 230px;
+  height: 40px;
+  background-color: #2a3647;
+  border-radius: 8px;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.add_new_contact_button:hover {
+  background-color: #1baefd;
+  box-shadow: 0px 2px 5px -1px #919192;
+}
+
+.add_contact_text {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.add_contact_icon {
+  width: 23px;
+  margin-left: 10px;
+}
+
+.contacts_list {
+  height: calc(100%);
+  width: 100%;
+  flex-grow: 1;
+}
+
+.contacts_section {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.contacts_section_header {
+  width: 70%;
+  height: 40px;
+  display: flex;
+  margin-bottom: 10px;
+  margin-top: 40px;
+  border-bottom: solid 1px #9e9c9c;
+}
+
+.contacts_section_letter {
+  margin-left: 30px;
+}
+
+.contact_card_section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.contact_card {
+  width: 70%;
+  height: 70px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 20px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.contact_card:hover,
+.contact_card.active {
+  background-color: #2a3647;
+  color: white;
+  cursor: pointer;
+}
+
+.contact_card:hover .contact_name {
+  color: white;
+}
+
+.contact_avatar_section {
+  height: 100%;
+  width: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.contact_avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: rgb(31, 88, 245);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  float: left;
+  border: solid 2px white;
+}
+
+.contact_avatar_initials {
+  color: white;
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.contact_info_section {
+  height: 100%;
+  width: calc(100% - 80px);
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.contact_name {
+  font-size: 16px;
+  font-weight: 400;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.contact_email {
+  font-size: 14px;
+  color: #1baefd;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.contacts_view_container {
+  height: 100%;
+  width: calc(100% - 350px);
+  display: flex;
+  flex-direction: column;
+}
+
+.contact_view_header {
+  height: 120px;
+  width: 70%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-left: 50px;
+  margin-top: 40px;
+}
+
+.contact_view_header_section {
+  width: 400px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.contacts_view_hl_section {
+  width: 220px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+}
+
+.contacts_view_hl {
+  font-size: 45px;
+  font-weight: bold;
+}
+
+.contacts_view_seperator {
+  width: 2px;
+  height: 50px;
+  background-color: #1baefd;
+}
+
+.contacts_view_sloagen_section {
+  width: 220px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.contacts_view_sloagen {
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.contact_view_card {
+  width: 100%;
+  height: calc(100% - 200px);
+  display: flex;
+  flex-direction: column;
+}
+
+.contact_view_card_header {
+  width: 500px;
+  height: 120px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-left: 50px;
+}
+
+.contact_view_avatar_section {
+  width: 120px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact_view_avatar {
+  width: 120px;
+  height: 120px;
+  color: white;
+  background-color: rgb(31, 88, 245);
+  border-radius: 100px;
+  border-width: 4px;
+  border-style: solid;
+  border-color: rgb(255, 255, 255);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}
+
+.contact_view_avatar_initials {
+  font-size: 40px;
+  font-weight: 500;
+}
+
+.contact_view_head_info_section {
+  width: calc(100% - 120px);
+  height: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.contact_view_name_section {
+  width: 100%;
+  height: 50%;
+  display: flex;
+  align-items: center;
+  margin-left: 80px;
+}
+
+.contact_view_name {
+  font-size: 36px;
+  font-weight: 500px;
+}
+
+.contact_view_edit_section {
+  width: 100%;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  margin-left: 80px;
+}
+.edtit_section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit_txt {
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.delete_section {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 20px;
+}
+
+.edtit_section:hover,
+.delete_section:hover {
+  color: #1baefd;
+  transform: scale(1.1);
+  cursor: pointer;
+}
+
+.edtit_section:hover img {
+  content: url(../assets/img/edit_blue.png);
+}
+
+.delete_section:hover img {
+  content: url(../assets/img/delete_blue.png);
+}
+
+.contactview_icon {
+  width: 16px;
+}
+
+.delete_txt {
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.contact_view_card_info_section {
+  width: 100%;
+  height: calc(100% - 150px);
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  margin-top: 30px;
+}
+
+.contact_view_card_info_header {
+  width: 70%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  margin-left: 50px;
+  margin-bottom: 30px;
+}
+
+.contact_view_card_info_hl {
+  font-size: 18px;
+  font-weight: 350;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.contact_view_mail_section {
+  width: 70%;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  margin-left: 50px;
+  margin-bottom: 30px;
+}
+
+.contact_view_mail_hl {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.contact_view_mail {
+  font-size: 16px;
+  font-weight: 300;
+  color: #1baefd;
+}
+
+.contact_view_phone_section {
+  width: 70%;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  margin-left: 50px;
+}
+
+.contact_view_phon_hl {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.contact_view_phon_num {
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.delete-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.delete-dialog {
+  background-color: #fff;
+  padding: 24px 32px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 320px;
+  width: 90%;
+  animation: scaleIn 0.2s ease-out;
+}
+
+.delete-dialog p {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.delete-dialog-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.delete-dialog-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.delete-dialog-buttons button:hover {
+  opacity: 0.9;
+}
+
+.delete-dialog-buttons .danger {
+  background-color: #d9534f;
+  color: white;
+}
+
+.delete-dialog-buttons .cancel {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; } 
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Join | Login</title>
+    <link rel="icon" href="./assets/img/favicon.png" />
+    <link rel="stylesheet" href="style/style.css" />
+    <link rel="stylesheet" href="style/login.css" />
+  </head>
+
+  <body id="body_log_in" class="body-log-in">
+
+    <div class="animations-logo-overlay" id="animationsLogoOverlay">
+      <div class="animation-join-logo" id="animationJoinLogo">
+        <img id="logo_white" class="logo-white" src="assets/img/logo-white.svg" alt="Join Logo white">
+        <img id="logo_gray"src="./assets/img/loginLogo.svg" alt="Join Logo" />
+      </div>
+    </div>
+
+    <div
+      class="animation-finished d-flex hidden"
+      id="animationFinished"
+      style="display: none"
+    >
+      <img src="assets/img/loginLogo.svg" alt="Join Logo" />
+    </div>
+
+    <main class="log-in-main hidden" id="loginMain">
+      <section class="login-form login-container">
+        <div class="headline-vector">
+          <div class="vector-login"></div>
+          <h1>Log in</h1>
+        </div>
+
+        <form
+          novalidate
+          id="login_form"
+          onsubmit="checkUserIsPresent(); return false;"
+          class="form with-100-percent-max-width-422px"
+        >
+          <label class="input-base-container" for="email_log_in">
+            <input
+              title="Please enter your email address"
+              class="input-base"
+              id="email_log_in"
+              type="email"
+              placeholder="Email"
+              autocomplete="current-email"
+              required
+              onblur="validateEmailLogin(this)"
+              oninput="removeLoginError()"
+            />
+            <div class="input-base-icon cursor-pointer">
+              <img src="assets/icons/mail.svg" alt="Mail Icon" />
+            </div>
+            <span
+              class="error-message-email-not-valide-login"
+              id="error_message_email_not_valide_login"
+              >This is not a valid email address.</span
+            >
+          </label>
+
+          <label class="input-base-container" for="password_log_in">
+            <input
+              title="Please enter your password"
+              class="input-base"
+              id="password_log_in"
+              type="password"
+              placeholder="Password"
+              autocomplete="current-password"
+              required
+              onblur="validatePasswordLogin(this)"
+              oninput="removeLoginError()"
+            />
+            <div class="input-base-icon cursor-pointer">
+              <img
+                src="assets/icons/visibility-eye-off.svg"
+                alt="Show Password"
+                class="toggle-password-icon"
+                onclick="togglePasswordVisibility('password_log_in', this)"
+              />
+            </div>
+            <span
+              class="error-message-password-log-in"
+              id="error_message_password_log_in"
+              >Please enter at least 8 characters.</span
+            >
+            <div class="input-base-container" id="form_generic_error_anchor">
+              <span class="error-message-log-in" id="error_message_log_in">
+                Check your email and password.
+              </span>
+            </div>
+          </label>
+
+          <div class="remember-me">
+            <input type="checkbox" id="rememberMe" />
+            <label for="rememberMe">Remember me</label>
+          </div>
+
+          <div class="button-container">
+            <button type="submit" class="button-log-in" onclick="login()">Log in</button>
+            <button
+              type="button"
+              class="button-guest-log-in"
+              onclick="guestLogin()"
+            >
+              Guest Log in
+            </button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <nav class="nav-log-in hidden" id="nav_log_in">
+      <span>Not a Join user?</span>
+      <button onclick="goToUrl('sign_up.html')" class="button-base-gray">
+        Sign up
+      </button>
+    </nav>
+
+    <footer class="footer-log-in hidden" id="footerLogin">
+      <a href="privacy_policy_login.html">Privacy Policy</a>
+      <a href="legal_notice_login.html">Legal Notice</a>
+    </footer>
+
+    <script src="script/login.js" defer></script>
+    <script src="script/scripts.js"></script>
+    <script src="script/firebase.js"></script>
+    <script src="script/register.part1.js"></script>
+    <script src="script/register.part2.js"></script>
+  </body>
+</html>

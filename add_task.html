@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join | Add Task </title>
+    <link rel="icon" href="./assets/img/favicon.png">
+    <link rel="stylesheet" href="style/style.css">
+    <link rel="stylesheet" href="style/add_task.css">
+    <link rel="stylesheet" href="style/add_task_responsive.css">
+    <link rel="stylesheet" href="style/nav_mobile.css">
+    <link rel="stylesheet" href="style/user_icon_menu.css">
+</head>
+
+<body onload="setUserInitials();">
+
+    <header>
+        <div class="hl_logo_section">
+            <h1>Kanban Project Management Tool</h1>
+            <img class="header_logo" src="./assets/img/loginLogo.svg" alt="logo">
+        </div>
+        <div class="dropdown_container">
+            <div class="icon_header_section">
+                <button onclick="location.href='help.html'" class="help-button">
+                    <img src="./assets/img/help.png" alt="help">
+                </button>
+                <div class="contact_icon" onclick="toggleMenu()">
+                    <div class="contact_icon_initials" id="first_icon_initials"></div>
+                    <div class="contact_icon_initials" id="last_icon_initials"></div>
+                </div>
+            </div>
+            <div class="dropdown_menu" id="dropdown_menu">
+                <a class="dropdown_link" href="./privacy_policy.html">Privacy Policy</a>
+                <a class="dropdown_link" href="./legal_notice.html">Legal Notes</a>
+                <div class="dropdown_link" onclick="logOut()()">Log out</div>
+                <a class="dropdown_link help_link" href="help.html">Help</a>
+            </div>
+        </div>
+    </header>
+
+    <nav class="sidebar">
+        <img class="logonav" src="./assets/img/logo-white.svg" alt="logo">
+        <div class="menu">
+            <button onclick="location.href='summary.html'" class="menu-button">
+                <img src="./assets/img/summary.png" alt="Summary">
+                <span>Summary</span>
+            </button>
+            <button onclick="location.href='add_task.html'" class="menu-button active">
+                <img src="./assets/img/add-task.png" alt="Add Task">
+                <span>Add Task</span>
+            </button>
+            <button onclick="location.href='board.html'" class="menu-button">
+                <img src="./assets/img/board.png" alt="Board">
+                <span>Board</span>
+            </button>
+            <button onclick="location.href='contacts.html'" class="menu-button">
+                <img src="./assets/img/contacts.png" alt="Contacts">
+                <span>Contacts</span>
+            </button>
+        </div>
+
+        <div class="legal-policy">
+            <div class="legal-policy-background">
+                <button onclick="location.href='privacy_policy.html'" class="legal-policy-button">Privacy Policy</button>
+            </div>
+            <div class="legal-policy-background">
+                <button onclick="location.href='legal_notice.html'" class="legal-policy-button">Legal Notice</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="add-task-container">
+        <h2>Add Task</h2>
+        <form id="taskForm" class="form-grid-add">
+
+            <div class="form-left">
+                <label for="title">Title <span class="required-marker">*</span></label>
+                <input type="text" id="title" name="title" placeholder="Enter a title" required>
+                <div class="field-error-message" id="error-title">This field is required</div>
+
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="4" placeholder="Enter a Description"></textarea>
+
+                <label for="due-date">Due Date <span class="required-marker">*</span></label>
+                <input type="date" id="due-date" name="due-date" required>
+                <div class="field-error-message" id="error-due-date">This field is required</div>
+            </div>
+
+            <div class="form-divider"></div>
+
+            <div class="form-right">
+                <label>Priority</label>
+                <div class="priority-options">
+                    <input type="radio" id="priority-urgent" name="priority" value="urgent">
+                    <label for="priority-urgent" class="priority-button urgent">
+                        Urgent <img src="./assets/icons/priority/priority_urgent.png" alt="Urgent icon">
+                    </label>
+
+                    <input type="radio" id="priority-medium" name="priority" value="medium" checked>
+                    <label for="priority-medium" class="priority-button medium">
+                        Medium <img src="./assets/icons/priority/priority_medium.png" alt="Medium icon">
+                    </label>
+
+                    <input type="radio" id="priority-low" name="priority" value="low">
+                    <label for="priority-low" class="priority-button low">
+                        Low <img src="./assets/icons/priority/priority_low.png" alt="Low icon">
+                    </label>
+                </div>
+
+                <label>Assigned to</label>
+                <div class="custom-multiselect">
+                    <div class="multiselect-header" onclick="toggleAssigneeDropdown()">
+                        <span id="selected-assignees-placeholder">Select contacts</span>
+                        <img src="assets/icons/arrow_drop_downaa.png" class="dropdown-icon">
+                    </div>
+                    <div class="multiselect-dropdown d-none" id="assignee-dropdown">
+
+                    </div>
+                    <div class="selected-assignee-avatars" id="selected-assignee-avatars"></div>
+                </div>
+
+                </select>
+
+                <label>Category <span class="required-marker">*</span></label>
+                <div class="custom-category-select">
+                    <div class="category-select-header" onclick="toggleCategoryDropdown()">
+                        <span id="selected-category-placeholder">Select category</span>
+                        <img src="assets/icons/arrow_drop_downaa.png" class="dropdown-icon">
+                    </div>
+                    <div class="category-dropdown d-none" id="category-dropdown">
+                        <div class="category-option" onclick="selectCategory('technical-task')">Technical Task</div>
+                        <div class="category-option" onclick="selectCategory('user-story')">User Story</div>
+                    </div>
+                </div>
+                <input type="hidden" id="category" name="category" required>
+                <div class="field-error-message" id="error-category">This field is required</div>
+
+                <label for="subtask">Subtasks</label>
+                <div class="subtask-input-container">
+                    <input type="text" id="subtask" placeholder="Add new subtask" onkeydown="handleSubtaskKey(event)">
+                    <button type="button" onclick="addSubtask()" class="subtask-add-btn">+</button>
+                </div>
+                <ul id="subtask-list"></ul>
+            </div>
+        </form>
+
+        <div class="form-footer">
+            <div class="form-hint">
+                <span class="required-marker">*</span>This field is required
+            </div>
+            <div class="task-buttons">
+                <button type="reset" class="clear-btn">
+                    Clear <span class="x-icon">X</span>
+                </button>
+                <button type="submit" class="create-btn">
+                    Create Task
+                    <img src="./assets/icons/check.png" alt="Create Icon">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <ul class="nav-links">
+        <li class="link-button hide-before-log-in">
+            <a onclick="toHrefFocus('summary.html', this); return false;" href="summary.html">
+                <div class="img-box">
+                    <img class="boaimg" src="assets/img/summary.png" alt="Summary Icon">
+                </div>
+                <span>Summary</span>
+            </a>
+        </li>
+        <li class="link-button active hide-before-log-in">
+            <a onclick="toHrefFocus('add_task.html',this); return false;" href="add_task.html">
+                <div class="img-box">
+                    <img class="boaimg" src="assets/img/add-task.png" alt="Task Icon">
+                </div>
+                <span>Add Task</span>
+            </a>
+        </li>
+        <li class="link-button hide-before-log-in">
+            <a onclick="toHrefFocus('board.html', this); return false;" href="board.html">
+                <div class="img-box">
+                    <img class="boaimg" src="assets/img/board.png" alt="Board Icon">
+                </div>
+                <span>Board</span>
+            </a>
+        </li>
+        <li class="link-button hide-before-log-in">
+            <a onclick="toHrefFocus('contacts.html', this); return false;" href="contacts.html">
+                <div class="img-box">
+                    <img class="boaimg" src="assets/img/contacts.png" alt="Contacts Icon">
+                </div>
+                <span>Contacts</span>
+            </a>
+        </li>
+    </ul>
+
+    <div id="toast-container"></div>
+    
+</body>
+
+<script src="./script/script.js"></script>
+<script src="./script/add_task_data.js"></script>
+<script src="./script/add_task_form.js"></script>
+</html>

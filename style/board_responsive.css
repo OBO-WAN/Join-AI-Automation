@@ -1,0 +1,141 @@
+@media (min-width: 451px) and (max-width: 1024px) {
+  .overlay {
+    padding: 16px;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+  }
+
+  .kanban_section {
+    width: fit-content;
+  }
+}
+
+@media(max-width: 1013px){
+  .board_container {
+    padding-right: 50px;
+  }
+
+  .headline_container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    width: 100%;
+    z-index: 3;
+  }
+
+  .Board_headline_responsive{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+  }
+
+  .search_task_container {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .search_container{
+    width: 100%;
+  }
+
+  .add_task_headline{
+    display: none;
+  }
+
+  .headline_responsive{
+     color: black;
+    font-size: 50px;
+    font-weight: bold;
+  }
+
+  .headline{
+    display: none;
+  }
+
+  .add_task_headline_responsive {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #2a3647;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 45px;
+    height: 45px;
+    background-color: #2a3647;
+    color: white;
+    position: relative;
+  }
+
+  .add_icon_responsive {
+    height: 25px;
+    width: 25px;
+  }
+}
+
+@media (max-width: 768px) {
+  .board_container {
+    padding-left: 16px;
+  }
+
+  .board_container {
+    padding: 100px 16px 16px 7px; 
+  }
+
+  .section_header {
+    width: 100%;
+  }
+
+  #toDoContainer,
+  #inProgressContainer, 
+  #awaitFeedbackContainer,
+  #doneContainer {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+  }
+
+  .kanban_container {
+    flex-wrap: wrap;
+    padding-bottom: 80px;
+    padding-top: 20px;
+    width: 100%;
+  }
+
+  .kanban_section {
+    flex: 0 0 auto;
+  }
+
+  .task_information {
+    width: 100%;
+  }
+
+  .task {
+    width: 200px;
+  }
+}
+
+@media (max-width: 580px) {
+  .kanban_section {
+    max-width: none;
+    min-width: none;
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  #toDoContainer,
+  #inProgressContainer, 
+  #awaitFeedbackContainer,
+  #doneContainer {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .task {
+    width: 180px;
+  }
+}

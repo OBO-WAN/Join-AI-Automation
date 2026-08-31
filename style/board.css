@@ -1,0 +1,410 @@
+.board_container {
+  padding-left: 320px;
+  padding-top: 170px; /* Enough space for fixed header */
+  flex-direction: column;
+}
+
+.headline {
+  color: black;
+  font-size: 50px;
+  font-weight: bold;
+}
+
+.headline_container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  gap: 32px;
+}
+
+.search_task_container {
+  display: flex;
+}
+
+.search_container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid #a8a8a8;
+  border-radius: 10px;
+  overflow: hidden;
+  width: 312px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 16px;
+  padding-right: 16px;
+  margin-right: 32px;
+}
+
+.search_container:focus-within {
+  border-color: #44afff;
+}
+.search_input {
+  border: none;
+  flex: 1;
+  outline: none;
+  background: none;
+  font-size: 20px;
+  font-weight: 400;
+  color: black;
+  width: 90%;
+}
+
+.search_separator {
+  width: 1px;
+  height: 30px;
+  background-color: #a8a8a8;
+}
+
+.search_icon {
+  display: flex;
+  justify-content: flex-end;
+  height: 24px;
+  object-fit: contain;
+  width: 24px;
+  height: 24px;
+  margin-left: 10px;
+}
+
+.add_task_headline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #a8a8a8;
+  border-radius: 10px;
+  overflow: hidden;
+  width: 160px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 16px;
+  padding-right: 16px;
+  font-size: 21px;
+  font-weight: 700;
+  color: white;
+  background-color: #2a3647;
+}
+
+.add_new_task_btn {
+  z-index: 1;
+}
+
+.add_icon {
+  height: 18px;
+  width: 18px;
+}
+
+h3 {
+  color: #43526e;
+  font-weight: bold;
+}
+
+.kanban_container {
+  display: flex;
+  gap: 40px;
+  width: 100%;
+  overflow-x: hidden;
+  flex-wrap: wrap;
+  padding-bottom: 150px;
+}
+
+.kanban_section {
+  width: 252px;
+  max-width: 252px;
+  min-width: 252px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+}
+
+.section_header {
+  width: 252px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 60px;
+}
+
+.add_task_btn {
+  height: 25px;
+  width: 25px;
+  border: 2px solid;
+  border-color: #2a3647;
+  border-radius: 6px;
+  color: #2a3647;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.no_task_placeholder {
+  background-color: #e7e7e7;
+  width: 252px;
+  height: 48px;
+  border: 1px;
+  border-color: #a8a8a8;
+  border-radius: 10px;
+  border-style: dashed;
+  font-size: 16px;
+  font-weight: 400;
+  color: #a8a8a8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.task_container {
+  background-color: white;
+  padding: 16px;
+  border-radius: 16px;
+  margin-bottom: 25px;
+  box-shadow: 0px 0px 10px 3px #00000014;
+}
+
+.task_category {
+  border-radius: 8px;
+  color: white;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  display: inline-block;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.technical_task {
+  background-color: #1fd7c1;
+}
+
+.user_story {
+  background-color: #0038ff;
+}
+
+.task_information {
+  width: 220px;
+  margin-bottom: 20px;
+}
+
+.task_title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.task_details {
+  font-size: 16px;
+  font-weight: 400;
+  color: #c1c1c1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 3.2em;
+  display: box;
+  box-orient: vertical;
+  line-clamp: 2;
+}
+
+.progress_container {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  border-radius: 10px;
+  margin-top: 22px;
+}
+
+.subtasks_progress {
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 10px;
+}
+
+.progress_bar_bg {
+  background-color: #f1f1f1;
+  border-radius: 20px;
+  width: 100px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  min-width: 4px;
+  background-color: #4589ff;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.user_priority_container {
+  color: white;
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user_initials {
+  display: flex;
+  justify-content: center;
+  height: 32px;
+}
+
+.user_initials_group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.user_initials_circle {
+  width: 32px;
+  height: 32px;
+  font-size: 12px;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-left: -10px;
+  box-sizing: border-box;
+}
+
+.priority_high {
+  height: 12px;
+  width: 17px;
+}
+
+.priority_low {
+  height: 12px;
+  width: 17px;
+}
+
+.d-none {
+  display: none !important;
+}
+
+.overlay {
+  background: rgba(0, 0, 0, 0.4);
+  position: fixed;
+  height: 100vh;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  top: 0;
+}
+
+.overlay_headline {
+  display: flex;
+  justify-content: space-between;
+}
+
+.close_button {
+  border: none;
+  background-color: transparent;
+  height: 10px;
+  font-size: 20px;
+  color: #2a3647;
+}
+
+.close_button_task {
+  border: none;
+  background-color: transparent;
+  height: 10px;
+  font-size: 20px;
+  color: #2a3647;
+  padding-top: 15px;
+}
+
+.hover {
+  cursor: pointer;
+}
+
+.add-task-container-overlay {
+  position: relative;
+}
+
+.close_button_edit {
+  position: absolute;
+  top: 12px;
+  right: 24px;
+  padding-top: 12px;
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  color: #2a3647;
+}
+
+.form-footer-edit {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.add_task_headline_responsive {
+  display: none;
+}
+
+.Board_headline_responsive {
+  display: none;
+}
+
+.tilt-task {
+  transform: rotate(3deg);
+  transition: transform 0.2s ease-in-out;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+}
+
+.kanban_section.drag-over {
+  padding-bottom: 90px;
+}
+
+.drop-placeholder {
+  display: none;
+  height: 244px;
+  width: 250px;
+  margin-top: 12px;
+  border: 2px dashed #A8A8A8;
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+body.no-scroll { 
+  touch-action: none; 
+  overscroll-behavior: contain; 
+}
+
+.task_container.dragging-swing {
+  animation: swing 0.3s ease-in-out infinite alternate;
+  opacity: 0.9;
+  z-index: 2000;
+}
+
+.task-list {
+  position: relative;
+}
+
+.task_container.invisible-during-drag {
+  pointer-events: none;
+}
+
+.invisible-during-drag {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dragging-touch {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  border-radius: 12px;
+}
+
+@keyframes swing {
+  0% {
+    transform: rotate(-2deg);
+  }
+  100% {
+    transform: rotate(2deg);
+  }
+}

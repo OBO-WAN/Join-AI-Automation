@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Join | Legal Notice</title>
+    <link rel="icon" href="./assets/img/favicon.png" />
+    <link rel="stylesheet" href="style/style.css" />
+    <link rel="stylesheet" href="style/text.css" />
+    <link rel="stylesheet" href="style/nav_mobile.css" />
+    <link rel="stylesheet" href="style/user_icon_menu.css" />
+
+    <script src="./script/scripts.js"></script>
+  </head>
+
+  <body>
+    <header>
+      <div class="hl_logo_section">
+        <h1>Kanban Project Management Tool</h1>
+        <img class="header_logo" src="./assets/img/loginLogo.svg" alt="logo" />
+      </div>
+    </header>
+
+    <nav class="sidebar">
+      <img class="logonav" src="./assets/img/logo-white.svg" alt="logo" />
+      <div class="menu-login">
+        <button onclick="location.href='index.html'" class="menu-button-login">
+          <img src="./assets/img/login.png" alt="Summary" />
+          <span>Log in</span>
+        </button>
+      </div>
+
+      <div class="legal-policy">
+        <div class="legal-policy-background">
+          <button
+            onclick="location.href='privacy_policy_login.html'"
+            class="legal-policy-button"
+          >
+            Privacy Policy
+          </button>
+        </div>
+        <div class="legal-policy-background active">
+          <button
+            onclick="location.href='legal_notice_login.html'"
+            class="legal-policy-button"
+          >
+            Legal Notice
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="headline-img-container">
+        <h2>Legal Notice</h2>
+
+        <div onclick="goToUrl('index.html')" class="arrow-left" id="arrow-left">
+          <img src="assets/icons/arrow-left.svg" alt="go back" />
+        </div>
+      </div>
+
+      <section>
+        <h3>Imprint</h3>
+        <p>
+          Francisco N.<br />
+          Hirschstr. 29<br />
+          76133 Karlsruhe
+        </p>
+
+        <p>
+          <strong>Exploring the Board</strong><br />
+          Email: francisco.naranjo@posteo.net
+        </p>
+      </section>
+
+      <section>
+        <h3>Acceptance of Terms</h3>
+        <p>
+          By accessing and using Join (Product), you acknowledge and agree to
+          the following terms and conditions, and any policies, guidelines, or
+          amendments thereto that may be presented to you from time to time. We,
+          the listed students, may update or change the terms and conditions
+          from time to time without notice.
+        </p>
+      </section>
+
+      <section>
+        <h3>Scope and Ownership of the Product</h3>
+        <p>
+          Join has been developed as part of a student group project in a web
+          development bootcamp at the Developer Akademie GmbH. It has an
+          educational purpose and is not intended for extensive personal &
+          business usage. As such, we cannot guarantee consistent availability,
+          reliability, accuracy, or any other aspect of quality regarding this
+          Product.
+        </p>
+        <p>
+          The design of Join is owned by the Developer Akademie GmbH.
+          Unauthorized use, reproduction, modification, distribution, or
+          replication of the design is strictly prohibited.
+        </p>
+      </section>
+
+      <section>
+        <h3>Proprietary Rights</h3>
+        <p>
+          Aside from the design owned by Developer Akademie GmbH, we, the listed
+          students, retain all proprietary rights in Join, including any
+          associated copyrighted material, trademarks, and other proprietary
+          information.
+        </p>
+      </section>
+
+      <section>
+        <h3>Use of the Product</h3>
+        <p>
+          Join is intended to be used for lawful purposes only, in accordance
+          with all applicable laws and regulations. Any use of Join for illegal
+          activities, or to harass, harm, threaten, or intimidate another
+          person, is strictly prohibited. You are solely responsible for your
+          interactions with other users of Join.
+        </p>
+      </section>
+
+      <section>
+        <h3>Disclaimer of Warranties and Limitation of Liability</h3>
+        <p>
+          Join is provided "as is" without warranty of any kind, whether express
+          or implied, including but not limited to the implied warranties of
+          merchantability, fitness for a particular purpose, and
+          non-infringement. In no event will we, the listed students, or the
+          Developer Akademie, be liable for any direct, indirect, incidental,
+          special, consequential or exemplary damages, including but not limited
+          to, damages for loss of profits, goodwill, use, data, or other
+          intangible losses, even if we have been advised of the possibility of
+          such damages, arising out of or in connection with the use or
+          performance of Join.
+        </p>
+      </section>
+
+      <section>
+        <h3>Indemnity</h3>
+        <p>
+          You agree to indemnify, defend and hold harmless us, the listed
+          students, the Developer Akademie, and our affiliates, partners,
+          officers, directors, agents, and employees, from and against any
+          claim, demand, loss, damage, cost, or liability (including reasonable
+          legal fees) arising out of or relating to your use of Join and/or your
+          breach of this Legal Notice.
+        </p>
+      </section>
+
+      <section>
+        <h3>Contact</h3>
+        <p>
+          For any questions or notices, please contact us at [Contact Email].
+        </p>
+        <p><strong>Date:</strong> April 26, 2025</p>
+      </section>
+    </div>
+
+    <ul class="nav-links">
+      <li class="link-button hide-before-log-in">
+        <a onclick="logOut(); return false;" href="log_in.html">
+          <div class="img-box">
+            <img
+              class="boaimg"
+              src="assets/img/login.png"
+              alt="Contacts Icon"
+            />
+          </div>
+          <span>Log In</span>
+        </a>
+
+        <div class="mobil-view-links-container">
+          <li class="link-button mobile-links">
+            <a
+              onclick="toHrefFocus('privacy_policy_login.html', this); return false;"
+              href="privacy_policy_login.html"
+            >
+              <span>Privacy Policy</span>
+            </a>
+          </li>
+
+          <li class="link-button mobile-links active">
+            <a
+              onclick="toHrefFocus('legal_notice_login.html', this); return false;"
+              href="legal_notice_login.html"
+            >
+              <span>Legal Notice</span>
+            </a>
+          </li>
+        </div>
+      </li>
+    </ul>
+  </body>
+</html>

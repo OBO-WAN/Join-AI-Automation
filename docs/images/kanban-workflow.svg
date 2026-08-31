@@ -1,0 +1,47 @@
+<svg width="960" height="420" viewBox="0 0 960 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Kanban workflow in Join</title>
+  <desc id="desc">Four board columns: To do, In progress, Await feedback and Done. Task cards move from left to right through drag and drop.</desc>
+  <style>
+    .bg{fill:#f6f7f8}.col{fill:#fff;stroke:#d1d5db;stroke-width:2}.head{font:700 20px Arial, sans-serif;fill:#2a3647}.card{fill:#eef2f7;stroke:#d1d5db;stroke-width:1.5}.task{font:600 14px Arial, sans-serif;fill:#2a3647}.label{font:700 11px Arial, sans-serif;fill:white}.sub{font:400 12px Arial, sans-serif;fill:#6b7280}.arrow{stroke:#29abe2;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.blue{fill:#29abe2}.orange{fill:#ff7a00}.green{fill:#22c55e}.dark{fill:#2a3647}
+  </style>
+  <rect class="bg" width="960" height="420" rx="24"/>
+  <text class="head" x="48" y="54">Kanban board workflow</text>
+  <text class="sub" x="48" y="78">Tasks are organized by status and moved with drag and drop.</text>
+  <g transform="translate(48 112)">
+    <rect class="col" width="190" height="250" rx="18"/>
+    <text class="head" x="22" y="36">To do</text>
+    <rect class="card" x="22" y="60" width="146" height="72" rx="12"/>
+    <rect class="blue" x="36" y="76" width="62" height="18" rx="9"/>
+    <text class="label" x="67" y="89" text-anchor="middle">User Story</text>
+    <text class="task" x="36" y="116">Create task</text>
+    <rect class="card" x="22" y="148" width="146" height="72" rx="12"/>
+    <rect class="orange" x="36" y="164" width="48" height="18" rx="9"/>
+    <text class="label" x="60" y="177" text-anchor="middle">Bug</text>
+    <text class="task" x="36" y="204">Fix login</text>
+  </g>
+  <path class="arrow" d="M255 236h48"/><path class="blue" d="M304 236l-12-8v16l12-8z"/>
+  <g transform="translate(320 112)">
+    <rect class="col" width="190" height="250" rx="18"/>
+    <text class="head" x="22" y="36">In progress</text>
+    <rect class="card" x="22" y="82" width="146" height="72" rx="12"/>
+    <rect class="blue" x="36" y="98" width="62" height="18" rx="9"/>
+    <text class="label" x="67" y="111" text-anchor="middle">Feature</text>
+    <text class="task" x="36" y="138">Build board</text>
+  </g>
+  <path class="arrow" d="M527 236h48"/><path class="blue" d="M576 236l-12-8v16l12-8z"/>
+  <g transform="translate(592 112)">
+    <rect class="col" width="190" height="250" rx="18"/>
+    <text class="head" x="22" y="36">Await feedback</text>
+    <rect class="card" x="22" y="82" width="146" height="72" rx="12"/>
+    <rect class="orange" x="36" y="98" width="74" height="18" rx="9"/>
+    <text class="label" x="73" y="111" text-anchor="middle">Review</text>
+    <text class="task" x="36" y="138">Check UI</text>
+  </g>
+  <path class="arrow" d="M799 236h48"/><path class="blue" d="M848 236l-12-8v16l12-8z"/>
+  <g transform="translate(864 112)">
+    <rect class="col" width="48" height="250" rx="18"/>
+    <text class="head" x="24" y="36" text-anchor="middle" transform="rotate(90 24 36)">Done</text>
+    <circle class="green" cx="24" cy="154" r="18"/>
+    <path d="M15 154l7 7 14-16" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

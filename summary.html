@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Join | Summary</title>
+
+    <link rel="icon" href="./assets/img/favicon.png" />
+    <link rel="stylesheet" href="style/style.css" />
+    <link rel="stylesheet" href="style/summary.css" />
+    <link rel="stylesheet" href="style/nav_mobile.css" />
+    <link rel="stylesheet" href="style/user_icon_menu.css" />
+
+    <script src="./script/script.js"></script>
+  </head>
+
+  <body class="body-summary" onload="initializeSummaryPage(); setUserInitials();">
+
+    <header>
+      <div class="hl_logo_section">
+        <h1>Kanban Project Management Tool</h1>
+        <img class="header_logo" src="./assets/img/loginLogo.svg" alt="logo" />
+      </div>
+      <div class="dropdown_container">
+        <div class="icon_header_section">
+          <button onclick="location.href='help.html'" class="help-button">
+            <img src="./assets/img/help.png" alt="help" />
+          </button>
+          <div class="contact_icon" onclick="toggleMenu()">
+             <div class="contact_icon_initials" id="first_icon_initials"></div>
+             <div class="contact_icon_initials" id="last_icon_initials"></div>
+          </div>
+        </div>
+        <div class="dropdown_menu" id="dropdown_menu">
+          <a class="dropdown_link" href="./privacy_policy.html"
+            >Privacy Policy</a
+          >
+          <a class="dropdown_link" href="./legal_notice.html">Legal Notes</a>
+          <div class="dropdown_link" onclick="logOut()">Log out</div>
+          <a class="dropdown_link help_link" href="help.html">Help</a>
+        </div>
+      </div>
+    </header>
+
+    <nav class="sidebar">
+      <img class="logonav" src="./assets/img/logo-white.svg" alt="logo" />
+      <div class="menu">
+        <button
+          onclick="location.href='summary.html'"
+          class="menu-button active"
+        >
+          <img src="./assets/img/summary.png" alt="Summary" />
+          <span>Summary</span>
+        </button>
+        <button onclick="location.href='add_task.html'" class="menu-button">
+          <img src="./assets/img/add-task.png" alt="Add Task" />
+          <span>Add Task</span>
+        </button>
+        <button onclick="location.href='board.html'" class="menu-button">
+          <img src="./assets/img/board.png" alt="Board" />
+          <span>Board</span>
+        </button>
+        <button onclick="location.href='contacts.html'" class="menu-button">
+          <img src="./assets/img/contacts.png" alt="Contacts" />
+          <span>Contacts</span>
+        </button>
+      </div>
+
+      <div class="legal-policy">
+        <div class="legal-policy-background">
+          <button
+            onclick="location.href='privacy_policy.html'"
+            class="legal-policy-button"
+          >
+            Privacy Policy
+          </button>
+        </div>
+        <div class="legal-policy-background">
+          <button
+            onclick="location.href='legal_notice.html'"
+            class="legal-policy-button"
+          >
+            Legal Notice
+          </button>
+        </div>
+      </div>
+    </nav>
+    <main class="main-summary">
+
+      <div
+        id="mobile_view_greetin_overlay"
+        class="mobile-view-greeting-overlay"
+        style="display: none"
+      >
+        <div class="greeting-box">
+          <p class="good">Good Morning,</p>
+          <div class="d-flex">
+            <p class="name">guest</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="titeljoin">
+        <h1>Join 456</h1>
+        <div class="vector"></div>
+        <p>Key Metrics at a Glance</p>
+      </div>
+      <div class="details">
+        <div class="content-details">
+          <div class="checkpencil">
+            <div class="pencil">
+              <div class="summary">
+                <img src="assets/icons/Pencil.svg" alt="pencil" />
+              </div>
+              <div class="summaryp">
+                <p class="summarynmb todo">2</p>
+                <p class="summarymission">To-Do</p>
+              </div>
+            </div>
+            <div class="pencil">
+              <div class="summary">
+                <img src="assets/icons/done.svg" alt="done" />
+              </div>
+              <div class="summaryp">
+                <p class="summarynmb done">2</p>
+                <p class="summarymission">Done</p>
+              </div>
+            </div>
+          </div>
+          <div class="urgent">
+            <div class="numimg">
+              <img
+                class="urgentimg"
+                src="assets/icons/urgent.svg"
+                alt="urgent"
+              />
+              <div class="nmbtext">
+                <p class="urgentnmb">4</p>
+                <p class="urgenttext">Urgent</p>
+              </div>
+            </div>
+            <div class="vectorurgent"></div>
+            <div class="datetext">
+              <p class="date">May 7, 2025</p>
+              <p class="underdate">Upcoming Deadline</p>
+            </div>
+          </div>
+          <div class="tasks">
+            <div class="undertask">
+              <div class="underundertask">
+                <p class="tasknmb">9</p>
+                <p class="tasktext">
+                  Tasks in <br />
+                  Board
+                </p>
+              </div>
+            </div>
+            <div class="undertask">
+              <div class="underundertask">
+                <p class="tasknmb">2</p>
+                <p class="tasktext">Tasks in <br />Progress</p>
+              </div>
+            </div>
+            <div class="undertask">
+              <div class="underundertask">
+                <p class="tasknmb">1</p>
+                <p class="tasktext">Awaiting <br />Feedback</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="goodmorning">
+          <p class="good">Good Morning,</p>
+          <div class="d-flex">
+            <p class="name">guest</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <ul class="nav-links">
+      <li class="link-button active hide-before-log-in">
+        <a
+          onclick="toHrefFocus('summary.html', this); return false;"
+          href="summary.html"
+        >
+          <div class="img-box">
+            <img
+              class="boaimg"
+              src="assets/img/summary.png"
+              alt="Summary Icon"
+            />
+          </div>
+          <span>Summary</span>
+        </a>
+      </li>
+      <li class="link-button hide-before-log-in">
+        <a
+          onclick="toHrefFocus('add_task.html',this); return false;"
+          href="add_task.html"
+        >
+          <div class="img-box">
+            <img class="boaimg" src="assets/img/add-task.png" alt="Task Icon" />
+          </div>
+          <span>Add Task</span>
+        </a>
+      </li>
+      <li class="link-button hide-before-log-in">
+        <a
+          onclick="toHrefFocus('board.html', this); return false;"
+          href="board.html"
+        >
+          <div class="img-box">
+            <img class="boaimg" src="assets/img/board.png" alt="Board Icon" />
+          </div>
+          <span>Board</span>
+        </a>
+      </li>
+      <li class="link-button hide-before-log-in">
+        <a
+          onclick="toHrefFocus('contacts.html', this); return false;"
+          href="contacts.html"
+        >
+          <div class="img-box">
+            <img
+              class="boaimg"
+              src="assets/img/contacts.png"
+              alt="Contacts Icon"
+            />
+          </div>
+          <span>Contacts</span>
+        </a>
+      </li>
+    </ul>
+  </body>
+  <script src="script/firebase.js"></script>
+  <script src="script/summary.js"></script>
+  <script src="script/scripts.js"></script>
+</html>
