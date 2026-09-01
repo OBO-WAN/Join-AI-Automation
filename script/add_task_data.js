@@ -1,4 +1,4 @@
-const BASE_URL = 'https://join-1ae7f-default-rtdb.europe-west1.firebasedatabase.app/'; // Updated Database
+const BASE_URL = 'https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/'; // Updated Database
 
 let Contacts = [];
 
