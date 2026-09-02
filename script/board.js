@@ -249,26 +249,6 @@ function showSearchPlaceholders(statusIds, taskClass) {
 }
 
 /**
- * Reindexes all tasks in Firebase with sequential IDs
- */
-async function reindexTasksInFirebase() {
-  const newTasks = {};
-
-  for (let i = 0; i < tasks.length; i++) {
-    const task = { ...tasks[i] };
-    task.id = i;
-    newTasks[i] = task;
-  }
-
-  await fetch(`${BASE_URL}tasks.json`, {
-    method: "PUT",
-    body: JSON.stringify(newTasks),
-  });
-
-  await loadTasksFromFirebase();
-}
-
-/**
  * Deletes a task from the board after user confirmation
  * @param {string} taskId - ID of the task to delete
  */
@@ -279,8 +259,10 @@ async function deleteTaskFromBoardPopup(taskId) {
   if (!confirmDelete) return;
 
   try {
-    tasks = tasks.filter((t) => t.id != taskId);
-    await reindexTasksInFirebase();
+    await fetch(`${BASE_URL}tasks/${taskId}.json`, {
+      method: "DELETE",
+    });
+    await loadTasksFromFirebase();
     closeOverlay();
   } catch (error) {
     showToast("Error deleting task", "./assets/icons/error.png");

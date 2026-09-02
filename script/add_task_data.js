@@ -6,15 +6,12 @@ loadContacts();
 
 /**
  * 
- * Submits a new task by collecting form data, generating an ID, and saving to Firebase
+ * Submits a new task by collecting form data and saving it to Firebase
  */
 async function submitTask() {
   const task = collectTaskData();
-  const tasks = await fetchAllTasks();
-  const newId = getNextTaskId(tasks);
-  task.id = newId.toString();
 
-  saveTaskToFirebase(task, newId);
+  saveTaskToFirebase(task);
 }
 
 /**
@@ -29,6 +26,9 @@ async function submitTask() {
  * @property {string[]} assignedTo - A unique array of selected contact names.
  * @property {{task: string}[]} subTasks - A list of subtasks, each as an object with a task string.
  * @property {string} status - The default task status (e.g., "triage").
+ * @property {Object} creator - Metadata about who created the task.
+ * @property {Object} source - Metadata about how the task was created.
+ * @property {string} createdAt - ISO timestamp for task creation.
  *
  * @returns {Task} The compiled task data object, ready to be saved or submitted.
  */
@@ -39,7 +39,23 @@ function collectTaskData() {
   const assignedTo = getCheckedValues('#assignee-dropdown input[type="checkbox"]:checked');
   const subTasks = getSubtasks();
 
-  return { title, description, dueDate, category, priority, assignedTo, subTasks, status: "triage" };
+  return {
+    title,
+    description,
+    dueDate,
+    category,
+    priority,
+    assignedTo,
+    subTasks,
+    status: "triage",
+    creator: getManualTaskCreator(),
+    source: {
+      type: "manual",
+      aiGenerated: false,
+      messageId: null,
+    },
+    createdAt: new Date().toISOString(),
+  };
 }
 
 /**
@@ -85,52 +101,42 @@ const getSubtasks = () => [...document.querySelectorAll("#subtask-list li")]
   .map(i => ({ task: i.textContent.trim().replace(/^•+\s*/, "") }));
 
 /**
- * 
- * Fetches all existing tasks from Firebase
- * @returns {Promise<Object>} Object containing all tasks or empty object on error
+ * Builds creator metadata for manually created tasks.
+ * @returns {{type: string, name: string|null, email: null}} Creator metadata.
  */
-async function fetchAllTasks() {
-  try {
-    const res = await fetch(`${BASE_URL}tasks.json`);
-    return (await res.json()) || {};
-  } catch (err) {
-    console.warn("⚠️ Fehler beim Laden der Aufgaben:", err);
-    return {};
-  }
+function getManualTaskCreator() {
+  const firstName = sessionStorage.getItem("firstName");
+  const lastName = sessionStorage.getItem("lastName");
+  const fullName = [firstName, lastName].filter(Boolean).join(" ");
+
+  return {
+    type: "internal",
+    name: fullName || null,
+    email: null,
+  };
 }
 
 /**
- * 
- * Determines the next available task ID by finding the maximum existing ID
- * @param {Object} tasks - Object containing all existing tasks
- * @returns {number} Next available task ID
+ * Removes runtime-only fields before a task is persisted to Firebase.
+ * @param {Object} task - Task object to serialize.
+ * @returns {Object} Firebase-safe task object.
  */
-function getNextTaskId(tasks) {
-  let maxId = 0;
-  for (const key in tasks) {
-    const task = tasks[key];
-    if (!task || typeof task !== "object") continue;
-
-    const idNum = parseInt(task.id);
-    if (!isNaN(idNum) && idNum > maxId) {
-      maxId = idNum;
-    }
-  }
-  return maxId + 1;
+function serializeTaskForFirebase(task) {
+  const { id, ...taskData } = task;
+  return taskData;
 }
 
 /**
- * Saves a task object to Firebase under the given task ID.
+ * Saves a task object to Firebase using a push ID.
  *
  * @async
  * @param {Object} task - The task object to be saved.
- * @param {string|number} id - The unique ID under which the task will be stored in Firebase.
  * @returns {Promise<void>} Resolves when the task is successfully saved or logs an error if it fails.
  */
-async function saveTaskToFirebase(task, id) {
+async function saveTaskToFirebase(task) {
   try {
     normalizeAssignedTo(task);
-    const res = await putTaskToFirebase(task, id);
+    const res = await postTaskToFirebase(task);
 
     if (res.ok) {
       handleSuccessfulSave();
@@ -153,17 +159,16 @@ function normalizeAssignedTo(task) {
 }
 
 /**
- * Sends a PUT request to Firebase to store a task.
+ * Sends a POST request to Firebase to store a task under a push ID.
  *
  * @param {Object} task - The task object to save.
- * @param {string|number} id - The ID under which the task will be saved in Firebase.
  * @returns {Promise<Response>} The fetch response object.
  */
-function putTaskToFirebase(task, id) {
-  return fetch(`${BASE_URL}tasks/${id}.json`, {
-    method: "PUT",
+function postTaskToFirebase(task) {
+  return fetch(`${BASE_URL}tasks.json`, {
+    method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(task),
+    body: JSON.stringify(serializeTaskForFirebase(task)),
   });
 }
 

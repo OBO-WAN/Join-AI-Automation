@@ -233,14 +233,18 @@ function setupEditFormSubmit(taskId) {
  */
 async function saveEditedTask(taskId) {
   const task = tasks.find((t) => t.id == taskId);
+  if (!task) return;
+
   const updatedTask = collectTaskData();
-  updatedTask.id = taskId;
-  updatedTask.status = task.status; // Preserve current status
+  updatedTask.creator = task.creator;
+  updatedTask.source = task.source;
+  updatedTask.createdAt = task.createdAt;
+  updatedTask.status = task.status;
 
   await fetch(`${BASE_URL}tasks/${taskId}.json`, {
     method: 'PUT',
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updatedTask)
+    body: JSON.stringify(serializeTaskForFirebase(updatedTask))
   });
 
   showToast("Task updated", "./assets/img/board.png");
@@ -280,7 +284,7 @@ async function saveTaskEdits(taskId){
 
   await fetch(`${BASE_URL}tasks/${taskId}.json`, {
     method: "PUT",
-    body: JSON.stringify(task),
+    body: JSON.stringify(serializeTaskForFirebase(task)),
   });
 
   closeOverlay();
@@ -303,7 +307,7 @@ async function toggleSubtaskCheckbox(element, taskId, subtaskIndex) {
   }.svg`;
   await fetch(`${BASE_URL}tasks/${taskId}.json`, {
     method: "PUT",
-    body: JSON.stringify(task),
+    body: JSON.stringify(serializeTaskForFirebase(task)),
   });
   const progressContainer = document.getElementById(
     `subtask_container_${tasks.indexOf(task)}`

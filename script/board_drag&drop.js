@@ -107,7 +107,7 @@ async function moveTo(newStatus) {
   if (!task) return;
   task.status = newStatus;
   await fetch(`${BASE_URL}tasks/${currentDraggedElement}.json`, {
-    method:"PUT", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(task)
+    method:"PUT", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(serializeTaskForFirebase(task))
   });
   cleanupDrag(); await loadTasksFromFirebase();
 }
