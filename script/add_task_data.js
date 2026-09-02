@@ -28,7 +28,7 @@ async function submitTask() {
  * @property {string|null} priority - The capitalized priority level, or null if none selected.
  * @property {string[]} assignedTo - A unique array of selected contact names.
  * @property {{task: string}[]} subTasks - A list of subtasks, each as an object with a task string.
- * @property {string} status - The default task status (e.g., "toDo").
+ * @property {string} status - The default task status (e.g., "triage").
  *
  * @returns {Task} The compiled task data object, ready to be saved or submitted.
  */
@@ -39,7 +39,7 @@ function collectTaskData() {
   const assignedTo = getCheckedValues('#assignee-dropdown input[type="checkbox"]:checked');
   const subTasks = getSubtasks();
 
-  return { title, description, dueDate, category, priority, assignedTo, subTasks, status: "toDo" };
+  return { title, description, dueDate, category, priority, assignedTo, subTasks, status: "triage" };
 }
 
 /**

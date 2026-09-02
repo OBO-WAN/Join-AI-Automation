@@ -114,6 +114,15 @@
     
 
       <div class="kanban_container">
+        <div class="kanban_section" data-status="triage" ondrop="moveTo('triage')" ondragover="allowDrop(event)" ondragleave="hideDropPlaceholder(event)">
+          <div class="section_header">
+            <h3>Triage</h3>
+            <button onclick="addNewTask()" class="add_task_btn hover">+</button>
+          </div>
+          <div id="triageContainer">
+          </div>
+          <div class="drop-placeholder"></div>
+        </div>
         <div class="kanban_section" data-status="toDo" ondrop="moveTo('toDo')" ondragover="allowDrop(event)" ondragleave="hideDropPlaceholder(event)">
           <div class="section_header">
             <h3>To do</h3>

@@ -64,6 +64,7 @@ function renderCurrentTasks() {
  */
 function proofStatus() {
   const statusContainers = {
+    triage: document.getElementById("triageContainer"),
     toDo: document.getElementById("toDoContainer"),
     inProgress: document.getElementById("inProgressContainer"),
     awaitFeedback: document.getElementById("awaitFeedbackContainer"),
@@ -82,6 +83,7 @@ function proofStatus() {
  */
 function proofStatusCounts() {
   const statusCounts = {
+    triage: 0,
     toDo: 0,
     inProgress: 0,
     awaitFeedback: 0,
@@ -218,7 +220,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const details = task.querySelector(".task_details")?.textContent.toLowerCase() || "";
         task.style.display = (title.includes(term) || details.includes(term)) ? "block" : "none";
       });
-      showSearchPlaceholders(["toDoContainer","inProgressContainer","awaitFeedbackContainer","doneContainer"], "task_container");
+      showSearchPlaceholders(["triageContainer","toDoContainer","inProgressContainer","awaitFeedbackContainer","doneContainer"], "task_container");
     });
 });
 

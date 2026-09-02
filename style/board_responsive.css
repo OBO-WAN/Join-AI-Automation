@@ -90,6 +90,7 @@
     width: 100%;
   }
 
+  #triageContainer,
   #toDoContainer,
   #inProgressContainer, 
   #awaitFeedbackContainer,
@@ -127,6 +128,7 @@
     width: 100%;
   }
 
+  #triageContainer,
   #toDoContainer,
   #inProgressContainer, 
   #awaitFeedbackContainer,
