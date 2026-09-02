@@ -1,0 +1,60 @@
+{
+  "name": "POC - n8n to Firebase",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        -176
+      ],
+      "id": "4994fa2b-9869-44ce-a30f-f97f90959e38",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/tasks.json",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"title\": \"n8n Firebase POC\",\n  \"description\": \"Task created directly by n8n\",\n  \"dueDate\": \"02-09-2026\",\n  \"category\": \"Technical Task\",\n  \"priority\": \"Medium\",\n  \"status\": \"triage\",\n  \"assignedTo\": [],\n  \"subTasks\": [],\n  \"creator\": {\n    \"type\": \"external\",\n    \"name\": \"POC Stakeholder\",\n    \"email\": \"test@example.com\"\n  },\n  \"source\": {\n    \"type\": \"email\",\n    \"aiGenerated\": false\n  },\n  \"createdAt\": \"2026-09-02T08:30:00.000Z\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -368,
+        -176
+      ],
+      "id": "f499ea75-3581-4647-ad61-5aa09e1af073",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ef95017d-0582-4a2c-818a-a17337495467",
+  "meta": {
+    "instanceId": "68bd1b93b41d2a8db7d4592ac2344c592298685a126e0865e3ab5f3339d425b2"
+  },
+  "nodeGroups": [],
+  "id": "NJmMV1sIY1pb7PeE",
+  "tags": []
+}
