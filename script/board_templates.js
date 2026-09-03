@@ -249,8 +249,9 @@ function getEditTaskOverlay() {
 
   return `
     <div class="overlay-content">
-      <div class="add-task-container-overlay">
+      <div class="add-task-container-overlay edit-task-container-overlay">
       <button onclick="closeOverlay()" class="close_button_edit hover">X</button>
+        <div class="edit-task-scroll-content">
         <form id="taskForm" class="\${formClass}">
 
           <div class="form-left">
@@ -328,6 +329,7 @@ function getEditTaskOverlay() {
               <img src="./assets/icons/check.png" alt="Create Icon">
             </button>
           </div>
+        </div>
         </div>
       </div>
     </div>

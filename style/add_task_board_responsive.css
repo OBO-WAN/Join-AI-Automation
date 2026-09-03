@@ -123,3 +123,125 @@
       
    }
 }
+
+@media (min-width: 769px) {
+    .edit-task-container-overlay {
+        position: relative;
+        width: 525px;
+        max-width: 525px;
+        max-height: calc(100vh - 32px);
+        padding: 32px 12px 32px 40px;
+        overflow: hidden;
+        border-radius: 30px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .edit-task-scroll-content {
+        flex: 1 1 auto;
+        max-height: 706px;
+        min-height: 0;
+        padding-right: 24px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #A8A8A8 transparent;
+    }
+
+    .edit-task-scroll-content::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .edit-task-scroll-content::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .edit-task-scroll-content::-webkit-scrollbar-thumb {
+        background-color: #A8A8A8;
+        border-radius: 999px;
+    }
+
+    .edit-task-container-overlay #taskForm {
+        margin: 0;
+        overflow: visible;
+    }
+
+    .edit-task-container-overlay .form-left,
+    .edit-task-container-overlay .form-right {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 768px) {
+    .overlay {
+        z-index: 4000;
+    }
+
+    .edit-task-container-overlay {
+        position: relative;
+        width: min(396px, calc(100vw - 16px));
+        max-width: 396px;
+        height: min(864px, calc(100vh - 16px));
+        max-height: calc(100vh - 16px);
+        margin: 0;
+        padding: 80px 20px 32px 24px;
+        overflow: hidden;
+        border-radius: 30px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .edit-task-container-overlay .close_button_edit {
+        position: absolute;
+        top: 32px;
+        right: 24px;
+        z-index: 2;
+        padding: 0;
+    }
+
+    .edit-task-scroll-content {
+        flex: 1 1 auto;
+        min-height: 0;
+        padding-right: 8px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: #A8A8A8 transparent;
+    }
+
+    .edit-task-scroll-content::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .edit-task-scroll-content::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .edit-task-scroll-content::-webkit-scrollbar-thumb {
+        background-color: #A8A8A8;
+        border-radius: 999px;
+    }
+
+    .edit-task-container-overlay #taskForm {
+        margin: 0;
+        overflow: visible;
+    }
+
+    .edit-task-container-overlay .form-left,
+    .edit-task-container-overlay .form-right {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .edit-task-container-overlay .form-footer-edit {
+        margin-top: 0;
+    }
+
+    .edit-task-container-overlay .task-buttons {
+        margin-top: 0;
+    }
+}
