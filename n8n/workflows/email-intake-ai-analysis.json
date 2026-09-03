@@ -1,0 +1,362 @@
+{
+  "name": "Email Intake - AI Analysis",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7a0cdc82-23ef-48da-af3b-46c039e6cdae",
+              "name": "sender",
+              "value": "={{ $json.from }}",
+              "type": "string"
+            },
+            {
+              "id": "e001670e-c9c2-4c89-96cd-bdc908b0b262",
+              "name": "subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "f7fe5367-8e73-49d6-b8f1-d8f74f025306",
+              "name": "body",
+              "value": "={{ $json.textPlain }}",
+              "type": "string"
+            },
+            {
+              "id": "415f5b1a-feab-4c4c-ae40-324235eacbce",
+              "name": "messageID",
+              "value": "={{ $json.metadata[\"message-id\"] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "d54e8766-3ed5-4a6b-b52b-875ac1ba6878",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "82cf10e2-e18c-4f1f-b15f-80b66a487f9b",
+      "name": "Email Intake - Daily Limit",
+      "credentials": {
+        "imap": {
+          "id": "fzZtp6r2Mx9QdA0h",
+          "name": "IMAP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/tasks.json",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n  {\n    title: $json.output.title,\n    description: $json.output.description + \"\\n\\nDieses Ticket wurde KI-generiert\",\n    dueDate: $json.output.deadline\n      ? DateTime.fromISO($json.output.deadline).toFormat('dd-MM-yyyy')\n      : \"\",\n    category: $json.output.category,\n    priority: $json.output.priority,\n    status: \"triage\",\n    assignedTo: [],\n    subTasks: [],\n    creator: {\n      type: \"external\",\n      name: $('Normalize Daily Usage').item.json.sender\n        .replace(/\\s*<[^>]+>\\s*$/, '')\n        .trim() || null,\n      email:\n        (\n          $('Normalize Daily Usage').item.json.sender.match(/<([^>]+)>/) || []\n        )[1] || $('Normalize Daily Usage').item.json.sender\n    },\n    source: {\n      type: \"email\",\n      aiGenerated: true,\n      messageId: $('Email Intake - Daily Limit').item.json.metadata[\"message-id\"]\n    },\n    createdAt: $now.toISO()\n  }\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1728,
+        0
+      ],
+      "id": "d03121f0-41fa-4269-99f2-e15c8bd446b4",
+      "name": "Create Firebase Task"
+    },
+    {
+      "parameters": {
+        "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/automationUsage/{{ $now.toFormat('yyyy-MM-dd') }}.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        448,
+        0
+      ],
+      "id": "a797642e-8d98-4822-8895-cfe4774e6fb9",
+      "name": "Get Daily Usage",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8499a326-9b12-4812-a79a-b941d0edfefe",
+              "name": "sender",
+              "value": "={{ $('Edit Fields').item.json.sender }}",
+              "type": "string"
+            },
+            {
+              "id": "3a4c6378-a224-4a99-b3b3-645c32ebf9b8",
+              "name": "subject",
+              "value": "={{ $('Edit Fields').item.json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "70245101-e9de-4259-a705-5c2c53fd654e",
+              "name": "body",
+              "value": "={{ $('Edit Fields').item.json.body }}",
+              "type": "string"
+            },
+            {
+              "id": "5e592877-646e-45b1-aa71-39a589500464",
+              "name": "messageId",
+              "value": "={{ $('Edit Fields').item.json.messageId }}",
+              "type": "string"
+            },
+            {
+              "id": "e2699a92-19f0-46d9-92a5-afe31d914b7a",
+              "name": "count",
+              "value": "={{ Number($json.count ?? 0) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        672,
+        0
+      ],
+      "id": "abf435c9-5964-4146-92bd-239ec5012639",
+      "name": "Normalize Daily Usage"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cc6c19a2-2eee-4173-bac5-7b689aa86cb1",
+              "leftValue": "={{ $json.count }}",
+              "rightValue": 10,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        0
+      ],
+      "id": "b58151ca-fc7f-4cbe-b5f8-c5738e31aa4f",
+      "name": "Under Daily Limit?"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/automationUsage/{{ $now.toFormat('yyyy-MM-dd') }}.json",
+        "sendBody": true,
+        "specifyBody": "=json",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "jsonBody": "={{\n  {\n    count: $json.count + 1\n  }\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "1fb4bd4f-7974-4ebb-af23-491019e4b4e8",
+      "name": "Increment Daily Usage"
+    },
+    {
+      "parameters": {
+        "text": "=Sender:\n{{ $('Normalize Daily Usage').item.json.sender }}\n\nSubject:\n{{ $('Normalize Daily Usage').item.json.subject }}\n\nBody:\n{{ $('Normalize Daily Usage').item.json.body }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "=title",
+              "description": "Create a concise task title. Remove prefixes such as Re:, Fwd:, Subject:. Do not invent information."
+            },
+            {
+              "name": "category",
+              "description": "Classify as exactly one of: Technical Task, User Story, Bug."
+            },
+            {
+              "name": "priority",
+              "description": "Return exactly one of: Urgent, Medium, Low. Base this on urgency words and context in the email."
+            },
+            {
+              "name": "deadline",
+              "description": "Extract an explicit deadline if present and return it as YYYY-MM-DD. If no deadline is stated, return an empty string."
+            },
+            {
+              "name": "description",
+              "description": "Summarize the requested work clearly and concisely while preserving the important requirements."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "4919b66c-46db-4016-a80e-acf9477db3fb",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1280,
+        208
+      ],
+      "id": "1a42e8bf-0856-4308-95b0-4a9275bae0c9",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "iA4AhUFM88TwQYTO",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get Daily Usage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Intake - Daily Limit": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Daily Usage": {
+      "main": [
+        [
+          {
+            "node": "Normalize Daily Usage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Daily Usage": {
+      "main": [
+        [
+          {
+            "node": "Under Daily Limit?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Under Daily Limit?": {
+      "main": [
+        [
+          {
+            "node": "Increment Daily Usage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Increment Daily Usage": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Create Firebase Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "74d0b855-d34f-46f8-9ada-5a9dacb444d6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "68bd1b93b41d2a8db7d4592ac2344c592298685a126e0865e3ab5f3339d425b2"
+  },
+  "nodeGroups": [],
+  "id": "4I4dcXWTsgP4GBW1",
+  "tags": []
+}
