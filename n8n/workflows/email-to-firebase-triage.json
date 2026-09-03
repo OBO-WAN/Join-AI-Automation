@@ -1,0 +1,121 @@
+{
+  "name": "Email to Firebase Triage",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "a3a2e803-591b-4064-8c9a-85d4e66a0245",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "fzZtp6r2Mx9QdA0h",
+          "name": "IMAP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7a0cdc82-23ef-48da-af3b-46c039e6cdae",
+              "name": "sender",
+              "value": "={{ $json.from }}",
+              "type": "string"
+            },
+            {
+              "id": "e001670e-c9c2-4c89-96cd-bdc908b0b262",
+              "name": "subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "f7fe5367-8e73-49d6-b8f1-d8f74f025306",
+              "name": "body",
+              "value": "={{ $json.textPlain }}",
+              "type": "string"
+            },
+            {
+              "id": "415f5b1a-feab-4c4c-ae40-324235eacbce",
+              "name": "messageID",
+              "value": "={{ $json.metadata[\"message-id\"] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "265ad7aa-6e71-414e-9be2-8423efb0e290",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/tasks.json",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n  {\n    title: $json.subject,\n    description: $json.body.trim(),\n    dueDate: \"\",\n    category: \"Technical Task\",\n    priority: \"Medium\",\n    status: \"triage\",\n    assignedTo: [],\n    subTasks: [],\n    creator: {\n      type: \"external\",\n      name: $json.sender,\n      email: $json.sender\n    },\n    source: {\n      type: \"email\",\n      aiGenerated: false,\n      messageId: $json.messageId\n    },\n    createdAt: $now.toISO()\n  }\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        448,
+        0
+      ],
+      "id": "3924525e-0c9c-4454-928e-7d970b94a325",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "0cbfee07-55e7-49be-8c40-b07091314783",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "68bd1b93b41d2a8db7d4592ac2344c592298685a126e0865e3ab5f3339d425b2"
+  },
+  "nodeGroups": [],
+  "id": "WTJaKiZapBEAJqmo",
+  "tags": []
+}
