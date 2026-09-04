@@ -24,6 +24,47 @@ const TOUCH_ACTIVATION_THRESHOLD = 8;
 const SCROLL_EDGE_MARGIN = 200; 
 /** Maximum scroll speed (px per frame) once at the edge. */
 const SCROLL_MAX_SPEED = 400;   
+/** Local n8n production webhook for task status change notifications. */
+const STATUS_NOTIFICATION_WEBHOOK_URL = "http://localhost:5678/webhook/task-status-changed";
+
+/**
+ * Sends a task status change notification to the local n8n webhook.
+ * @async
+ * @param {Object} params - Notification payload.
+ * @param {string|number} params.taskId - Firebase task key.
+ * @param {string} params.title - Task title.
+ * @param {string} params.oldStatus - Status before the drag/drop update.
+ * @param {string} params.newStatus - Status after the drag/drop update.
+ * @param {string} params.creatorEmail - Email address of the task creator.
+ * @param {string} params.creatorType - Creator type, such as "internal" or "external".
+ * @returns {Promise<void>} Resolves when the notification request succeeds.
+ * @throws {Error} Throws when the webhook response is not successful.
+ */
+async function notifyTaskStatusChanged({
+  taskId,
+  title,
+  oldStatus,
+  newStatus,
+  creatorEmail,
+  creatorType,
+}) {
+  const response = await fetch(STATUS_NOTIFICATION_WEBHOOK_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      taskId,
+      title,
+      oldStatus,
+      newStatus,
+      creatorEmail,
+      creatorType,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Status notification failed: ${response.status}`);
+  }
+}
 
 /**
  * Clears all drag-related UI state and timers.
@@ -103,12 +144,35 @@ function hideDropPlaceholder(ev) { setSectionActive(ev.currentTarget, false); }
  */
 async function moveTo(newStatus) {
   if (currentDraggedElement == null) return;
-  const task = tasks.find(t => String(t.id) === String(currentDraggedElement));
+  const taskId = String(currentDraggedElement);
+  const task = tasks.find(t => String(t.id) === taskId);
   if (!task) return;
+  const oldStatus = task.status;
+  if (oldStatus === newStatus) {
+    cleanupDrag();
+    return;
+  }
   task.status = newStatus;
-  await fetch(`${BASE_URL}tasks/${currentDraggedElement}.json`, {
+  const response = await fetch(`${BASE_URL}tasks/${taskId}.json`, {
     method:"PUT", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(serializeTaskForFirebase(task))
   });
+  if (!response.ok) {
+    throw new Error(`Firebase status update failed: ${response.status}`);
+  }
+  if (task.creator?.email) {
+    try {
+      await notifyTaskStatusChanged({
+        taskId,
+        title: task.title || task.task || "Untitled",
+        oldStatus,
+        newStatus,
+        creatorEmail: task.creator.email,
+        creatorType: task.creator.type,
+      });
+    } catch (error) {
+      console.warn("Status notification failed:", error);
+    }
+  }
   cleanupDrag(); await loadTasksFromFirebase();
 }
 

@@ -1,0 +1,72 @@
+{
+  "name": "Task Status Notifications",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "task-status-changed",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "975c86ed-c899-496e-baf9-acc54423f8c1",
+      "name": "Webhook",
+      "webhookId": "4e806c9e-d820-44ab-ac59-919075dbc629"
+    },
+    {
+      "parameters": {
+        "fromEmail": "join@naranjo.io",
+        "toEmail": "={{ $json.body.creatorEmail }}\n",
+        "subject": "=Join task status updated: {{ $json.body.title }}",
+        "html": "=<p>Hello,</p>\n\n<p>The status of your Join task has changed.</p>\n\n<p>\n  <strong>Task:</strong> {{ $json.body.title }}<br>\n  <strong>Previous status:</strong> {{ $json.body.oldStatus }}<br>\n  <strong>New status:</strong> {{ $json.body.newStatus }}\n</p>\n\n<p>Best regards,<br>Join AI</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "bebebf9e-97d8-49f0-ae42-268b1973deed",
+      "name": "Send an Email",
+      "webhookId": "5b234677-5506-4f7a-a40d-cc890aa63b31",
+      "credentials": {
+        "smtp": {
+          "id": "FCkYvynDgrQN19vJ",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "692f9ade-93cd-4deb-b2f5-8bd40f40e7ef",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "68bd1b93b41d2a8db7d4592ac2344c592298685a126e0865e3ab5f3339d425b2"
+  },
+  "nodeGroups": [],
+  "id": "UDFWoLAKrYNlJHOK",
+  "tags": []
+}
