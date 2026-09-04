@@ -61,6 +61,16 @@ function renderRequestCount(count) {
 }
 
 /**
+ * Applies the stakeholder limit-reached presentation when the daily limit is reached.
+ *
+ * @param {number} count - Today's normalized stakeholder request count.
+ * @returns {void}
+ */
+function renderLimitState(count) {
+  document.body.classList.toggle('is-limit-reached', count >= STAKEHOLDER_DAILY_LIMIT);
+}
+
+/**
  * Loads and renders today's stakeholder request usage while keeping the page usable on failure.
  *
  * @returns {Promise<void>}
@@ -70,9 +80,11 @@ async function initializeStakeholderCounter() {
     const dateKey = getLocalDateKey();
     const count = await fetchDailyRequestCount(dateKey);
     renderRequestCount(Math.min(count, STAKEHOLDER_DAILY_LIMIT));
+    renderLimitState(count);
   } catch (error) {
     console.warn('Stakeholder request count unavailable; showing 0.', error);
     renderRequestCount(0);
+    renderLimitState(0);
   } finally {
     document.body.dataset.stakeholderCounterLoaded = 'true';
   }

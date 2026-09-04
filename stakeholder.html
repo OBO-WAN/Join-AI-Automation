@@ -38,25 +38,35 @@
         <div class="stakeholder-body">
           <div class="stakeholder-text">
             <p class="stakeholder-intro">Easily create a ticket by sending an email — no extra steps needed.</p>
+            <p class="stakeholder-limit-warning">The daily 10-request limit has been reached!</p>
             <div class="stakeholder-copy">
-              <p>
+              <p class="stakeholder-normal-copy">
                 On this platform, you can submit your feature requests via email. Our AI system will automatically
                 generate a ticket with a deadline and priority level.
               </p>
-              <p>
+              <p class="stakeholder-normal-copy">
                 A total of 10 requests can be created per day. After this limit, emails can still be sent, but they
                 will be manually reviewed by our team instead of generating AI tickets.
+              </p>
+              <p class="stakeholder-limit-copy">
+                Need more? No worries — you can still send emails, but our team will review them manually instead of
+                using AI to create tickets.
               </p>
             </div>
           </div>
 
-          <picture class="stakeholder-illustration">
+          <picture class="stakeholder-illustration stakeholder-illustration-normal">
             <source media="(max-width: 720px)" srcset="assets/img/stakeholder-illustration-mobile.png" />
             <img src="assets/img/stakeholder-illustration-desktop.png" alt="Illustration of a request becoming board tickets" />
+          </picture>
+          <picture class="stakeholder-illustration stakeholder-illustration-limit">
+            <source media="(max-width: 720px)" srcset="assets/img/stakeholder-limit-illustration-mobile.png" />
+            <img src="assets/img/stakeholder-limit-illustration-desktop.png" alt="Illustration of a request being reviewed manually after the daily limit" />
           </picture>
 
           <a class="stakeholder-cta" href="mailto:join@naranjo.io">
             <span class="stakeholder-cta-desktop-text">Create Email Request</span>
+            <span class="stakeholder-cta-limit-desktop-text">Send an email</span>
             <span class="stakeholder-cta-mobile-text">Create request</span>
             <img class="stakeholder-cta-check" src="assets/icons/stakeholder-check.svg" alt="" aria-hidden="true" />
           </a>
