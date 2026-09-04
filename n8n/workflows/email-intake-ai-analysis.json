@@ -144,39 +144,6 @@
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "cc6c19a2-2eee-4173-bac5-7b689aa86cb1",
-              "leftValue": "={{ $json.count }}",
-              "rightValue": 10,
-              "operator": {
-                "type": "number",
-                "operation": "lt"
-              }
-            }
-          ],
-          "combinator": "or"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        896,
-        0
-      ],
-      "id": "b58151ca-fc7f-4cbe-b5f8-c5738e31aa4f",
-      "name": "Under Daily Limit?"
-    },
-    {
-      "parameters": {
         "method": "PUT",
         "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/automationUsage/{{ $now.toFormat('yyyy-MM-dd') }}.json",
         "sendBody": true,
@@ -192,8 +159,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        1120,
-        0
+        1104,
+        -128
       ],
       "id": "1fb4bd4f-7974-4ebb-af23-491019e4b4e8",
       "name": "Increment Daily Usage"
@@ -243,8 +210,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1.1,
       "position": [
-        1280,
-        208
+        1408,
+        192
       ],
       "id": "1a42e8bf-0856-4308-95b0-4a9275bae0c9",
       "name": "Google Gemini Chat Model",
@@ -336,6 +303,63 @@
       ],
       "id": "adf9cf51-1281-4c14-956b-270df60fe0e8",
       "name": "Task created?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cc6c19a2-2eee-4173-bac5-7b689aa86cb1",
+              "leftValue": "={{ $json.count }}",
+              "rightValue": 10,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        0
+      ],
+      "id": "b58151ca-fc7f-4cbe-b5f8-c5738e31aa4f",
+      "name": "Under Daily Limit?"
+    },
+    {
+      "parameters": {
+        "fromEmail": "join@naranjo.io",
+        "toEmail": "={{ ( $('Normalize Daily Usage').item.json.sender.match(/<([^>]+)>/) || [] )[1] || $('Normalize Daily Usage').item.json.sender }}",
+        "subject": "Daily request limit reached",
+        "html": "<p>Hello,</p>\n\n<p>You have reached the daily limit of <strong>10 Join requests</strong>.</p>\n\n<p>Your request was not processed and no AI analysis or ticket creation was performed.</p>\n\n<p>Please try again tomorrow.</p>\n\n<p>Best regards,<br>Join AI</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1104,
+        80
+      ],
+      "id": "cc5df5ee-a215-4f0e-b83a-592c474da668",
+      "name": "Send Daily Limit Email",
+      "webhookId": "9383630e-24b0-4a6c-b965-e93c7a71d756",
+      "credentials": {
+        "smtp": {
+          "id": "FCkYvynDgrQN19vJ",
+          "name": "SMTP account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -378,17 +402,6 @@
         [
           {
             "node": "Under Daily Limit?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Under Daily Limit?": {
-      "main": [
-        [
-          {
-            "node": "Increment Daily Usage",
             "type": "main",
             "index": 0
           }
@@ -461,6 +474,24 @@
           }
         ]
       ]
+    },
+    "Under Daily Limit?": {
+      "main": [
+        [
+          {
+            "node": "Increment Daily Usage",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Daily Limit Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -468,7 +499,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "eb9d2d2c-3fe6-4882-b5e1-bc5a196b22ed",
+  "versionId": "a87b66d7-3d79-4a05-b451-e0f7dc9c480d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "68bd1b93b41d2a8db7d4592ac2344c592298685a126e0865e3ab5f3339d425b2"
