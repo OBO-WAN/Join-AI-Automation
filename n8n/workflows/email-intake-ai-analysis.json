@@ -360,6 +360,72 @@
           "name": "SMTP account"
         }
       }
+    },
+    {
+      "parameters": {
+        "authentication": "coreImapAccount",
+        "resource": "email",
+        "operation": "moveEmail",
+        "sourceMailbox": {
+          "__rl": true,
+          "mode": "list",
+          "value": "INBOX"
+        },
+        "emailUid": "={{ $('Email Intake - Daily Limit').item.json.attributes.uid }}",
+        "destinationMailbox": {
+          "__rl": true,
+          "value": "erledigt",
+          "mode": "list",
+          "cachedResultName": "erledigt"
+        }
+      },
+      "type": "n8n-nodes-imap.imap",
+      "typeVersion": 1,
+      "position": [
+        2256,
+        -80
+      ],
+      "id": "bd532ff3-27a9-4372-a65e-789516bf8cc7",
+      "name": "Destination Mailbox → erledigt",
+      "credentials": {
+        "imap": {
+          "id": "fzZtp6r2Mx9QdA0h",
+          "name": "IMAP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "coreImapAccount",
+        "resource": "email",
+        "operation": "moveEmail",
+        "sourceMailbox": {
+          "__rl": true,
+          "mode": "list",
+          "value": "INBOX"
+        },
+        "emailUid": "={{ $('Email Intake - Daily Limit').item.json.attributes.uid }}",
+        "destinationMailbox": {
+          "__rl": true,
+          "value": "zu bearbeiten",
+          "mode": "list",
+          "cachedResultName": "zu bearbeiten"
+        }
+      },
+      "type": "n8n-nodes-imap.imap",
+      "typeVersion": 1,
+      "position": [
+        2256,
+        112
+      ],
+      "id": "e212a7e3-8a50-48fa-962c-ebc41966e872",
+      "name": "Move Email to zu bearbeiten",
+      "credentials": {
+        "imap": {
+          "id": "fzZtp6r2Mx9QdA0h",
+          "name": "IMAP account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -454,7 +520,13 @@
     },
     "Send Failure Email": {
       "main": [
-        []
+        [
+          {
+            "node": "Move Email to zu bearbeiten",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Task created?": {
@@ -492,6 +564,17 @@
           }
         ]
       ]
+    },
+    "Send an Email": {
+      "main": [
+        [
+          {
+            "node": "Destination Mailbox → erledigt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -499,7 +582,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "a87b66d7-3d79-4a05-b451-e0f7dc9c480d",
+  "versionId": "f3999d9a-c10e-41fc-b557-eb0e22e3c8a8",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "68bd1b93b41d2a8db7d4592ac2344c592298685a126e0865e3ab5f3339d425b2"
