@@ -253,6 +253,30 @@
           "name": "Google Gemini(PaLM) Api account"
         }
       }
+    },
+    {
+      "parameters": {
+        "fromEmail": "join@naranjo.io",
+        "toEmail": "={{ ( $('Normalize Daily Usage').item.json.sender.match(/<([^>]+)>/) || [] )[1] || $('Normalize Daily Usage').item.json.sender }}",
+        "subject": "=Join request received: {{ $('Information Extractor').item.json.output.title }}",
+        "html": "=<p>Hello,</p>\n\n<p>Your request has been received and a Join ticket was created successfully.</p>\n\n<p>\n  <strong>Title:</strong>\n  {{ $('Information Extractor').item.json.output.title }}\n</p>\n\n<p>\n  <strong>Category:</strong>\n  {{ $('Information Extractor').item.json.output.category }}<br>\n  <strong>Priority:</strong>\n  {{ $('Information Extractor').item.json.output.priority }}<br>\n  <strong>Deadline:</strong>\n  {{ $('Information Extractor').item.json.output.deadline || 'Not specified' }}\n</p>\n\n<p>The ticket is now in <strong>Triage</strong> for review.</p>\n\n<p>Best regards,<br>Join AI</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1952,
+        0
+      ],
+      "id": "83e82618-5ef3-4497-a963-a11613e62569",
+      "name": "Send an Email",
+      "webhookId": "d136d3a1-eda4-46a9-9b31-23025c094855",
+      "credentials": {
+        "smtp": {
+          "id": "FCkYvynDgrQN19vJ",
+          "name": "SMTP account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -344,6 +368,17 @@
           }
         ]
       ]
+    },
+    "Create Firebase Task": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -351,7 +386,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "74d0b855-d34f-46f8-9ada-5a9dacb444d6",
+  "versionId": "d196e0d8-2820-47f5-9368-3f00d19f6942",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "68bd1b93b41d2a8db7d4592ac2344c592298685a126e0865e3ab5f3339d425b2"
