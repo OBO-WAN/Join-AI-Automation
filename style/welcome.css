@@ -1,0 +1,218 @@
+.welcome-page {
+  background-color: #2a3647;
+  color: #2a3647;
+  font-family: "Open Sans", Arial, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.welcome-main {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 24px;
+}
+
+.welcome-dialog {
+  background-color: #fff;
+  border-radius: 30px;
+  box-shadow: 0 0 10px 3px rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: center;
+  min-height: 403px;
+  padding: 56px 72px;
+  width: min(789px, calc(100vw - 48px));
+}
+
+.welcome-content {
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+  width: 645px;
+}
+
+.welcome-heading-group {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.welcome-heading-group h1 {
+  color: #2a3647;
+  font-family: "Open Sans", Arial, sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+  text-align: center;
+}
+
+.welcome-accent {
+  background-color: #177da8;
+  border-radius: 2px;
+  height: 3px;
+  width: 120px;
+}
+
+.welcome-intro {
+  color: #2a3647;
+  font-family: "Open Sans", Arial, sans-serif;
+  font-size: 23px;
+  font-weight: 400;
+  line-height: 1.2;
+  margin: -32px 0 0;
+  width: 100%;
+}
+
+.welcome-options {
+  align-items: center;
+  display: flex;
+  gap: 64px;
+  justify-content: center;
+}
+
+.welcome-option {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.welcome-role-label {
+  align-items: center;
+  color: #2a3647;
+  display: flex;
+  font-family: "Open Sans", Arial, sans-serif;
+  font-size: 23px;
+  font-weight: 400;
+  gap: 8px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.welcome-role-label img {
+  filter: brightness(0) saturate(100%) invert(36%) sepia(92%) saturate(739%) hue-rotate(157deg) brightness(88%) contrast(86%);
+  height: 24px;
+  object-fit: contain;
+  width: 24px;
+}
+
+.welcome-primary-button,
+.welcome-secondary-button {
+  align-items: center;
+  border-radius: 8px;
+  display: inline-flex;
+  font-family: "Open Sans", Arial, sans-serif;
+  font-weight: 400;
+  justify-content: center;
+  line-height: 1.2;
+  min-height: 48px;
+  padding: 10px 18px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.welcome-primary-button {
+  background-color: #177da8;
+  color: #fff;
+  font-size: 23px;
+  width: 196px;
+}
+
+.welcome-secondary-button {
+  background-color: #fff;
+  border: 1px solid #2a3647;
+  color: #2a3647;
+  font-size: 19px;
+  padding-bottom: 12px;
+  padding-top: 12px;
+  width: 165px;
+}
+
+.welcome-primary-button:hover,
+.welcome-primary-button:focus-visible {
+  background-color: #29abe2;
+  outline: none;
+}
+
+.welcome-secondary-button:hover,
+.welcome-secondary-button:focus-visible {
+  border-color: #177da8;
+  color: #177da8;
+  outline: none;
+}
+
+.welcome-footer {
+  bottom: 40px;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.welcome-footer a {
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2;
+  padding: 8px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.welcome-footer a:hover,
+.welcome-footer a:focus-visible {
+  color: #29abe2;
+  outline: none;
+}
+
+@media (max-width: 720px) {
+  .welcome-main {
+    align-items: flex-start;
+    min-height: auto;
+    padding: 48px 16px 112px;
+  }
+
+  .welcome-dialog {
+    padding: 40px 24px;
+    width: 100%;
+  }
+
+  .welcome-content {
+    gap: 40px;
+    width: 100%;
+  }
+
+  .welcome-intro {
+    font-size: 18px;
+    margin-top: -16px;
+  }
+
+  .welcome-options {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .welcome-role-label {
+    font-size: 18px;
+    white-space: normal;
+  }
+
+  .welcome-primary-button,
+  .welcome-secondary-button {
+    width: 100%;
+  }
+
+  .welcome-footer {
+    bottom: 24px;
+    flex-wrap: wrap;
+    width: calc(100% - 32px);
+  }
+}

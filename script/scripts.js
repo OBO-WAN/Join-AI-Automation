@@ -203,12 +203,12 @@ function loginSuccessful() {
  * @function logOut
  * @description Handles the logout process. It sets the `window.showButtonLinksSidebar` to `false`,
  * updates the 'linksSidebarBoolienKey' in sessionStorage, removes 'loggedIn', 'loggedInUserId',
- * and 'activePage' from sessionStorage, and then navigates the user back to the 'log_in.html' page.
+ * and 'activePage' from sessionStorage, and then navigates the user back to the login page.
  */
 
 function logOut() {
 
-  goToUrl('index.html');
+  goToUrl('login.html');
 
   window.showButtonLinksSidebar = false;
   sessionStorage.setItem('linksSidebarBoolienKey', window.showButtonLinksSidebar);

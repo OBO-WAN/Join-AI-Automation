@@ -72,12 +72,12 @@ function togglePasswordVisibility(inputId, iconElement) {
  * 
  * @function delayedRedirectAndReset
  * @description **This function is called by `handleSignUpSuccess` to perform post-sign-up actions.**
- * It uses `setTimeout` to delay the redirection to the 'log_in.html' page and calls the
+ * It uses `setTimeout` to delay the redirection to the login page and calls the
  * `resetProberties` function after a specified delay (500 milliseconds).
  */
 function delayedRedirectAndReset(){
  setTimeout(() => {
-      goToUrl('index.html');
+      goToUrl('login.html');
       toggleCheckbox(true);
     }, 500);
 }

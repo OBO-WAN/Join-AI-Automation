@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Join | Stakeholder Request</title>
+    <link rel="icon" href="./assets/img/favicon.png" />
+    <link rel="stylesheet" href="style/style.css" />
+    <link rel="stylesheet" href="style/stakeholder.css" />
+  </head>
+  <body class="stakeholder-page">
+    <img class="stakeholder-logo" src="assets/img/stakeholder-logo.svg" alt="Join logo" />
+
+    <main class="stakeholder-main" aria-labelledby="stakeholder-heading">
+      <div class="stakeholder-top-row">
+        <a class="stakeholder-back stakeholder-back-desktop" href="index.html" aria-label="Back to welcome page">
+          <img src="assets/icons/stakeholder-arrow-left.svg" alt="" aria-hidden="true" />
+        </a>
+        <p class="stakeholder-counter stakeholder-counter-desktop">
+          <strong>0</strong> of <strong>10</strong> requests used today
+        </p>
+      </div>
+
+      <section class="stakeholder-content">
+        <div class="stakeholder-title-block">
+          <div class="stakeholder-mobile-title-row">
+            <h1 id="stakeholder-heading">Welcome</h1>
+            <a class="stakeholder-back stakeholder-back-mobile" href="index.html" aria-label="Back to welcome page">
+              <img src="assets/icons/stakeholder-arrow-left.svg" alt="" aria-hidden="true" />
+            </a>
+          </div>
+          <p class="stakeholder-counter stakeholder-counter-mobile">
+            <strong>0</strong> of <strong>10</strong> <span>requests used</span>
+          </p>
+        </div>
+
+        <div class="stakeholder-body">
+          <div class="stakeholder-text">
+            <p class="stakeholder-intro">Easily create a ticket by sending an email — no extra steps needed.</p>
+            <div class="stakeholder-copy">
+              <p>
+                On this platform, you can submit your feature requests via email. Our AI system will automatically
+                generate a ticket with a deadline and priority level.
+              </p>
+              <p>
+                A total of 10 requests can be created per day. After this limit, emails can still be sent, but they
+                will be manually reviewed by our team instead of generating AI tickets.
+              </p>
+            </div>
+          </div>
+
+          <picture class="stakeholder-illustration">
+            <source media="(max-width: 720px)" srcset="assets/img/stakeholder-illustration-mobile.png" />
+            <img src="assets/img/stakeholder-illustration-desktop.png" alt="Illustration of a request becoming board tickets" />
+          </picture>
+
+          <a class="stakeholder-cta" href="mailto:join@naranjo.io">
+            <span class="stakeholder-cta-desktop-text">Create Email Request</span>
+            <span class="stakeholder-cta-mobile-text">Create request</span>
+            <img class="stakeholder-cta-check" src="assets/icons/stakeholder-check.svg" alt="" aria-hidden="true" />
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="stakeholder-footer">
+      <a href="privacy_policy.html">Privacy Policy</a>
+      <a href="legal_notice.html">Legal notice</a>
+    </footer>
+  </body>
+</html>
