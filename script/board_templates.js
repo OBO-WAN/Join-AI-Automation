@@ -15,6 +15,7 @@
  * @param {string} task.title - Task title.
  * @param {string} task.details - Task description/details.
  * @param {string} task.priority - Task priority (e.g., "low", "medium", "urgent").
+ * @param {Object|null} task.creator - Optional creator display data.
  * @param {Array<Object>} assignedUsersHTML - Pre-rendered user initials HTML string.
  * @param {number} index - Index of the task in the current list (used for DOM targeting).
  * 
@@ -25,6 +26,8 @@
  * document.getElementById('toDoContainer').innerHTML += cardHTML;
  */
 function getKanbanTemplate(task, assignedUsersHTML, index) {
+  const creatorHTML = getCreatorCardHTML(task.creator);
+
   return `    <div class="task_container hover" data-task-id="${task.id}" data-task-index="${index}" draggable="true" ondragstart="startDragging('${task.id}', event)">
                     
                     <div class="task">
@@ -34,6 +37,8 @@ function getKanbanTemplate(task, assignedUsersHTML, index) {
                             <p class="task_title" id="task_title">${task.title}</p>
                             <p class="task_details" id="task_details">${task.description}</p>
                         </div>
+
+                        ${creatorHTML}
 
                         <div id="subtask_container_${index}" class="subtask_container"></div>
 
@@ -46,6 +51,25 @@ function getKanbanTemplate(task, assignedUsersHTML, index) {
                 </div>
 
 `;
+}
+
+/**
+ * Generates compact creator information for a Kanban task card.
+ * @param {Object|null} creator - Creator display data.
+ * @param {string} creator.identity - Creator name or email to show.
+ * @param {string} creator.label - Display label for the creator type.
+ * @param {string} creator.type - CSS-friendly creator type key.
+ * @returns {string} Creator HTML or an empty string.
+ */
+function getCreatorCardHTML(creator) {
+  if (!creator) return "";
+
+  return `
+                        <div class="task_creator">
+                            <span class="task_creator_label">Created by:</span>
+                            <span class="task_creator_identity">${creator.identity}</span>
+                            <span class="creator_type_badge creator_type_${creator.type}">${creator.label}</span>
+                        </div>`;
 }
 
 /**
@@ -159,6 +183,7 @@ function getAddTaskOverlay(type = "add") {
  * @param {string} task.categoryClass - CSS class for category styling
  * @param {string} task.title - Task title
  * @param {string} task.description - Task description
+ * @param {Object|null} task.creator - Optional creator display data
  * @param {string} assignedUsersHTML - Pre-rendered HTML string for assigned user avatars
  * @param {number} index - Index of the task in the current list
  * @param {string} formattedDate - Formatted due date string
@@ -167,6 +192,8 @@ function getAddTaskOverlay(type = "add") {
  * @returns {string} HTML string for the task detail overlay
  */
 function getTaskSheetOverlay(task, assignedUsersHTML, index, formattedDate, priority, subtasksHTML) {
+  const creatorHTML = getCreatorOverlayHTML(task.creator);
+
   return `
     <div class="task_container_overlay hover">
       <div class="task_overlay">
@@ -179,6 +206,8 @@ function getTaskSheetOverlay(task, assignedUsersHTML, index, formattedDate, prio
         <div class="task_information_overlay">
           <p class="task_title_overlay" id="task_title">${task.title}</p>
           <p class="task_details_overlay" id="task_details">${task.description}</p>
+
+          ${creatorHTML}
 
           <table>
             <tr>
@@ -236,6 +265,25 @@ function getTaskSheetOverlay(task, assignedUsersHTML, index, formattedDate, prio
       </div>
     </div>
   `;
+}
+
+/**
+ * Generates creator information for the task detail overlay.
+ * @param {Object|null} creator - Creator display data.
+ * @param {string} creator.identity - Creator name or email to show.
+ * @param {string} creator.label - Display label for the creator type.
+ * @param {string} creator.type - CSS-friendly creator type key.
+ * @returns {string} Creator HTML or an empty string.
+ */
+function getCreatorOverlayHTML(creator) {
+  if (!creator) return "";
+
+  return `
+          <div class="task_creator_overlay">
+            <span class="task_creator_label">Created by:</span>
+            <span class="task_creator_identity">${creator.identity}</span>
+            <span class="creator_type_badge creator_type_${creator.type}">${creator.label}</span>
+          </div>`;
 }
 
 /**

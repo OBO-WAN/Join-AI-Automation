@@ -183,8 +183,32 @@ function prepareTaskForTemplate(task) {
     description: task.description || "",
     assignedTo,
     priority: (task.priority || "low").toLowerCase(),
-    subTasks: task.subTasks || []
+    subTasks: task.subTasks || [],
+    creator: getCreatorDisplayInfo(task.creator)
   };
+}
+
+/**
+ * Builds display data from task creator metadata without modifying the task.
+ * @param {Object} [creator] - Creator metadata stored on the task.
+ * @param {string} [creator.type] - Creator type, such as "internal" or "external".
+ * @param {string} [creator.name] - Creator name for internal tasks.
+ * @param {string} [creator.email] - Creator email address.
+ * @returns {{identity: string, label: string, type: string}|null} Display data or null.
+ */
+function getCreatorDisplayInfo(creator) {
+  if (!creator || typeof creator !== "object") return null;
+
+  if (creator.type === "external" && creator.email) {
+    return { identity: creator.email, label: "External", type: "external" };
+  }
+
+  if (creator.type === "internal") {
+    const identity = creator.name || creator.email;
+    if (identity) return { identity, label: "Internal", type: "internal" };
+  }
+
+  return null;
 }
 
 /**

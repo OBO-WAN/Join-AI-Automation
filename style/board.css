@@ -207,6 +207,51 @@ h3 {
   line-clamp: 2;
 }
 
+.task_creator,
+.task_creator_overlay {
+  color: #42526e;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.task_creator {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin-bottom: 12px;
+  max-width: 220px;
+}
+
+.task_creator_overlay {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.task_creator_identity {
+  color: #2a3647;
+  overflow-wrap: anywhere;
+}
+
+.creator_type_badge {
+  border-radius: 6px;
+  font-size: 12px;
+  padding: 2px 6px;
+}
+
+.creator_type_internal {
+  background-color: #e7f6fd;
+  color: #0b6fa4;
+}
+
+.creator_type_external {
+  background-color: #fff3d6;
+  color: #9a5b00;
+}
+
 .progress_container {
   display: flex;
   align-items: center;
