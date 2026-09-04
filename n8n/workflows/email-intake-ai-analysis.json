@@ -73,11 +73,12 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        1728,
+        1648,
         0
       ],
       "id": "d03121f0-41fa-4269-99f2-e15c8bd446b4",
-      "name": "Create Firebase Task"
+      "name": "Create Firebase Task",
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -265,8 +266,8 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        1952,
-        0
+        2032,
+        -80
       ],
       "id": "83e82618-5ef3-4497-a963-a11613e62569",
       "name": "Send an Email",
@@ -277,6 +278,64 @@
           "name": "SMTP account"
         }
       }
+    },
+    {
+      "parameters": {
+        "fromEmail": "join@naranjo.io",
+        "toEmail": "={{ ( $('Normalize Daily Usage').item.json.sender.match(/<([^>]+)>/) || [] )[1] || $('Normalize Daily Usage').item.json.sender }}",
+        "subject": "We couldn't create your Join ticket",
+        "html": "=<p>Hello,</p>\n\n<p>We received your request, but we could not create the Join ticket automatically.</p>\n\n<p>\n  <strong>Request:</strong>\n  {{ $('Information Extractor').item.json.output.title || $('Normalize Daily Usage').item.json.subject }}\n</p>\n\n<p>Your request has not been lost. It will be reviewed manually.</p>\n\n<p>Best regards,<br>Join AI</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2032,
+        112
+      ],
+      "id": "13e90d07-9965-4d0c-aca4-9fd20332d803",
+      "name": "Send Failure Email",
+      "webhookId": "a02bcfa6-f769-4bec-9583-056b5c431e1f",
+      "credentials": {
+        "smtp": {
+          "id": "FCkYvynDgrQN19vJ",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ba27223c-3f98-4ac2-acbe-00721b092959",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1824,
+        0
+      ],
+      "id": "adf9cf51-1281-4c14-956b-270df60fe0e8",
+      "name": "Task created?"
     }
   ],
   "pinData": {},
@@ -373,7 +432,30 @@
       "main": [
         [
           {
+            "node": "Task created?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Failure Email": {
+      "main": [
+        []
+      ]
+    },
+    "Task created?": {
+      "main": [
+        [
+          {
             "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Failure Email",
             "type": "main",
             "index": 0
           }
@@ -386,7 +468,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "d196e0d8-2820-47f5-9368-3f00d19f6942",
+  "versionId": "eb9d2d2c-3fe6-4882-b5e1-bc5a196b22ed",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "68bd1b93b41d2a8db7d4592ac2344c592298685a126e0865e3ab5f3339d425b2"
