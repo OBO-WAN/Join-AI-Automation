@@ -9,7 +9,14 @@
     <link rel="stylesheet" href="style/welcome.css" />
   </head>
   <body class="welcome-page">
+    <img class="welcome-logo" src="assets/img/logo-white.svg" alt="Join" width="64" height="78" />
+
     <main class="welcome-main" aria-labelledby="welcome-heading">
+      <div class="welcome-signup">
+        <span>Not a Join user?</span>
+        <a href="sign_up.html">Sign up</a>
+      </div>
+
       <section class="welcome-dialog">
         <div class="welcome-content">
           <div class="welcome-heading-group">
@@ -17,14 +24,21 @@
             <div class="welcome-accent" aria-hidden="true"></div>
           </div>
 
-          <p class="welcome-intro">
+          <p class="welcome-intro welcome-intro-desktop">
             Pick the option that suits your role: create a request as a stakeholder or log in if you’re part of the team.
+          </p>
+          <p class="welcome-intro welcome-intro-mobile">
+            Pick the option that suits your role:<br />
+            create a request as a stakeholder or log in if you’re part of the team.
           </p>
 
           <div class="welcome-options" aria-label="Choose your Join role">
             <div class="welcome-option">
               <div class="welcome-role-label">
-                <img src="assets/img/add-task.png" alt="" aria-hidden="true" />
+                <picture>
+                  <source media="(max-width: 720px)" srcset="assets/icons/welcome-stakeholder.svg" />
+                  <img src="assets/img/add-task.png" alt="" aria-hidden="true" />
+                </picture>
                 <span>Are you a stakeholder?</span>
               </div>
               <a class="welcome-primary-button" href="stakeholder.html">Create request</a>
@@ -32,7 +46,10 @@
 
             <div class="welcome-option">
               <div class="welcome-role-label">
-                <img src="assets/img/contacts.png" alt="" aria-hidden="true" />
+                <picture>
+                  <source media="(max-width: 720px)" srcset="assets/icons/welcome-team.svg" />
+                  <img src="assets/img/contacts.png" alt="" aria-hidden="true" />
+                </picture>
                 <span>Are you a team member?</span>
               </div>
               <a class="welcome-secondary-button" href="login.html">Member log in</a>

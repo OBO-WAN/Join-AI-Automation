@@ -172,47 +172,181 @@
   outline: none;
 }
 
+.welcome-logo,
+.welcome-signup,
+.welcome-intro-mobile {
+  display: none;
+}
+
+.welcome-role-label picture {
+  display: flex;
+  flex-shrink: 0;
+}
+
+@font-face {
+  font-family: "Open Sans";
+  src: url("../assets/font/OpenSans-VariableFont.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+}
+
 @media (max-width: 720px) {
+  .welcome-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+  }
+
+  .welcome-logo {
+    display: block;
+    height: 78px;
+    left: 41px;
+    position: absolute;
+    top: 45px;
+    width: 64px;
+  }
+
   .welcome-main {
-    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: flex-start;
     min-height: auto;
-    padding: 48px 16px 112px;
+    padding: 187px 16px 0;
+  }
+
+  .welcome-signup {
+    align-items: center;
+    color: #fff;
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    line-height: 23px;
+  }
+
+  .welcome-signup span,
+  .welcome-signup a {
+    font-family: "Open Sans", Arial, sans-serif;
+    font-weight: 400;
+  }
+
+  .welcome-signup span {
+    font-size: 16px;
+    line-height: 19px;
+  }
+
+  .welcome-signup a {
+    color: #fff;
+    font-size: 19px;
+    text-decoration: none;
   }
 
   .welcome-dialog {
-    padding: 40px 24px;
+    padding: 64px 28px;
     width: 100%;
   }
 
   .welcome-content {
-    gap: 40px;
+    gap: 24px;
+    max-width: 340px;
     width: 100%;
   }
 
+  .welcome-heading-group h1 {
+    font-size: 40px;
+  }
+
+  .welcome-accent {
+    margin-block: -1.5px;
+    width: 100px;
+  }
+
   .welcome-intro {
-    font-size: 18px;
-    margin-top: -16px;
+    color: #42526e;
+    font-size: 16px;
+    line-height: 19px;
+    margin: 0;
+    text-align: center;
+  }
+
+  .welcome-intro-desktop {
+    display: none;
+  }
+
+  .welcome-intro-mobile {
+    display: block;
   }
 
   .welcome-options {
-    align-items: flex-start;
     flex-direction: column;
-    gap: 32px;
+    gap: 70px;
+    margin-top: 32px;
+  }
+
+  .welcome-option {
+    align-items: center;
+    gap: 16px;
   }
 
   .welcome-role-label {
     font-size: 18px;
+    justify-content: center;
+    line-height: 22px;
+    text-align: center;
     white-space: normal;
+  }
+
+  .welcome-role-label span {
+    font-family: inherit;
+  }
+
+  .welcome-role-label img {
+    filter: none;
+    flex-shrink: 0;
+    height: 18px;
+    width: 18px;
+  }
+
+  .welcome-option:last-child .welcome-role-label img {
+    width: 22px;
   }
 
   .welcome-primary-button,
   .welcome-secondary-button {
-    width: 100%;
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    line-height: 19px;
+    padding: 15px 24px;
+    width: auto;
+  }
+
+  .welcome-primary-button {
+    background-color: #2a3647;
+    min-width: 161px;
+  }
+
+  .welcome-secondary-button {
+    /* Figma draws the 1px border inside the button's padding. */
+    min-width: 156px;
+    padding: 14px 23px;
+  }
+
+  .welcome-primary-button:hover,
+  .welcome-primary-button:focus-visible {
+    background-color: #29abe2;
   }
 
   .welcome-footer {
-    bottom: 24px;
-    flex-wrap: wrap;
-    width: calc(100% - 32px);
+    margin-top: auto;
+    padding: 24px 16px 15px;
+    position: static;
+    transform: none;
+    width: 100%;
+  }
+
+  .welcome-footer a {
+    font-family: "Open Sans", Arial, sans-serif;
+    line-height: 19px;
+    text-transform: capitalize;
   }
 }
