@@ -127,13 +127,19 @@
             {
               "id": "5e592877-646e-45b1-aa71-39a589500464",
               "name": "messageId",
-              "value": "=={{ $('Edit Fields').item.json.messageID }}",
+              "value": "={{ $('Edit Fields').item.json.messageID }}",
               "type": "string"
             },
             {
-              "id": "e2699a92-19f0-46d9-92a5-afe31d914b7a",
-              "name": "count",
+              "id": "e937aae0-b3d9-46ce-9d71-1544a3dd75c0",
+              "name": "requestsUsed",
               "value": "={{ Number($json.body?.count ?? 0) }}",
+              "type": "number"
+            },
+            {
+              "id": "ad1a72dd-9dca-4b0b-a63f-6e506d57b722",
+              "name": "ticketsCreated",
+              "value": "={{ Number($json.body?.ticketsCreated ?? 0) }}",
               "type": "number"
             }
           ]
@@ -148,30 +154,6 @@
       ],
       "id": "abf435c9-5964-4146-92bd-239ec5012639",
       "name": "Normalize Daily Usage"
-    },
-    {
-      "parameters": {
-        "method": "PUT",
-        "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/automationUsage/{{ $now.toFormat('yyyy-MM-dd') }}.json",
-        "sendBody": true,
-        "specifyBody": "=json",
-        "bodyParameters": {
-          "parameters": [
-            {}
-          ]
-        },
-        "jsonBody": "={{\n  {\n    count: $json.count + 1\n  }\n}}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.5,
-      "position": [
-        1088,
-        -96
-      ],
-      "id": "1fb4bd4f-7974-4ebb-af23-491019e4b4e8",
-      "name": "Increment Daily Usage",
-      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -242,8 +224,8 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        2032,
-        -80
+        2208,
+        -176
       ],
       "id": "83e82618-5ef3-4497-a963-a11613e62569",
       "name": "Send an Email",
@@ -266,8 +248,8 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        1856,
-        336
+        2000,
+        240
       ],
       "id": "13e90d07-9965-4d0c-aca4-9fd20332d803",
       "name": "Send Failure Email",
@@ -325,7 +307,7 @@
           "conditions": [
             {
               "id": "cc6c19a2-2eee-4173-bac5-7b689aa86cb1",
-              "leftValue": "={{ $json.count }}",
+              "leftValue": "={{ $json.requestsUsed }}",
               "rightValue": 10,
               "operator": {
                 "type": "number",
@@ -391,7 +373,7 @@
       "type": "n8n-nodes-imap.imap",
       "typeVersion": 1,
       "position": [
-        2256,
+        2336,
         -80
       ],
       "id": "bd532ff3-27a9-4372-a65e-789516bf8cc7",
@@ -424,8 +406,8 @@
       "type": "n8n-nodes-imap.imap",
       "typeVersion": 1,
       "position": [
-        2256,
-        112
+        2336,
+        128
       ],
       "id": "e212a7e3-8a50-48fa-962c-ebc41966e872",
       "name": "Move Email to zu bearbeiten",
@@ -472,7 +454,7 @@
     {
       "parameters": {
         "fromEmail": "=join@naranjo.io",
-        "toEmail": "=={{ ( $('Edit Fields').item.json.sender.match(/<([^>]+)>/) || [] )[1] || $('Edit Fields').item.json.sender }}",
+        "toEmail": "={{ ( $('Edit Fields').item.json.sender.match(/<([^>]+)>/) || [] )[1] || $('Edit Fields').item.json.sender }}",
         "subject": "We couldn't process your Join request",
         "html": "=<p>Hello,</p>\n\n<p>We received your request, but a temporary system error prevented us from processing it automatically.</p>\n\n<p>\n  <strong>Request:</strong>\n  {{ $('Edit Fields').item.json.subject }}\n</p>\n\n<p>Your request has not been lost. It will be reviewed manually.</p>\n\n<p>Best regards,<br>Join AI</p>",
         "options": {}
@@ -493,6 +475,49 @@
         }
       },
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/automationUsage/{{ $now.toFormat('yyyy-MM-dd') }}.json",
+        "sendBody": true,
+        "specifyBody": "=json",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "jsonBody": "={\n  \"count\": {\n    \".sv\": {\n      \"increment\": 1\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1088,
+        -160
+      ],
+      "id": "1fb4bd4f-7974-4ebb-af23-491019e4b4e8",
+      "name": "Increment Requests Used",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/automationUsage/{{ $now.toFormat('yyyy-MM-dd') }}.json",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"ticketsCreated\": {\n    \".sv\": {\n      \"increment\": 1\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2016,
+        -176
+      ],
+      "id": "6aab57c0-b3cc-4505-abb7-585281f7bdb7",
+      "name": "Increment Tickets Created",
+      "onError": "continueErrorOutput"
     }
   ],
   "pinData": {},
@@ -542,17 +567,6 @@
         [
           {
             "node": "Under Daily Limit?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Increment Daily Usage": {
-      "main": [
-        [
-          {
-            "node": "Information Extractor",
             "type": "main",
             "index": 0
           }
@@ -614,7 +628,7 @@
       "main": [
         [
           {
-            "node": "Send an Email",
+            "node": "Increment Tickets Created",
             "type": "main",
             "index": 0
           }
@@ -632,7 +646,7 @@
       "main": [
         [
           {
-            "node": "Increment Daily Usage",
+            "node": "Increment Requests Used",
             "type": "main",
             "index": 0
           }
@@ -678,6 +692,42 @@
           }
         ]
       ]
+    },
+    "Increment Requests Used": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Usage Lookup Failure Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Increment Tickets Created": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -685,7 +735,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "1038615d-c28a-4eff-a690-76663cb4d6b3",
+  "versionId": "b40a997e-e499-4894-ad41-65f41a1ee4b9",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "68bd1b93b41d2a8db7d4592ac2344c592298685a126e0865e3ab5f3339d425b2"
