@@ -74,7 +74,7 @@
       "typeVersion": 4.5,
       "position": [
         1648,
-        0
+        -256
       ],
       "id": "d03121f0-41fa-4269-99f2-e15c8bd446b4",
       "name": "Create Firebase Task",
@@ -83,7 +83,13 @@
     {
       "parameters": {
         "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/automationUsage/{{ $now.toFormat('yyyy-MM-dd') }}.json",
-        "options": {}
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
@@ -93,7 +99,8 @@
       ],
       "id": "a797642e-8d98-4822-8895-cfe4774e6fb9",
       "name": "Get Daily Usage",
-      "alwaysOutputData": true
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -120,13 +127,13 @@
             {
               "id": "5e592877-646e-45b1-aa71-39a589500464",
               "name": "messageId",
-              "value": "={{ $('Edit Fields').item.json.messageId }}",
+              "value": "=={{ $('Edit Fields').item.json.messageID }}",
               "type": "string"
             },
             {
               "id": "e2699a92-19f0-46d9-92a5-afe31d914b7a",
               "name": "count",
-              "value": "={{ Number($json.count ?? 0) }}",
+              "value": "={{ Number($json.body?.count ?? 0) }}",
               "type": "number"
             }
           ]
@@ -137,7 +144,7 @@
       "typeVersion": 3.5,
       "position": [
         672,
-        0
+        -80
       ],
       "id": "abf435c9-5964-4146-92bd-239ec5012639",
       "name": "Normalize Daily Usage"
@@ -159,11 +166,12 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        1104,
-        -128
+        1088,
+        -96
       ],
       "id": "1fb4bd4f-7974-4ebb-af23-491019e4b4e8",
-      "name": "Increment Daily Usage"
+      "name": "Increment Daily Usage",
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -197,11 +205,12 @@
       "type": "@n8n/n8n-nodes-langchain.informationExtractor",
       "typeVersion": 1.2,
       "position": [
-        1344,
-        0
+        1360,
+        -96
       ],
       "id": "4919b66c-46db-4016-a80e-acf9477db3fb",
-      "name": "Information Extractor"
+      "name": "Information Extractor",
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -210,8 +219,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1.1,
       "position": [
-        1408,
-        192
+        1472,
+        112
       ],
       "id": "1a42e8bf-0856-4308-95b0-4a9275bae0c9",
       "name": "Google Gemini Chat Model",
@@ -249,16 +258,16 @@
     {
       "parameters": {
         "fromEmail": "join@naranjo.io",
-        "toEmail": "={{ ( $('Normalize Daily Usage').item.json.sender.match(/<([^>]+)>/) || [] )[1] || $('Normalize Daily Usage').item.json.sender }}",
+        "toEmail": "={{ ($('Edit Fields').item.json.sender.match(/<([^>]+)>/) || [])[1] || $('Edit Fields').item.json.sender }}",
         "subject": "We couldn't create your Join ticket",
-        "html": "=<p>Hello,</p>\n\n<p>We received your request, but we could not create the Join ticket automatically.</p>\n\n<p>\n  <strong>Request:</strong>\n  {{ $('Information Extractor').item.json.output.title || $('Normalize Daily Usage').item.json.subject }}\n</p>\n\n<p>Your request has not been lost. It will be reviewed manually.</p>\n\n<p>Best regards,<br>Join AI</p>",
+        "html": "<p>Hello,</p>\n\n<p>\n  We received your request, but we could not create the Join ticket automatically.\n</p>\n\n<p>\n  Your email has been forwarded for <strong>manual review by our team</strong>.\n  You do not need to resend it.\n</p>\n\n<p>\n  Best regards,<br>\n  Join AI\n</p>",
         "options": {}
       },
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        2032,
-        112
+        1856,
+        336
       ],
       "id": "13e90d07-9965-4d0c-aca4-9fd20332d803",
       "name": "Send Failure Email",
@@ -299,7 +308,7 @@
       "typeVersion": 2.3,
       "position": [
         1824,
-        0
+        -176
       ],
       "id": "adf9cf51-1281-4c14-956b-270df60fe0e8",
       "name": "Task created?"
@@ -341,15 +350,15 @@
       "parameters": {
         "fromEmail": "join@naranjo.io",
         "toEmail": "={{ ( $('Normalize Daily Usage').item.json.sender.match(/<([^>]+)>/) || [] )[1] || $('Normalize Daily Usage').item.json.sender }}",
-        "subject": "Daily request limit reached",
-        "html": "<p>Hello,</p>\n\n<p>You have reached the daily limit of <strong>10 Join requests</strong>.</p>\n\n<p>Your request was not processed and no AI analysis or ticket creation was performed.</p>\n\n<p>Please try again tomorrow.</p>\n\n<p>Best regards,<br>Join AI</p>",
+        "subject": "Daily AI request limit reached — manual review",
+        "html": "<p>Hello,</p>\n\n<p>Your request has been received.</p>\n\n<p>\n  The daily limit of <strong>10 AI-generated requests</strong> has been reached.\n  No AI ticket was created for this request.\n</p>\n\n<p>\n  Your email will instead be <strong>manually reviewed by our team</strong>.\n  You do not need to resend it.\n</p>\n\n<p>\n  Best regards,<br>\n  Join AI\n</p>",
         "options": {}
       },
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        1104,
-        80
+        1088,
+        64
       ],
       "id": "cc5df5ee-a215-4f0e-b83a-592c474da668",
       "name": "Send Daily Limit Email",
@@ -426,6 +435,64 @@
           "name": "IMAP account"
         }
       }
+    },
+    {
+      "parameters": {
+        "authentication": "coreImapAccount",
+        "resource": "email",
+        "operation": "moveEmail",
+        "sourceMailbox": {
+          "__rl": true,
+          "mode": "list",
+          "value": "INBOX"
+        },
+        "emailUid": "={{ $('Email Intake - Daily Limit').item.json.attributes.uid }}",
+        "destinationMailbox": {
+          "__rl": true,
+          "value": "zu bearbeiten",
+          "mode": "list",
+          "cachedResultName": "zu bearbeiten"
+        }
+      },
+      "type": "n8n-nodes-imap.imap",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        128
+      ],
+      "id": "952da5fb-2cb6-4eec-8e07-4ce1335a5773",
+      "name": "Move Limit Email to zu bearbeiten",
+      "credentials": {
+        "imap": {
+          "id": "fzZtp6r2Mx9QdA0h",
+          "name": "IMAP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "=join@naranjo.io",
+        "toEmail": "=={{ ( $('Edit Fields').item.json.sender.match(/<([^>]+)>/) || [] )[1] || $('Edit Fields').item.json.sender }}",
+        "subject": "We couldn't process your Join request",
+        "html": "=<p>Hello,</p>\n\n<p>We received your request, but a temporary system error prevented us from processing it automatically.</p>\n\n<p>\n  <strong>Request:</strong>\n  {{ $('Edit Fields').item.json.subject }}\n</p>\n\n<p>Your request has not been lost. It will be reviewed manually.</p>\n\n<p>Best regards,<br>Join AI</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        672,
+        96
+      ],
+      "id": "04bc8fd0-fea9-4834-9bb8-6629ab36ccf0",
+      "name": "Send Usage Lookup Failure Email",
+      "webhookId": "c7811433-a795-46ef-8580-02fcd30e7ffb",
+      "credentials": {
+        "smtp": {
+          "id": "FCkYvynDgrQN19vJ",
+          "name": "SMTP account"
+        }
+      },
+      "onError": "continueRegularOutput"
     }
   ],
   "pinData": {},
@@ -460,6 +527,13 @@
             "type": "main",
             "index": 0
           }
+        ],
+        [
+          {
+            "node": "Send Usage Lookup Failure Email",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     },
@@ -490,6 +564,13 @@
         [
           {
             "node": "Create Firebase Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Failure Email",
             "type": "main",
             "index": 0
           }
@@ -575,14 +656,36 @@
           }
         ]
       ]
+    },
+    "Send Daily Limit Email": {
+      "main": [
+        [
+          {
+            "node": "Move Limit Email to zu bearbeiten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Usage Lookup Failure Email": {
+      "main": [
+        [
+          {
+            "node": "Move Email to zu bearbeiten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "f3999d9a-c10e-41fc-b557-eb0e22e3c8a8",
+  "versionId": "1038615d-c28a-4eff-a690-76663cb4d6b3",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "68bd1b93b41d2a8db7d4592ac2344c592298685a126e0865e3ab5f3339d425b2"
