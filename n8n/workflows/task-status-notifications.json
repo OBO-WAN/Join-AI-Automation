@@ -20,16 +20,16 @@
     {
       "parameters": {
         "fromEmail": "join@naranjo.io",
-        "toEmail": "={{ $json.body.creatorEmail }}\n",
-        "subject": "=Join task status updated: {{ $json.body.title }}",
-        "html": "=<p>Hello,</p>\n\n<p>The status of your Join task has changed.</p>\n\n<p>\n  <strong>Task:</strong> {{ $json.body.title }}<br>\n  <strong>Previous status:</strong> {{ $json.body.oldStatus }}<br>\n  <strong>New status:</strong> {{ $json.body.newStatus }}\n</p>\n\n<p>Best regards,<br>Join AI</p>",
+        "toEmail": "={{ $('Get Firebase Task').item.json.creator.email }}",
+        "subject": "=Join task status updated: {{ $('Get Firebase Task').item.json.title }}",
+        "html": "=<p>Hello,</p>\n\n<p>The status of your Join task has changed.</p>\n\n<p>\n  <strong>Task:</strong> {{ $('Get Firebase Task').item.json.title }}<br>\n  <strong>New status:</strong> {{ $('Get Firebase Task').item.json.status }}\n</p>\n\n<p>Best regards,<br>Join AI</p>",
         "options": {}
       },
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        224,
-        0
+        752,
+        -224
       ],
       "id": "bebebf9e-97d8-49f0-ae42-268b1973deed",
       "name": "Send an Email",
@@ -40,11 +40,150 @@
           "name": "SMTP account"
         }
       }
+    },
+    {
+      "parameters": {
+        "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/tasks/{{ $('Webhook').item.json.body.taskId }}.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "5af29e6b-69b0-4e1d-b162-7ce91fdd59e8",
+      "name": "Get Firebase Task"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "45dd2d5b-07a8-4ed2-91b1-5edee5be36bf",
+              "leftValue": "={{ $json.creator?.type }}",
+              "rightValue": "external",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "fe577098-475f-4c7f-bac9-c423694cfc3c",
+              "leftValue": "={{ $json.creator?.email }}",
+              "rightValue": "is  not empty",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "23f3d41b-3776-4e82-95dd-a4d51ef658ba",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "={{ $('Webhook').item.json.body.newStatus }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "db998a06-f6df-4c81-9765-5c036050372f",
+              "leftValue": "={{ ($json.lastNotifiedStatusChangedAt ?? '') !== ($json.statusChangedAt ?? '') }}",
+              "rightValue": "={{ $json.statusChangedAt ?? '' }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a7037da4-9301-453b-b8b2-e8bc57771f3f",
+              "leftValue": "={{ $json.statusChangedAt }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "28ef8da2-931c-459d-837d-e76d0d35cae6",
+      "name": "Valid External Task?"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/tasks/{{ $('Webhook').item.json.body.taskId }}.json",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  lastNotifiedStatusChangedAt: $json.statusChangedAt\n} }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        608,
+        -128
+      ],
+      "id": "6be7eabd-a657-4477-9b50-d2484a69bda4",
+      "name": "Mark Status Notification Sent"
     }
   ],
   "pinData": {},
   "connections": {
     "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Firebase Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Firebase Task": {
+      "main": [
+        [
+          {
+            "node": "Valid External Task?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid External Task?": {
+      "main": [
+        [
+          {
+            "node": "Mark Status Notification Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Status Notification Sent": {
       "main": [
         [
           {
@@ -61,7 +200,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "692f9ade-93cd-4deb-b2f5-8bd40f40e7ef",
+  "versionId": "5354d5df-a14a-4d99-8e09-56c1c28e443f",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "68bd1b93b41d2a8db7d4592ac2344c592298685a126e0865e3ab5f3339d425b2"
