@@ -29,7 +29,8 @@ const SCROLL_EDGE_MARGIN = 200;
 /** Maximum scroll speed (px per frame) once at the edge. */
 const SCROLL_MAX_SPEED = 400;
 /** Local n8n production webhook for task status change notifications. */
-const STATUS_NOTIFICATION_WEBHOOK_URL = "https://n8n.naranjo.io/webhook/task-status-changed";
+const STATUS_NOTIFICATION_WEBHOOK_URL =
+  "https://n8n.naranjo.io/webhook/task-status-changed";
 
 /**
  * Sends a task status change notification to the local n8n webhook.
@@ -187,6 +188,8 @@ async function moveTo(newStatus) {
     return;
   }
   task.status = newStatus;
+  task.statusChangedAt = new Date().toISOString();
+  
   const response = await fetch(`${BASE_URL}tasks/${taskId}.json`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
