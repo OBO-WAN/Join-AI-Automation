@@ -1,0 +1,15 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Local n8n data and credentials
+.n8n/
+
+# Cloudflare tunnel credentials
+.cloudflared/
+
+# Private keys / credential files
+*.pem
+*.key
+credentials.json
