@@ -8,24 +8,28 @@
 /** Currently dragged task id as a string; `null` if none. */
 let currentDraggedElement = null;
 /** Ghost element used during touch drag; `null` when idle. */
-let mobileGhost = null, activeDropSection = null;
+let mobileGhost = null,
+  activeDropSection = null;
 /**
  * Touch state:
  * - `touchStartX`, `touchStartY`: starting coordinates
  * - `isTouchDragging`: becomes true after movement threshold
  * - `pointerY`: last Y position for edge auto-scroll
  */
-let touchStartX = 0, touchStartY = 0, isTouchDragging = false, pointerY = 0;
+let touchStartX = 0,
+  touchStartY = 0,
+  isTouchDragging = false,
+  pointerY = 0;
 /** requestAnimationFrame id for the auto-scroll loop (0 when not running). */
 let autoScrollRAF = 0;
 /** Minimum movement in pixels to treat a touch as a drag start. */
 const TOUCH_ACTIVATION_THRESHOLD = 8;
 /** Distance from viewport edges (px) where auto-scroll starts. */
-const SCROLL_EDGE_MARGIN = 200; 
+const SCROLL_EDGE_MARGIN = 200;
 /** Maximum scroll speed (px per frame) once at the edge. */
-const SCROLL_MAX_SPEED = 400;   
+const SCROLL_MAX_SPEED = 400;
 /** Local n8n production webhook for task status change notifications. */
-const STATUS_NOTIFICATION_WEBHOOK_URL = "http://localhost:5678/webhook/task-status-changed";
+const STATUS_NOTIFICATION_WEBHOOK_URL = "https://n8n.naranjo.io/webhook/task-status-changed";
 
 /**
  * Sends a task status change notification to the local n8n webhook.
@@ -74,15 +78,36 @@ async function notifyTaskStatusChanged({
  * - Stops the auto-scroll loop
  */
 function cleanupDrag() {
-  document.querySelectorAll(".dragging-swing,.invisible-during-drag")
-    .forEach(el => el.classList.remove("dragging-swing","invisible-during-drag"));
-  document.querySelectorAll(".kanban_section").forEach(s => s.classList.remove("drag-over"));
-  document.querySelectorAll(".drop-placeholder").forEach(p => p.style.display = "none");
+  document
+    .querySelectorAll(".dragging-swing,.invisible-during-drag")
+    .forEach((el) =>
+      el.classList.remove("dragging-swing", "invisible-during-drag"),
+    );
+  document
+    .querySelectorAll(".kanban_section")
+    .forEach((s) => s.classList.remove("drag-over"));
+  document
+    .querySelectorAll(".drop-placeholder")
+    .forEach((p) => (p.style.display = "none"));
   document.body.classList.remove("no-scroll");
-  if (mobileGhost) { mobileGhost.remove(); mobileGhost = null; }
-  const original = document.querySelector(`[data-task-id="${currentDraggedElement}"]`);
-  if (original) Object.assign(original.style, { position:"", left:"", top:"", zIndex:"" });
-  currentDraggedElement = null; activeDropSection = null; isTouchDragging = false; stopAutoScroll();
+  if (mobileGhost) {
+    mobileGhost.remove();
+    mobileGhost = null;
+  }
+  const original = document.querySelector(
+    `[data-task-id="${currentDraggedElement}"]`,
+  );
+  if (original)
+    Object.assign(original.style, {
+      position: "",
+      left: "",
+      top: "",
+      zIndex: "",
+    });
+  currentDraggedElement = null;
+  activeDropSection = null;
+  isTouchDragging = false;
+  stopAutoScroll();
 }
 
 /**
@@ -95,7 +120,7 @@ function setSectionActive(section, active) {
   if (!section) return;
   section.classList.toggle("drag-over", active);
   const ph = section.querySelector(".drop-placeholder");
-  if (ph) ph.style.display = (!isTouchDragging && active) ? "block" : "none";
+  if (ph) ph.style.display = !isTouchDragging && active ? "block" : "none";
 }
 
 /**
@@ -121,20 +146,29 @@ function startDragging(taskId, event) {
     event.dataTransfer.effectAllowed = "move";
   }
   const el = document.querySelector(`[data-task-id="${taskId}"]`);
-  if (el) setTimeout(() => el.classList.add("dragging-swing","invisible-during-drag"), 0);
+  if (el)
+    setTimeout(
+      () => el.classList.add("dragging-swing", "invisible-during-drag"),
+      0,
+    );
 }
 
 /**
  * Desktop: allows dropping into a section and highlights it.
  * @param {DragEvent} ev - The dragover event.
  */
-function allowDrop(ev) { ev.preventDefault(); setSectionActive(ev.currentTarget, true); }
+function allowDrop(ev) {
+  ev.preventDefault();
+  setSectionActive(ev.currentTarget, true);
+}
 
 /**
  * Desktop: removes highlight when the pointer leaves a section.
  * @param {DragEvent} ev - The dragleave event.
  */
-function hideDropPlaceholder(ev) { setSectionActive(ev.currentTarget, false); }
+function hideDropPlaceholder(ev) {
+  setSectionActive(ev.currentTarget, false);
+}
 
 /**
  * Persists the task's new status to Firebase and re-renders the board.
@@ -145,7 +179,7 @@ function hideDropPlaceholder(ev) { setSectionActive(ev.currentTarget, false); }
 async function moveTo(newStatus) {
   if (currentDraggedElement == null) return;
   const taskId = String(currentDraggedElement);
-  const task = tasks.find(t => String(t.id) === taskId);
+  const task = tasks.find((t) => String(t.id) === taskId);
   if (!task) return;
   const oldStatus = task.status;
   if (oldStatus === newStatus) {
@@ -154,7 +188,9 @@ async function moveTo(newStatus) {
   }
   task.status = newStatus;
   const response = await fetch(`${BASE_URL}tasks/${taskId}.json`, {
-    method:"PUT", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(serializeTaskForFirebase(task))
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(serializeTaskForFirebase(task)),
   });
   if (!response.ok) {
     throw new Error(`Firebase status update failed: ${response.status}`);
@@ -173,7 +209,8 @@ async function moveTo(newStatus) {
       console.warn("Status notification failed:", error);
     }
   }
-  cleanupDrag(); await loadTasksFromFirebase();
+  cleanupDrag();
+  await loadTasksFromFirebase();
 }
 
 /**
@@ -185,7 +222,10 @@ function onTouchStart(ev) {
   const card = ev.target.closest(".task_container");
   if (!card) return;
   currentDraggedElement = card.dataset.taskId;
-  const t = ev.touches[0]; touchStartX = t.clientX; touchStartY = t.clientY; pointerY = t.clientY;
+  const t = ev.touches[0];
+  touchStartX = t.clientX;
+  touchStartY = t.clientY;
+  pointerY = t.clientY;
   isTouchDragging = false;
 }
 
@@ -200,66 +240,81 @@ function onTouchStart(ev) {
  * @global currentDraggedElement, isTouchDragging, touchStartX, touchStartY, pointerY
  */
 function onTouchMove(ev) {
-    if (currentDraggedElement == null) return;
-    const t = ev.touches[0];
-    pointerY = t.clientY;
-    const dx = t.clientX - touchStartX, dy = t.clientY - touchStartY;
-    if (!isTouchDragging && Math.hypot(dx, dy) < TOUCH_ACTIVATION_THRESHOLD) return;
-    ev.preventDefault();
-    if (!isTouchDragging) initTouchDrag();
-    positionGhostAt(t.clientX, t.clientY);
-    updateActiveDropTarget(t.clientX, t.clientY);
+  if (currentDraggedElement == null) return;
+  const t = ev.touches[0];
+  pointerY = t.clientY;
+  const dx = t.clientX - touchStartX,
+    dy = t.clientY - touchStartY;
+  if (!isTouchDragging && Math.hypot(dx, dy) < TOUCH_ACTIVATION_THRESHOLD)
+    return;
+  ev.preventDefault();
+  if (!isTouchDragging) initTouchDrag();
+  positionGhostAt(t.clientX, t.clientY);
+  updateActiveDropTarget(t.clientX, t.clientY);
 }
-  
+
 /**
-* Initializes a mobile drag session.
-* - Locks body scroll
-* - Hides original card visually, creates a ghost clone, and starts auto-scroll loop
-*
-* @returns {void}
-* @global currentDraggedElement, isTouchDragging, mobileGhost
-* @fires startAutoScroll
-*/
+ * Initializes a mobile drag session.
+ * - Locks body scroll
+ * - Hides original card visually, creates a ghost clone, and starts auto-scroll loop
+ *
+ * @returns {void}
+ * @global currentDraggedElement, isTouchDragging, mobileGhost
+ * @fires startAutoScroll
+ */
 function initTouchDrag() {
-    isTouchDragging = true; document.body.classList.add("no-scroll");
-    const original = document.querySelector(`[data-task-id="${currentDraggedElement}"]`);
-    original?.classList.add("dragging-swing","invisible-during-drag");
-    mobileGhost = original ? original.cloneNode(true) : document.createElement("div");
-    mobileGhost.classList.add("dragging-touch");
-    Object.assign(mobileGhost.style, { position:"fixed", width:`${original?.offsetWidth||250}px`, pointerEvents:"none", zIndex:"2000" });
-    document.body.appendChild(mobileGhost); startAutoScroll();
+  isTouchDragging = true;
+  document.body.classList.add("no-scroll");
+  const original = document.querySelector(
+    `[data-task-id="${currentDraggedElement}"]`,
+  );
+  original?.classList.add("dragging-swing", "invisible-during-drag");
+  mobileGhost = original
+    ? original.cloneNode(true)
+    : document.createElement("div");
+  mobileGhost.classList.add("dragging-touch");
+  Object.assign(mobileGhost.style, {
+    position: "fixed",
+    width: `${original?.offsetWidth || 250}px`,
+    pointerEvents: "none",
+    zIndex: "2000",
+  });
+  document.body.appendChild(mobileGhost);
+  startAutoScroll();
 }
-  
+
 /**
-* Positions the mobile ghost element at a given viewport point.
-* Centers the ghost under the finger based on its dimensions.
-*
-* @param {number} x - Client X coordinate.
-* @param {number} y - Client Y coordinate.
-* @returns {void}
-* @global mobileGhost
-*/
+ * Positions the mobile ghost element at a given viewport point.
+ * Centers the ghost under the finger based on its dimensions.
+ *
+ * @param {number} x - Client X coordinate.
+ * @param {number} y - Client Y coordinate.
+ * @returns {void}
+ * @global mobileGhost
+ */
 function positionGhostAt(x, y) {
-    mobileGhost.style.left = `${x - mobileGhost.offsetWidth / 2}px`;
-    mobileGhost.style.top  = `${y - mobileGhost.offsetHeight / 2}px`;
+  mobileGhost.style.left = `${x - mobileGhost.offsetWidth / 2}px`;
+  mobileGhost.style.top = `${y - mobileGhost.offsetHeight / 2}px`;
 }
-  
+
 /**
-* Updates the currently active drop section under a given point.
-* Applies/removes highlight and placeholder visibility appropriately.
-*
-* @param {number} x - Client X coordinate.
-* @param {number} y - Client Y coordinate.
-* @returns {void}
-* @global activeDropSection
-* @see getDropSectionAtPoint, setSectionActive
-*/
+ * Updates the currently active drop section under a given point.
+ * Applies/removes highlight and placeholder visibility appropriately.
+ *
+ * @param {number} x - Client X coordinate.
+ * @param {number} y - Client Y coordinate.
+ * @returns {void}
+ * @global activeDropSection
+ * @see getDropSectionAtPoint, setSectionActive
+ */
 function updateActiveDropTarget(x, y) {
-    const target = getDropSectionAtPoint(x, y);
-    if (target !== activeDropSection) {
-      document.querySelectorAll(".kanban_section").forEach(s => setSectionActive(s, s === target));
-      activeDropSection = target || null;
-    }
+  const target = getDropSectionAtPoint(x, y);
+  if (target !== activeDropSection) {
+    document
+      .querySelectorAll(".kanban_section")
+      .forEach((s) => setSectionActive(s, s === target));
+    activeDropSection = target || null;
+  }
 }
 
 /**
@@ -270,7 +325,8 @@ function updateActiveDropTarget(x, y) {
  */
 async function onTouchEnd() {
   if (!currentDraggedElement) return cleanupDrag();
-  if (isTouchDragging && activeDropSection?.dataset?.status) await moveTo(activeDropSection.dataset.status);
+  if (isTouchDragging && activeDropSection?.dataset?.status)
+    await moveTo(activeDropSection.dataset.status);
   else cleanupDrag();
 }
 
@@ -279,17 +335,27 @@ async function onTouchEnd() {
  * Speed scales non-linearly with proximity to the edge.
  */
 function startAutoScroll() {
-    if (autoScrollRAF) return;
-    const tick = () => {
-      if (!isTouchDragging) { autoScrollRAF = 0; return; }
-      const h = window.innerHeight, m = SCROLL_EDGE_MARGIN, max = SCROLL_MAX_SPEED;
-      let speed = 0;
-      if (pointerY < m) { const r = (m - pointerY)/m; speed = -max * easeOutQuad(r); }
-      else if (pointerY > h - m) { const r = (pointerY - (h - m))/m; speed = max * easeOutQuad(r); }
-      if (speed) window.scrollBy(0, speed);
-      autoScrollRAF = requestAnimationFrame(tick);
-    };
+  if (autoScrollRAF) return;
+  const tick = () => {
+    if (!isTouchDragging) {
+      autoScrollRAF = 0;
+      return;
+    }
+    const h = window.innerHeight,
+      m = SCROLL_EDGE_MARGIN,
+      max = SCROLL_MAX_SPEED;
+    let speed = 0;
+    if (pointerY < m) {
+      const r = (m - pointerY) / m;
+      speed = -max * easeOutQuad(r);
+    } else if (pointerY > h - m) {
+      const r = (pointerY - (h - m)) / m;
+      speed = max * easeOutQuad(r);
+    }
+    if (speed) window.scrollBy(0, speed);
     autoScrollRAF = requestAnimationFrame(tick);
+  };
+  autoScrollRAF = requestAnimationFrame(tick);
 }
 
 /**
@@ -298,14 +364,20 @@ function startAutoScroll() {
  * @param {number} r - Normalized distance ratio from the edge (0..1).
  * @returns {number} Eased ratio in 0..1 used to scale speed.
  */
-function easeOutQuad(r){ r=Math.min(Math.max(r,0),1); return r*r*r; }
+function easeOutQuad(r) {
+  r = Math.min(Math.max(r, 0), 1);
+  return r * r * r;
+}
 
 /**
  * Stops the auto-scroll rAF loop if running.
  * @returns {void}
  */
 function stopAutoScroll() {
-  if (autoScrollRAF) { cancelAnimationFrame(autoScrollRAF); autoScrollRAF = 0; }
+  if (autoScrollRAF) {
+    cancelAnimationFrame(autoScrollRAF);
+    autoScrollRAF = 0;
+  }
 }
 
 /**
