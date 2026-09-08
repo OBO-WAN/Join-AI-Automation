@@ -833,3 +833,37 @@ table {
     gap: 8px;
   }
 }
+
+@media (max-width: 768px) {
+  .task_information_overlay > table tr:first-child {
+    display: flex;
+    align-items: flex-start;
+    gap: 25px;
+    width: 100%;
+  }
+
+  .task_information_overlay > table tr:first-child td {
+    width: auto;
+    min-width: 0;
+    padding-bottom: 0;
+  }
+
+  .task_information_overlay > table tr:first-child td:first-child {
+    flex-shrink: 0;
+    font-family: "Open Sans", sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #42526e;
+    white-space: nowrap;
+  }
+
+  .task_information_overlay > table tr:first-child .td_right {
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.2;
+    color: #000;
+    white-space: nowrap;
+  }
+}
