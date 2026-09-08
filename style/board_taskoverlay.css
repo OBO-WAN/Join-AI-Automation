@@ -55,7 +55,7 @@
 .task_title_overlay {
   font-family: "Inter", sans-serif;
   font-size: 36px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.2;
   color: #000;
   margin: 0;
@@ -66,8 +66,8 @@
 @media (min-width: 769px) {
   .task_title_overlay {
     font-family: "Inter", sans-serif;
-    font-weight: 700;
-    font-size: 61px;
+    font-weight: 600;
+    font-size: 60px;
     line-height: 1.2;
     color: #000;
     width: 100%;
@@ -919,5 +919,15 @@ table {
     width: 17px;
     height: 12px;
     object-fit: contain;
+  }
+}
+
+@media (min-width: 769px) {
+  .task_container_overlay {
+    scrollbar-width: none;
+  }
+
+  .task_container_overlay::-webkit-scrollbar {
+    display: none;
   }
 }
