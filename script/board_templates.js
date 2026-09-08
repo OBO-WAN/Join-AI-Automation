@@ -242,15 +242,10 @@ function getTaskSheetOverlay(
           </table>
 
           <div class="assigned_container">
-            <p><span class="assigned_label_mobile">Assigned to:</span><span class="assigned_label_desktop">Assigned to:</span></p>
+            <p>Assigned to:</p>
             <div class="assigned_user assigned_user_compact">
               <div class="user_badge">
                 <div class="user_initials_overlay">${assignedUsersHTML}</div>
-              </div>
-            </div>
-            <div class="assigned_user assigned_user_list">
-              <div class="user_badge">
-                <div class="user_initials_overlay">${getAssignedUsersOverlayHTML(task.assignedTo)}</div>
               </div>
             </div>
           </div>

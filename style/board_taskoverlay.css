@@ -651,6 +651,51 @@ table {
     margin: 0 auto;
   }
 
+  .task_container_overlay .overlay_header_group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .task_container_overlay .task_category_overlay {
+    flex-shrink: 0;
+    margin-bottom: 0;
+    padding: 4px 16px;
+    border-radius: 8px;
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .task_container_overlay .task_ai_indicator {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .task_container_overlay .task_ai_icon {
+    display: block;
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .task_container_overlay .task_ai_text {
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.2;
+    background: linear-gradient(to right, #9327ff, #2ea1dc);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
   @font-face {
     font-family: "Open Sans";
     src: url("../assets/font/OpenSans-VariableFont.ttf") format("truetype");
@@ -763,5 +808,17 @@ table {
     grid-column: 1 / -1;
     grid-row: 3;
     justify-self: start;
+  }
+}
+
+@media (max-width: 439px) {
+  .task_container_overlay .overlay_headline {
+    align-items: flex-start;
+  }
+
+  .task_container_overlay .overlay_header_group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 }
