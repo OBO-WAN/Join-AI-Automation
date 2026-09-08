@@ -253,7 +253,7 @@ function getTaskSheetOverlay(
           <div id="subtask_container_${index}" class="subtask_container"></div>
 
           <div class="popup-subtasks">
-            <span class="subtasks-label">Subtasks:</span>
+            <span class="subtasks-label">Subtasks</span>
             <div class="subtasks-list" id="subtasks-list-${index}">
               ${subtasksHTML}
             </div>
