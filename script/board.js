@@ -1,11 +1,11 @@
 let tasks = [];
 let users = [];
 
-window.onclick =  (event) =>{
-if (event.target.id === "overlay") {
-        closeOverlay();
-    }
-}
+window.onclick = (event) => {
+  if (event.target.id === "overlay") {
+    closeOverlay();
+  }
+};
 
 /**
  * Loads all tasks from Firebase and updates the global tasks array
@@ -30,9 +30,9 @@ async function loadTasksFromFirebase() {
 async function init() {
   await loadUsersFromFirebase();
   await loadTasksFromFirebase();
-  
-let index = 0;
-let userColor = users[index]?.color;
+
+  let index = 0;
+  let userColor = users[index]?.color;
   showCurrentBoard();
 }
 
@@ -42,11 +42,13 @@ let userColor = users[index]?.color;
  * - Caps visible avatars at 4 and shows a +N counter
  */
 function renderCurrentTasks() {
-  const statusContainers = proofStatus(), statusCounts = proofStatusCounts();
+  const statusContainers = proofStatus(),
+    statusCounts = proofStatusCounts();
 
   tasks.forEach((task, i) => {
-    const data = prepareTaskForTemplate(task), users = buildAssignedUsersHTML(task.assignedTo),
-          container = statusContainers[task.status];
+    const data = prepareTaskForTemplate(task),
+      users = buildAssignedUsersHTML(task.assignedTo),
+      container = statusContainers[task.status];
     if (container) {
       container.innerHTML += getKanbanTemplate(data, users, i);
       statusCounts[task.status] = (statusCounts[task.status] || 0) + 1;
@@ -72,7 +74,7 @@ function proofStatus() {
   };
 
   Object.values(statusContainers).forEach(
-    (container) => (container.innerHTML = "")
+    (container) => (container.innerHTML = ""),
   );
   return statusContainers;
 }
@@ -102,7 +104,7 @@ function proofSubtasks(task, index) {
   if (!task.subTasks || task.subTasks.length === 0) return;
 
   const subtaskContainer = document.getElementById(
-    `subtask_container_${index}`
+    `subtask_container_${index}`,
   );
 
   if (subtaskContainer) {
@@ -152,39 +154,54 @@ function showSubtasks() {
  * - Uses the same avatar builder as the board card so the overlay matches
  */
 function attachTaskEventHandlers() {
-  document.querySelectorAll(".task_container").forEach(c => {
-    const id = c.dataset.taskId, idx = +c.dataset.taskIndex, task = tasks.find(t => t.id == id);
+  document.querySelectorAll(".task_container").forEach((c) => {
+    const id = c.dataset.taskId,
+      idx = +c.dataset.taskIndex,
+      task = tasks.find((t) => t.id == id);
     if (!task) return;
 
-    const data = prepareTaskForTemplate(task), users = buildAssignedUsersHTML(task.assignedTo);
+    const data = prepareTaskForTemplate(task),
+      users = buildAssignedUsersHTML(task.assignedTo);
     c.addEventListener("click", () => openTask(data, users, idx));
     c.addEventListener("dragstart", () => startDragging(task.id));
   });
 }
 
 /**
-* Prepares task data for template rendering with formatted properties
-* @param {Object} task - Raw task object from Firebase
-* @returns {Object} Formatted task object ready for template rendering
-*/
+ * Prepares task data for template rendering with formatted properties
+ * @param {Object} task - Raw task object from Firebase
+ * @returns {Object} Formatted task object ready for template rendering
+ */
 function prepareTaskForTemplate(task) {
-  const assignedTo = [...new Set(task.assignedTo || [])].map(name => {
-    const user = Object.values(Contacts).find(u => u.name === name);
-    const initials = name.split(" ").map(n => n[0]).join("").toUpperCase();
-    return { initials, color: user ? getColor(initials) : "#2A3647" };
+  const assignedTo = [...new Set(task.assignedTo || [])].map((name) => {
+    const user = Object.values(Contacts).find((u) => u.name === name);
+    const initials = name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
+    return {
+      name: user?.name || null,
+      reference: name,
+      initials,
+      color: user ? getColor(initials) : "#2A3647",
+    };
   });
 
   return {
     id: task.id,
     category: task.category || "General",
-    categoryClass: (task.category || "general").toLowerCase().replace(/\s/g, "_"),
+    categoryClass: (task.category || "general")
+      .toLowerCase()
+      .replace(/\s/g, "_"),
     dueDate: task.dueDate,
     title: task.title || task.task || "Untitled",
     description: task.description || "",
     assignedTo,
     priority: (task.priority || "low").toLowerCase(),
     subTasks: task.subTasks || [],
-    creator: getCreatorDisplayInfo(task.creator)
+    creator: getCreatorDisplayInfo(task.creator),
+    source: task.source,
   };
 }
 
@@ -200,12 +217,12 @@ function getCreatorDisplayInfo(creator) {
   if (!creator || typeof creator !== "object") return null;
 
   if (creator.type === "external" && creator.email) {
-    return { identity: creator.email, label: "External", type: "external" };
+    return { identity: creator.email, label: "Extern", type: "external" };
   }
 
   if (creator.type === "internal") {
     const identity = creator.name || creator.email;
-    if (identity) return { identity, label: "Internal", type: "internal" };
+    if (identity) return { identity, label: "Member", type: "internal" };
   }
 
   return null;
@@ -228,24 +245,36 @@ async function loadUsersFromFirebase() {
 }
 
 /**
-* A live HTMLCollection of all elements with the class "task_container hover".
-* Used to access and manipulate all task container elements currently present in the DOM.
-* 
-* @type {HTMLCollectionOf<Element>}
-*/
+ * A live HTMLCollection of all elements with the class "task_container hover".
+ * Used to access and manipulate all task container elements currently present in the DOM.
+ *
+ * @type {HTMLCollectionOf<Element>}
+ */
 window.addEventListener("DOMContentLoaded", () => {
-    const searchInput = document.querySelector(".search_input");
-    const taskElements = document.querySelectorAll(".task_container.hover");
-  
-    searchInput.addEventListener("input", () => {
-      const term = searchInput.value.toLowerCase();
-      taskElements.forEach(task => {
-        const title = task.querySelector(".task_title")?.textContent.toLowerCase() || "";
-        const details = task.querySelector(".task_details")?.textContent.toLowerCase() || "";
-        task.style.display = (title.includes(term) || details.includes(term)) ? "block" : "none";
-      });
-      showSearchPlaceholders(["triageContainer","toDoContainer","inProgressContainer","awaitFeedbackContainer","doneContainer"], "task_container");
+  const searchInput = document.querySelector(".search_input");
+  const taskElements = document.querySelectorAll(".task_container.hover");
+
+  searchInput.addEventListener("input", () => {
+    const term = searchInput.value.toLowerCase();
+    taskElements.forEach((task) => {
+      const title =
+        task.querySelector(".task_title")?.textContent.toLowerCase() || "";
+      const details =
+        task.querySelector(".task_details")?.textContent.toLowerCase() || "";
+      task.style.display =
+        title.includes(term) || details.includes(term) ? "block" : "none";
     });
+    showSearchPlaceholders(
+      [
+        "triageContainer",
+        "toDoContainer",
+        "inProgressContainer",
+        "awaitFeedbackContainer",
+        "doneContainer",
+      ],
+      "task_container",
+    );
+  });
 });
 
 /**
@@ -259,8 +288,11 @@ function showSearchPlaceholders(statusIds, taskClass) {
   statusIds.forEach(function (id) {
     var container = document.getElementById(id);
     if (!container) return;
-    var visibleTasks = Array.from(container.getElementsByClassName(taskClass))
-      .filter(function (el) { return el.style.display !== "none"; });
+    var visibleTasks = Array.from(
+      container.getElementsByClassName(taskClass),
+    ).filter(function (el) {
+      return el.style.display !== "none";
+    });
     var oldPlaceholder = container.querySelector(".no_task_placeholder");
     if (oldPlaceholder) oldPlaceholder.remove();
     if (visibleTasks.length === 0) {
@@ -278,7 +310,7 @@ function showSearchPlaceholders(statusIds, taskClass) {
  */
 async function deleteTaskFromBoardPopup(taskId) {
   const confirmDelete = await showConfirmation(
-    "Are you sure you want to delete this task?"
+    "Are you sure you want to delete this task?",
   );
   if (!confirmDelete) return;
 
@@ -321,15 +353,22 @@ function buildAssignedUsersHTML(assignedTo, maxVisible = 4) {
   const visible = uniq.slice(0, maxVisible);
   const extra = Math.max(0, uniq.length - maxVisible);
 
-  const avatars = visible.map(name => {
-    const initials = name.split(" ").map(n => n[0]).join("").toUpperCase();
-    const color = getColor(initials[0]);
-    return `<div class="user_initials_circle" style="background-color:${color};color:white;">${initials}</div>`;
-  }).join("");
+  const avatars = visible
+    .map((name) => {
+      const initials = name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase();
+      const color = getColor(initials[0]);
+      return `<div class="user_initials_circle" style="background-color:${color};color:white;">${initials}</div>`;
+    })
+    .join("");
 
-  const counter = extra > 0
-    ? `<div class="user_initials_circle" style="background-color:#2A3647;color:white;">+${extra}</div>`
-    : "";
+  const counter =
+    extra > 0
+      ? `<div class="user_initials_circle" style="background-color:#2A3647;color:white;">+${extra}</div>`
+      : "";
 
   return avatars + counter;
 }

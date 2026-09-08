@@ -1,12 +1,12 @@
 /**
  * Generates the HTML string for a single task card displayed on the Kanban board.
- * 
+ *
  * The card includes task category, title, description, assigned user avatars,
  * priority icon, and an empty container for subtask progress (populated later by JS).
  * It also includes drag-and-drop attributes and a click event hook to open the overlay.
- * 
+ *
  * Used in rendering logic such as `renderCurrentTasks()` in board.js.
- * 
+ *
  * @function getKanbanTemplate
  * @param {Object} task - The task object to render.
  * @param {string} task.id - Unique identifier for the task.
@@ -18,9 +18,9 @@
  * @param {Object|null} task.creator - Optional creator display data.
  * @param {Array<Object>} assignedUsersHTML - Pre-rendered user initials HTML string.
  * @param {number} index - Index of the task in the current list (used for DOM targeting).
- * 
+ *
  * @returns {string} - HTML string representing a Kanban board task card.
- * 
+ *
  * @example
  * const cardHTML = getKanbanTemplate(task, assignedHTML, 3);
  * document.getElementById('toDoContainer').innerHTML += cardHTML;
@@ -184,6 +184,7 @@ function getAddTaskOverlay(type = "add") {
  * @param {string} task.title - Task title
  * @param {string} task.description - Task description
  * @param {Object|null} task.creator - Optional creator display data
+ * @param {Object} [task.source] - Source metadata, including the AI-generated flag
  * @param {string} assignedUsersHTML - Pre-rendered HTML string for assigned user avatars
  * @param {number} index - Index of the task in the current list
  * @param {string} formattedDate - Formatted due date string
@@ -191,7 +192,14 @@ function getAddTaskOverlay(type = "add") {
  * @param {string} subtasksHTML - Pre-rendered HTML string for subtasks
  * @returns {string} HTML string for the task detail overlay
  */
-function getTaskSheetOverlay(task, assignedUsersHTML, index, formattedDate, priority, subtasksHTML) {
+function getTaskSheetOverlay(
+  task,
+  assignedUsersHTML,
+  index,
+  formattedDate,
+  priority,
+  subtasksHTML,
+) {
   const creatorHTML = getCreatorOverlayHTML(task.creator);
 
   return `
@@ -199,8 +207,18 @@ function getTaskSheetOverlay(task, assignedUsersHTML, index, formattedDate, prio
       <div class="task_overlay">
 
         <div class="overlay_headline"> 
-          <div class="task_category_overlay ${task.categoryClass}">${task.category}</div>
-          <button onclick="closeOverlay()" class="close_button hover">X</button>
+          <div class="overlay_header_group">
+            <div class="task_category_overlay ${task.categoryClass}">${task.category}</div>
+            ${task.source?.aiGenerated === true ? `
+              <span class="task_ai_indicator">
+                <img class="task_ai_icon" src="assets/icons/wand-stars.svg" width="22" height="22" alt="">
+                <span class="task_ai_text">Ai-generated ticket</span>
+              </span>` : ""}
+          </div>
+          <button type="button" onclick="closeOverlay()" class="close_button hover" aria-label="Close">
+            <span class="task_close_text">X</span>
+            <img class="task_close_icon" src="assets/icons/task-overlay-close.svg" width="24" height="24" alt="">
+          </button>
         </div>
 
         <div class="task_information_overlay">
@@ -225,7 +243,7 @@ function getTaskSheetOverlay(task, assignedUsersHTML, index, formattedDate, prio
 
           <div class="assigned_container">
             <p>Assigned to:</p>
-            <div class="assigned_user">
+            <div class="assigned_user assigned_user_compact">
               <div class="user_badge">
                 <div class="user_initials_overlay">${assignedUsersHTML}</div>
               </div>
@@ -235,7 +253,7 @@ function getTaskSheetOverlay(task, assignedUsersHTML, index, formattedDate, prio
           <div id="subtask_container_${index}" class="subtask_container"></div>
 
           <div class="popup-subtasks">
-            <span class="subtasks-label">Subtasks:</span>
+            <span class="subtasks-label">Subtasks</span>
             <div class="subtasks-list" id="subtasks-list-${index}">
               ${subtasksHTML}
             </div>
@@ -268,6 +286,22 @@ function getTaskSheetOverlay(task, assignedUsersHTML, index, formattedDate, prio
 }
 
 /**
+ * Renders resolved assignees with the shared compact avatar and overflow helper.
+ * @param {Array<Object>} assignedTo - Prepared contact names, references and avatars.
+ * @returns {string} Desktop compact avatars, without unresolved contacts.
+ */
+function getAssignedUsersOverlayHTML(assignedTo = []) {
+  const resolvedNames = assignedTo
+    .filter(({ name, reference }) => {
+      if (!name) console.warn("Unresolved assigned contact:", reference);
+      return Boolean(name);
+    })
+    .map(({ name }) => name);
+
+  return buildAssignedUsersHTML(resolvedNames);
+}
+
+/**
  * Generates creator information for the task detail overlay.
  * @param {Object|null} creator - Creator display data.
  * @param {string} creator.identity - Creator name or email to show.
@@ -279,11 +313,28 @@ function getCreatorOverlayHTML(creator) {
   if (!creator) return "";
 
   return `
-          <div class="task_creator_overlay">
-            <span class="task_creator_label">Created by:</span>
-            <span class="task_creator_identity">${creator.identity}</span>
-            <span class="creator_type_badge creator_type_${creator.type}">${creator.label}</span>
-          </div>`;
+    <div class="task_creator_overlay creator_${creator.type}">
+      <div class="task_creator_info">
+        <span class="task_creator_label">Creator:</span>
+
+        <span class="creator_type_badge creator_type_${creator.type}">
+          ${creator.type === "external" ? `<svg class="creator_badge_icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M3 12h18"></path>
+            <path d="M12 3c2.5 2.7 4 5.8 4 9s-1.5 6.3-4 9c-2.5-2.7-4-5.8-4-9s1.5-6.3 4-9z"></path>
+          </svg>` : ""}${creator.label}
+        </span>
+
+        <span class="task_creator_identity">
+          ${creator.identity}
+        </span>
+      </div>
+
+      <span class="task_creator_action">
+        <span class="task_creator_action_icon" aria-hidden="true"></span>
+        ${creator.type === "internal" ? "Profil" : "E-mail"}
+      </span>
+    </div>`;
 }
 
 /**

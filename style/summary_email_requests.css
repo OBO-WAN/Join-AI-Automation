@@ -1,0 +1,147 @@
+/* Email-origin task metric beside the existing urgency summary. */
+.summary-request-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 168px;
+  gap: 28px;
+  width: 100%;
+  height: clamp(110px, 98.4px + 3.625vw, 168px);
+}
+
+.summary-request-row .urgent {
+  min-width: 0;
+  height: 100%;
+  gap: 16px;
+  justify-content: center;
+}
+
+.summary-request-row .numimg {
+  flex-shrink: 0;
+  width: auto;
+  padding: 0;
+}
+
+.summary-request-row .datetext {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.summary-email-requests {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 110px;
+  padding: 0 8px;
+  border-radius: 30px;
+  background: #fff;
+  box-shadow: 0 0 4px #0000001a;
+  color: #2a3647;
+  text-align: center;
+  text-decoration: none;
+  line-height: 1.2;
+}
+
+.summary-email-count {
+  max-width: 100%;
+  font-size: 64px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  background: linear-gradient(to bottom, #8933fc, #29abe2);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.summary-email-label {
+  font-size: 20px;
+}
+
+.summary-email-requests:hover {
+  background: #2a3647;
+  color: #fff;
+}
+
+.summary-email-requests:focus-visible {
+  outline: 3px solid #29abe2;
+  outline-offset: 4px;
+}
+
+@media (max-width: 1100px) {
+  .summary-request-row {
+    grid-template-columns: minmax(0, 1fr) 116px;
+    gap: 24px;
+  }
+
+  .summary-request-row .urgent {
+    gap: 6px;
+    padding-inline: 8px;
+  }
+
+  .summary-request-row .urgentimg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .summary-request-row .urgentnmb {
+    font-size: 40px;
+  }
+
+  .summary-request-row .urgenttext {
+    font-size: 14px;
+  }
+
+  .summary-request-row .numimg {
+    gap: 0;
+  }
+
+  .summary-request-row .date {
+    font-size: 16px;
+  }
+
+  .summary-request-row .underdate {
+    font-size: 14px;
+  }
+
+  .summary-email-count {
+    font-size: 47px;
+  }
+
+  .summary-email-label {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .summary-request-row {
+    width: calc(100% + 40px);
+    grid-template-columns: minmax(0, 1fr) clamp(84px, 27.1vw, 116px);
+    gap: clamp(12px, 5.6vw, 24px);
+  }
+
+  .summary-request-row .urgent,
+  .summary-email-requests {
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 360px) {
+  .summary-request-row {
+    grid-template-columns: minmax(0, 1fr) 84px;
+    gap: 12px;
+  }
+
+  .summary-request-row .numimg {
+    flex-direction: column;
+  }
+
+  .summary-request-row .nmbtext {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+
+  .summary-request-row .urgentnmb {
+    font-size: 32px;
+  }
+}

@@ -111,7 +111,7 @@ function getManualTaskCreator() {
 
   return {
     type: "internal",
-    name: fullName || null,
+    name: fullName || "Guest",
     email: null,
   };
 }

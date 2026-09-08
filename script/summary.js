@@ -56,7 +56,7 @@ async function fetchTaskData() {
  * @returns {Object} An object with counters for different task categories
  */
 function initializeStats() {
-  return { todo: 0, done: 0, urgent: 0, tasksInBoard: 0, tasksInProgress: 0, awaitingFeedback: 0 };
+  return { todo: 0, done: 0, urgent: 0, tasksInBoard: 0, tasksInProgress: 0, awaitingFeedback: 0, emailRequests: 0 };
 }
 
 /**
@@ -67,6 +67,8 @@ function initializeStats() {
  */
 function updateStatsFromTask(task, stats) {
   stats.tasksInBoard++;
+  // Count all existing email-origin tasks, including Done, regardless of date or creator type.
+  if (task.source?.type === 'email') stats.emailRequests++;
   switch (task.status) {
     case 'toDo': stats.todo++; break;
     case 'done': stats.done++; break;
@@ -101,6 +103,7 @@ function updateTaskSummaryDisplay(stats) {
   document.querySelector('.summarynmb.todo').textContent = stats.todo;
   document.querySelector('.summarynmb.done').textContent = stats.done;
   document.querySelector('.urgentnmb').textContent = stats.urgent;
+  document.querySelector('.summary-email-count').textContent = stats.emailRequests;
   const taskNumbers = document.querySelectorAll('.tasknmb');
   if (taskNumbers[0]) taskNumbers[0].textContent = stats.tasksInBoard;
   if (taskNumbers[1]) taskNumbers[1].textContent = stats.tasksInProgress;
