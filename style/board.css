@@ -173,7 +173,7 @@ h3 {
   margin-bottom: 20px;
 }
 
-.technical_task {
+.technical_task, .bug {
   background-color: #1fd7c1;
 }
 
@@ -221,6 +221,7 @@ h3 {
   gap: 4px 6px;
   margin-bottom: 12px;
   max-width: 220px;
+  align-items: center;
 }
 
 .task_creator_overlay {
