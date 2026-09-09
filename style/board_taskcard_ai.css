@@ -1,0 +1,35 @@
+.task_card_header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.task_card_header .task_category {
+  margin-bottom: 0;
+}
+
+.task_container .task_ai_indicator {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.task_container .task_ai_icon {
+  display: block;
+  flex: 0 0 22px;
+  height: 22px;
+  width: 22px;
+}
+
+.task_container .task_ai_text {
+  background: linear-gradient(to right, #9327ff, #2ea1dc);
+  background-clip: text;
+  color: transparent;
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2;
+  -webkit-background-clip: text;
+}

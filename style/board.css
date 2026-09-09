@@ -173,7 +173,7 @@ h3 {
   margin-bottom: 20px;
 }
 
-.technical_task {
+.technical_task, .bug {
   background-color: #1fd7c1;
 }
 

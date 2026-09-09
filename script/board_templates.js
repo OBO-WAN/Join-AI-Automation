@@ -29,27 +29,27 @@ function getKanbanTemplate(task, assignedUsersHTML, index) {
   const creatorHTML = getCreatorCardHTML(task.creator);
 
   return `    <div class="task_container hover" data-task-id="${task.id}" data-task-index="${index}" draggable="true" ondragstart="startDragging('${task.id}', event)">
-                    
                     <div class="task">
-                        <div class="task_category ${task.categoryClass}">${task.category}</div>
-
+                        <div class="task_card_header">
+                            <div class="task_category ${task.categoryClass}">${task.category}</div>
+                            ${task.source?.aiGenerated === true ? `
+                              <span class="task_ai_indicator">
+                                <img class="task_ai_icon" src="assets/icons/wand-stars.svg" width="22" height="22" alt="">
+                                <span class="task_ai_text">Ai-generated ticket</span>
+                              </span>` : ""}
+                        </div>
                         <div class="task_information">
                             <p class="task_title" id="task_title">${task.title}</p>
                             <p class="task_details" id="task_details">${task.description}</p>
                         </div>
-
                         ${creatorHTML}
-
                         <div id="subtask_container_${index}" class="subtask_container"></div>
-
                         <div class="user_priority_container">
                             <div class="user_initials">${assignedUsersHTML}</div>
                             <img src="./assets/icons/priority/priority_${task.priority}.png" class="priority_medium" id="priority">
                         </div>
-
                     </div>
                 </div>
-
 `;
 }
 
