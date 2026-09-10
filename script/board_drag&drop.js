@@ -1,7 +1,7 @@
 /**
  * Drag & Drop controller for the Kanban board (desktop + mobile/touch).
  * - Desktop uses native HTML5 DnD.
- * - Mobile uses a ghost element and edge auto-scrolling.
+ * - Mobile uses a long-press gesture, ghost element and edge auto-scrolling.
  * - Placeholders stay hidden during touch drag to avoid flicker.
  */
 
@@ -13,17 +13,25 @@ let mobileGhost = null,
 /**
  * Touch state:
  * - `touchStartX`, `touchStartY`: starting coordinates
- * - `isTouchDragging`: becomes true after movement threshold
+ * - `isTouchDragging`: becomes true after the long press activates
  * - `pointerY`: last Y position for edge auto-scroll
  */
 let touchStartX = 0,
   touchStartY = 0,
   isTouchDragging = false,
   pointerY = 0;
+/** Long-press timer used to distinguish scrolling/tapping from dragging. */
+let touchLongPressTimer = 0;
+/** Timestamp until which the synthetic click after a touch drag is ignored. */
+let suppressTouchClickUntil = 0;
 /** requestAnimationFrame id for the auto-scroll loop (0 when not running). */
 let autoScrollRAF = 0;
-/** Minimum movement in pixels to treat a touch as a drag start. */
-const TOUCH_ACTIVATION_THRESHOLD = 8;
+/** Hold duration before a touch becomes a drag. */
+const TOUCH_LONG_PRESS_DELAY = 400;
+/** Movement allowed while waiting for long-press activation. */
+const TOUCH_CANCEL_THRESHOLD = 12;
+/** Short haptic pulse used when touch drag activates. */
+const TOUCH_HAPTIC_DURATION = 35;
 /** Distance from viewport edges (px) where auto-scroll starts. */
 const SCROLL_EDGE_MARGIN = 200;
 /** Maximum scroll speed (px per frame) once at the edge. */
@@ -71,6 +79,13 @@ async function notifyTaskStatusChanged({
   }
 }
 
+/** Clears a pending long-press activation timer. */
+function clearTouchLongPressTimer() {
+  if (!touchLongPressTimer) return;
+  clearTimeout(touchLongPressTimer);
+  touchLongPressTimer = 0;
+}
+
 /**
  * Clears all drag-related UI state and timers.
  * - Removes visual classes, placeholders, and body scroll lock
@@ -79,6 +94,7 @@ async function notifyTaskStatusChanged({
  * - Stops the auto-scroll loop
  */
 function cleanupDrag() {
+  clearTouchLongPressTimer();
   document
     .querySelectorAll(".dragging-swing,.invisible-during-drag")
     .forEach((el) =>
@@ -217,49 +233,80 @@ async function moveTo(newStatus) {
 }
 
 /**
- * Mobile: prepares a potential drag; does not create the ghost yet.
- * Starts measuring from the initial touch position.
+ * Mobile: prepares a potential drag and starts the long-press timer.
+ * Normal finger movement before activation remains available for scrolling.
  * @param {TouchEvent} ev - The touchstart event.
  */
 function onTouchStart(ev) {
+  if (ev.touches.length !== 1) return;
   const card = ev.target.closest(".task_container");
   if (!card) return;
+
+  clearTouchLongPressTimer();
   currentDraggedElement = card.dataset.taskId;
   const t = ev.touches[0];
   touchStartX = t.clientX;
   touchStartY = t.clientY;
   pointerY = t.clientY;
   isTouchDragging = false;
+
+  touchLongPressTimer = window.setTimeout(() => {
+    touchLongPressTimer = 0;
+    if (
+      currentDraggedElement !== card.dataset.taskId ||
+      isTouchDragging ||
+      !card.isConnected
+    )
+      return;
+
+    suppressTouchClickUntil = Date.now() + 800;
+    try {
+      if (typeof navigator.vibrate === "function") {
+        navigator.vibrate(TOUCH_HAPTIC_DURATION);
+      }
+    } catch (error) {
+      console.debug("Touch haptics unavailable:", error);
+    }
+
+    initTouchDrag();
+    positionGhostAt(touchStartX, touchStartY);
+    updateActiveDropTarget(touchStartX, touchStartY);
+  }, TOUCH_LONG_PRESS_DELAY);
 }
 
 /**
- * Handles touch-move during mobile drag.
- * - Tracks pointer Y for auto-scroll
- * - Enforces activation threshold before starting a drag
- * - Initializes ghost on first valid move, positions it, and updates drop target
+ * Handles touch-move during mobile interaction.
+ * - Before long-press activation, movement cancels the pending drag and stays native scrolling
+ * - After activation, scrolling is locked and the ghost follows the finger
  *
  * @param {TouchEvent} ev - The touchmove event from the document.
  * @returns {void}
- * @global currentDraggedElement, isTouchDragging, touchStartX, touchStartY, pointerY
  */
 function onTouchMove(ev) {
-  if (currentDraggedElement == null) return;
+  if (currentDraggedElement == null || ev.touches.length !== 1) return;
   const t = ev.touches[0];
   pointerY = t.clientY;
-  const dx = t.clientX - touchStartX,
-    dy = t.clientY - touchStartY;
-  if (!isTouchDragging && Math.hypot(dx, dy) < TOUCH_ACTIVATION_THRESHOLD)
+
+  if (!isTouchDragging) {
+    const dx = t.clientX - touchStartX,
+      dy = t.clientY - touchStartY;
+    if (Math.hypot(dx, dy) >= TOUCH_CANCEL_THRESHOLD) {
+      clearTouchLongPressTimer();
+      currentDraggedElement = null;
+      activeDropSection = null;
+    }
     return;
+  }
+
   ev.preventDefault();
-  if (!isTouchDragging) initTouchDrag();
   positionGhostAt(t.clientX, t.clientY);
   updateActiveDropTarget(t.clientX, t.clientY);
 }
 
 /**
- * Initializes a mobile drag session.
+ * Initializes a mobile drag session after the long press completes.
  * - Locks body scroll
- * - Hides original card visually, creates a ghost clone, and starts auto-scroll loop
+ * - Hides original card visually, creates a visible ghost clone, and starts auto-scroll loop
  *
  * @returns {void}
  * @global currentDraggedElement, isTouchDragging, mobileGhost
@@ -271,10 +318,11 @@ function initTouchDrag() {
   const original = document.querySelector(
     `[data-task-id="${currentDraggedElement}"]`,
   );
-  original?.classList.add("dragging-swing", "invisible-during-drag");
   mobileGhost = original
     ? original.cloneNode(true)
     : document.createElement("div");
+  original?.classList.add("dragging-swing", "invisible-during-drag");
+  mobileGhost.classList.remove("dragging-swing", "invisible-during-drag");
   mobileGhost.classList.add("dragging-touch");
   Object.assign(mobileGhost.style, {
     position: "fixed",
@@ -296,6 +344,7 @@ function initTouchDrag() {
  * @global mobileGhost
  */
 function positionGhostAt(x, y) {
+  if (!mobileGhost) return;
   mobileGhost.style.left = `${x - mobileGhost.offsetWidth / 2}px`;
   mobileGhost.style.top = `${y - mobileGhost.offsetHeight / 2}px`;
 }
@@ -322,15 +371,34 @@ function updateActiveDropTarget(x, y) {
 
 /**
  * Mobile: drops into the active section if available; otherwise cancels.
- * Always cleans up visual state afterward.
+ * Always clears pending long-press state and drag visuals afterward.
  * @async
  * @returns {Promise<void>}
  */
 async function onTouchEnd() {
+  clearTouchLongPressTimer();
   if (!currentDraggedElement) return cleanupDrag();
   if (isTouchDragging && activeDropSection?.dataset?.status)
     await moveTo(activeDropSection.dataset.status);
   else cleanupDrag();
+}
+
+/** Cancels an interrupted touch gesture without moving a task. */
+function onTouchCancel() {
+  cleanupDrag();
+}
+
+/**
+ * Prevents the synthetic click generated after a long-press drag from opening
+ * the task overlay. Normal taps remain unaffected.
+ * @param {MouseEvent} ev - Click event captured at the document level.
+ */
+function suppressClickAfterTouchDrag(ev) {
+  if (Date.now() > suppressTouchClickUntil) return;
+  if (!ev.target.closest(".task_container")) return;
+  ev.preventDefault();
+  ev.stopPropagation();
+  ev.stopImmediatePropagation();
 }
 
 /**
@@ -402,4 +470,6 @@ function mapRange(v, a, b, c, d) {
 document.addEventListener("touchstart", onTouchStart, { passive: true });
 document.addEventListener("touchmove", onTouchMove, { passive: false });
 document.addEventListener("touchend", onTouchEnd);
+document.addEventListener("touchcancel", onTouchCancel);
+document.addEventListener("click", suppressClickAfterTouchDrag, true);
 document.addEventListener("dragend", cleanupDrag);
