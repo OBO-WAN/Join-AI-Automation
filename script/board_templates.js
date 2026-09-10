@@ -54,25 +54,6 @@ function getKanbanTemplate(task, assignedUsersHTML, index) {
 }
 
 /**
- * Generates compact creator information for a Kanban task card.
- * @param {Object|null} creator - Creator display data.
- * @param {string} creator.identity - Creator name or email to show.
- * @param {string} creator.label - Display label for the creator type.
- * @param {string} creator.type - CSS-friendly creator type key.
- * @returns {string} Creator HTML or an empty string.
- */
-function getCreatorCardHTML(creator) {
-  if (!creator) return "";
-
-  return `
-                        <div class="task_creator">
-                            <span class="task_creator_label">Created by:</span>
-                            <span class="task_creator_identity">${creator.identity}</span>
-                            <span class="creator_type_badge creator_type_${creator.type}">${creator.label}</span>
-                        </div>`;
-}
-
-/**
  * Generates the HTML template for the Add Task overlay form
  * @returns {string} HTML string for the add task overlay with form fields, dropdowns, and buttons
  */
@@ -299,42 +280,6 @@ function getAssignedUsersOverlayHTML(assignedTo = []) {
     .map(({ name }) => name);
 
   return buildAssignedUsersHTML(resolvedNames);
-}
-
-/**
- * Generates creator information for the task detail overlay.
- * @param {Object|null} creator - Creator display data.
- * @param {string} creator.identity - Creator name or email to show.
- * @param {string} creator.label - Display label for the creator type.
- * @param {string} creator.type - CSS-friendly creator type key.
- * @returns {string} Creator HTML or an empty string.
- */
-function getCreatorOverlayHTML(creator) {
-  if (!creator) return "";
-
-  return `
-    <div class="task_creator_overlay creator_${creator.type}">
-      <div class="task_creator_info">
-        <span class="task_creator_label">Creator:</span>
-
-        <span class="creator_type_badge creator_type_${creator.type}">
-          ${creator.type === "external" ? `<svg class="creator_badge_icon" viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="12" r="9"></circle>
-            <path d="M3 12h18"></path>
-            <path d="M12 3c2.5 2.7 4 5.8 4 9s-1.5 6.3-4 9c-2.5-2.7-4-5.8-4-9s1.5-6.3 4-9z"></path>
-          </svg>` : ""}${creator.label}
-        </span>
-
-        <span class="task_creator_identity">
-          ${creator.identity}
-        </span>
-      </div>
-
-      <span class="task_creator_action">
-        <span class="task_creator_action_icon" aria-hidden="true"></span>
-        ${creator.type === "internal" ? "Profil" : "E-mail"}
-      </span>
-    </div>`;
 }
 
 /**
