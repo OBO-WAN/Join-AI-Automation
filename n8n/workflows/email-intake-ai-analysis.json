@@ -538,8 +538,9 @@
           ]
         },
         "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ Number($('Normalize Daily Usage').item.json.requestsUsed) + 1 }}",
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ String(Number($('Normalize Daily Usage').item.json.requestsUsed) + 1) }}",
         "options": {
           "response": {
             "response": {
