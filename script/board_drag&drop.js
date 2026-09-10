@@ -14,12 +14,17 @@ let mobileGhost = null,
  * Touch state:
  * - `touchStartX`, `touchStartY`: starting coordinates
  * - `isTouchDragging`: becomes true after the long press activates
- * - `pointerY`: last Y position for edge auto-scroll
+ * - `pointerX`, `pointerY`: last pointer position for targeting/auto-scroll
  */
 let touchStartX = 0,
   touchStartY = 0,
   isTouchDragging = false,
+  pointerX = 0,
   pointerY = 0;
+/** Source card for the active/pending touch gesture. */
+let touchSourceCard = null;
+/** Original draggable state restored when the touch gesture finishes. */
+let touchSourceWasDraggable = true;
 /** Long-press timer used to distinguish scrolling/tapping from dragging. */
 let touchLongPressTimer = 0;
 /** Timestamp until which the synthetic click after a touch drag is ignored. */
@@ -86,6 +91,24 @@ function clearTouchLongPressTimer() {
   touchLongPressTimer = 0;
 }
 
+/** Restores the source card's native draggable state after touch handling. */
+function restoreTouchSourceCard() {
+  if (touchSourceCard?.isConnected) {
+    touchSourceCard.draggable = touchSourceWasDraggable;
+  }
+  touchSourceCard = null;
+  touchSourceWasDraggable = true;
+}
+
+/** Cancels a pending long press while leaving native scrolling untouched. */
+function cancelPendingTouchDrag() {
+  clearTouchLongPressTimer();
+  restoreTouchSourceCard();
+  currentDraggedElement = null;
+  activeDropSection = null;
+  isTouchDragging = false;
+}
+
 /**
  * Clears all drag-related UI state and timers.
  * - Removes visual classes, placeholders, and body scroll lock
@@ -121,6 +144,7 @@ function cleanupDrag() {
       top: "",
       zIndex: "",
     });
+  restoreTouchSourceCard();
   currentDraggedElement = null;
   activeDropSection = null;
   isTouchDragging = false;
@@ -235,6 +259,7 @@ async function moveTo(newStatus) {
 /**
  * Mobile: prepares a potential drag and starts the long-press timer.
  * Normal finger movement before activation remains available for scrolling.
+ * Native HTML drag is temporarily disabled so it cannot steal the touch stream.
  * @param {TouchEvent} ev - The touchstart event.
  */
 function onTouchStart(ev) {
@@ -243,10 +268,15 @@ function onTouchStart(ev) {
   if (!card) return;
 
   clearTouchLongPressTimer();
+  restoreTouchSourceCard();
+  touchSourceCard = card;
+  touchSourceWasDraggable = card.draggable;
+  card.draggable = false;
   currentDraggedElement = card.dataset.taskId;
   const t = ev.touches[0];
   touchStartX = t.clientX;
   touchStartY = t.clientY;
+  pointerX = t.clientX;
   pointerY = t.clientY;
   isTouchDragging = false;
 
@@ -269,8 +299,8 @@ function onTouchStart(ev) {
     }
 
     initTouchDrag();
-    positionGhostAt(touchStartX, touchStartY);
-    updateActiveDropTarget(touchStartX, touchStartY);
+    positionGhostAt(pointerX, pointerY);
+    updateActiveDropTarget(pointerX, pointerY);
   }, TOUCH_LONG_PRESS_DELAY);
 }
 
@@ -285,22 +315,21 @@ function onTouchStart(ev) {
 function onTouchMove(ev) {
   if (currentDraggedElement == null || ev.touches.length !== 1) return;
   const t = ev.touches[0];
+  pointerX = t.clientX;
   pointerY = t.clientY;
 
   if (!isTouchDragging) {
     const dx = t.clientX - touchStartX,
       dy = t.clientY - touchStartY;
     if (Math.hypot(dx, dy) >= TOUCH_CANCEL_THRESHOLD) {
-      clearTouchLongPressTimer();
-      currentDraggedElement = null;
-      activeDropSection = null;
+      cancelPendingTouchDrag();
     }
     return;
   }
 
-  ev.preventDefault();
-  positionGhostAt(t.clientX, t.clientY);
-  updateActiveDropTarget(t.clientX, t.clientY);
+  if (ev.cancelable) ev.preventDefault();
+  positionGhostAt(pointerX, pointerY);
+  updateActiveDropTarget(pointerX, pointerY);
 }
 
 /**
@@ -324,6 +353,8 @@ function initTouchDrag() {
   original?.classList.add("dragging-swing", "invisible-during-drag");
   mobileGhost.classList.remove("dragging-swing", "invisible-during-drag");
   mobileGhost.classList.add("dragging-touch");
+  mobileGhost.draggable = false;
+  mobileGhost.removeAttribute("ondragstart");
   Object.assign(mobileGhost.style, {
     position: "fixed",
     width: `${original?.offsetWidth || 250}px`,
@@ -389,6 +420,16 @@ function onTouchCancel() {
 }
 
 /**
+ * Suppresses the browser's native long-press/context-menu interaction while a
+ * card touch gesture is pending or active. Mouse right-click remains unchanged.
+ * @param {MouseEvent} ev - Context menu event.
+ */
+function suppressContextMenuDuringTouch(ev) {
+  if (!touchSourceCard || !ev.target.closest(".task_container")) return;
+  ev.preventDefault();
+}
+
+/**
  * Prevents the synthetic click generated after a long-press drag from opening
  * the task overlay. Normal taps remain unaffected.
  * @param {MouseEvent} ev - Click event captured at the document level.
@@ -423,7 +464,10 @@ function startAutoScroll() {
       const r = (pointerY - (h - m)) / m;
       speed = max * easeOutQuad(r);
     }
-    if (speed) window.scrollBy(0, speed);
+    if (speed) {
+      window.scrollBy(0, speed);
+      updateActiveDropTarget(pointerX, pointerY);
+    }
     autoScrollRAF = requestAnimationFrame(tick);
   };
   autoScrollRAF = requestAnimationFrame(tick);
@@ -468,8 +512,12 @@ function mapRange(v, a, b, c, d) {
 
 /** Global event bindings for touch and desktop drag end. */
 document.addEventListener("touchstart", onTouchStart, { passive: true });
-document.addEventListener("touchmove", onTouchMove, { passive: false });
+document.addEventListener("touchmove", onTouchMove, {
+  passive: false,
+  capture: true,
+});
 document.addEventListener("touchend", onTouchEnd);
 document.addEventListener("touchcancel", onTouchCancel);
+document.addEventListener("contextmenu", suppressContextMenuDuringTouch, true);
 document.addEventListener("click", suppressClickAfterTouchDrag, true);
 document.addEventListener("dragend", cleanupDrag);
