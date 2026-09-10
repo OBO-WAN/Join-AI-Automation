@@ -38,9 +38,13 @@ const TOUCH_CANCEL_THRESHOLD = 12;
 /** Short haptic pulse used when touch drag activates. */
 const TOUCH_HAPTIC_DURATION = 35;
 /** Distance from viewport edges (px) where auto-scroll starts. */
-const SCROLL_EDGE_MARGIN = 200;
-/** Maximum scroll speed (px per frame) once at the edge. */
-const SCROLL_MAX_SPEED = 400;
+const SCROLL_EDGE_MARGIN = 170;
+/** Gentle minimum scroll speed (px per frame) inside the edge zone. */
+const SCROLL_MIN_SPEED = 4;
+/** Maximum scroll speed (px per frame) at the viewport edge. */
+const SCROLL_MAX_SPEED = 30;
+/** Maximum distance (px) for a nearby visible section to become a drop target. */
+const DROP_TARGET_MAGNET_DISTANCE = 180;
 /** Local n8n production webhook for task status change notifications. */
 const STATUS_NOTIFICATION_WEBHOOK_URL =
   "https://n8n.naranjo.io/webhook/task-status-changed";
@@ -166,13 +170,53 @@ function setSectionActive(section, active) {
 
 /**
  * Returns the `.kanban_section` element at the given viewport point, if any.
+ * During touch drag, a nearby visible section can become the target even when
+ * the finger is over fixed navigation or a small gap between sections.
  * @param {number} x - Client X coordinate.
  * @param {number} y - Client Y coordinate.
- * @returns {HTMLElement|null} The section under the point, or null.
+ * @returns {HTMLElement|null} The section under/nearest the point, or null.
  */
 function getDropSectionAtPoint(x, y) {
   const el = document.elementFromPoint(x, y);
-  return el ? el.closest(".kanban_section") : null;
+  const directTarget = el ? el.closest(".kanban_section") : null;
+  if (directTarget || !isTouchDragging) return directTarget;
+  return getNearestVisibleDropSection(x, y);
+}
+
+/**
+ * Finds the closest visible Kanban section to a viewport point.
+ * This keeps a useful target selected while edge auto-scroll moves the board.
+ * @param {number} x - Client X coordinate.
+ * @param {number} y - Client Y coordinate.
+ * @returns {HTMLElement|null} Closest visible section within the magnet range.
+ */
+function getNearestVisibleDropSection(x, y) {
+  let nearestSection = null;
+  let nearestDistance = Infinity;
+
+  document.querySelectorAll(".kanban_section").forEach((section) => {
+    const rect = section.getBoundingClientRect();
+    if (
+      rect.bottom < 0 ||
+      rect.top > window.innerHeight ||
+      rect.right < 0 ||
+      rect.left > window.innerWidth
+    )
+      return;
+
+    const closestX = Math.max(rect.left, Math.min(x, rect.right));
+    const closestY = Math.max(rect.top, Math.min(y, rect.bottom));
+    const distance = Math.hypot(x - closestX, y - closestY);
+
+    if (distance < nearestDistance) {
+      nearestDistance = distance;
+      nearestSection = section;
+    }
+  });
+
+  return nearestDistance <= DROP_TARGET_MAGNET_DISTANCE
+    ? nearestSection
+    : null;
 }
 
 /**
@@ -443,8 +487,37 @@ function suppressClickAfterTouchDrag(ev) {
 }
 
 /**
+ * Returns a smooth vertical auto-scroll speed for a pointer near the viewport edge.
+ * Scrolling begins gently and accelerates as the finger approaches the edge.
+ * @param {number} position - Pointer Y coordinate.
+ * @param {number} viewportSize - Current viewport height.
+ * @returns {number} Signed pixels per animation frame.
+ */
+function getVerticalAutoScrollSpeed(position, viewportSize) {
+  const margin = Math.min(SCROLL_EDGE_MARGIN, viewportSize / 3);
+  let direction = 0;
+  let ratio = 0;
+
+  if (position < margin) {
+    direction = -1;
+    ratio = (margin - position) / margin;
+  } else if (position > viewportSize - margin) {
+    direction = 1;
+    ratio = (position - (viewportSize - margin)) / margin;
+  }
+
+  if (!direction) return 0;
+  const eased = easeInQuad(ratio);
+  return (
+    direction *
+    (SCROLL_MIN_SPEED + (SCROLL_MAX_SPEED - SCROLL_MIN_SPEED) * eased)
+  );
+}
+
+/**
  * Starts an rAF loop that scrolls the window when the finger is near edges.
- * Speed scales non-linearly with proximity to the edge.
+ * The active drop target is recalculated while the page moves so a card can
+ * flow across several status sections without requiring repeated finger motion.
  */
 function startAutoScroll() {
   if (autoScrollRAF) return;
@@ -453,35 +526,26 @@ function startAutoScroll() {
       autoScrollRAF = 0;
       return;
     }
-    const h = window.innerHeight,
-      m = SCROLL_EDGE_MARGIN,
-      max = SCROLL_MAX_SPEED;
-    let speed = 0;
-    if (pointerY < m) {
-      const r = (m - pointerY) / m;
-      speed = -max * easeOutQuad(r);
-    } else if (pointerY > h - m) {
-      const r = (pointerY - (h - m)) / m;
-      speed = max * easeOutQuad(r);
-    }
+
+    const speed = getVerticalAutoScrollSpeed(pointerY, window.innerHeight);
     if (speed) {
       window.scrollBy(0, speed);
-      updateActiveDropTarget(pointerX, pointerY);
     }
+
+    updateActiveDropTarget(pointerX, pointerY);
     autoScrollRAF = requestAnimationFrame(tick);
   };
   autoScrollRAF = requestAnimationFrame(tick);
 }
 
 /**
- * Easing function for edge auto-scroll speed.
- * Input is clamped to [0..1]. Current variant is cubic (aggressive near edges).
- * @param {number} r - Normalized distance ratio from the edge (0..1).
- * @returns {number} Eased ratio in 0..1 used to scale speed.
+ * Quadratic edge easing: slow near the edge-zone boundary, faster at the edge.
+ * @param {number} r - Normalized edge proximity ratio (0..1).
+ * @returns {number} Eased ratio in 0..1.
  */
-function easeOutQuad(r) {
+function easeInQuad(r) {
   r = Math.min(Math.max(r, 0), 1);
-  return r * r * r;
+  return r * r;
 }
 
 /**
