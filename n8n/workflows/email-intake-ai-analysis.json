@@ -28,6 +28,18 @@
               "name": "messageID",
               "value": "={{ $json.metadata[\"message-id\"] }}",
               "type": "string"
+            },
+            {
+              "id": "5b725c45-7d05-45c2-9a36-8b4544ad4731",
+              "name": "usageDate",
+              "value": "={{ $now.setZone('Europe/Berlin').toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "ac647cb1-45cd-4869-bdb5-c4d6dc9c8c85",
+              "name": "reservationAttempt",
+              "value": 0,
+              "type": "number"
             }
           ]
         },
@@ -67,7 +79,7 @@
         "url": "https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/tasks.json",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{\n  {\n    title: $json.output.title,\n    description: $json.output.description + \"\\n\\nDieses Ticket wurde KI-generiert\",\n    dueDate: $json.output.deadline\n      ? DateTime.fromISO($json.output.deadline).toFormat('dd-MM-yyyy')\n      : \"\",\n    category: $json.output.category,\n    priority: $json.output.priority,\n    status: \"triage\",\n    assignedTo: [],\n    subTasks: [],\n    creator: {\n      type: \"external\",\n      name: $('Normalize Daily Usage').item.json.sender\n        .replace(/\\s*<[^>]+>\\s*$/, '')\n        .trim() || null,\n      email:\n        (\n          $('Normalize Daily Usage').item.json.sender.match(/<([^>]+)>/) || []\n        )[1] || $('Normalize Daily Usage').item.json.sender\n    },\n    source: {\n      type: \"email\",\n      aiGenerated: true,\n      messageId: $('Email Intake - Daily Limit').item.json.metadata[\"message-id\"]\n    },\n    createdAt: $now.toISO()\n  }\n}}",
+        "jsonBody": "={{\n  {\n    title: $json.output.title,\n    description: $json.output.description,\n    dueDate: $json.output.deadline\n      ? DateTime.fromISO($json.output.deadline).toFormat('dd-MM-yyyy')\n      : \"\",\n    category: $json.output.category,\n    priority: $json.output.priority,\n    status: \"triage\",\n    assignedTo: [],\n    subTasks: [],\n    creator: {\n      type: \"external\",\n      name: $('Normalize Daily Usage').item.json.sender\n        .replace(/\\s*<[^>]+>\\s*$/, '')\n        .trim() || null,\n      email:\n        (\n          $('Normalize Daily Usage').item.json.sender.match(/<([^>]+)>/) || []\n        )[1] || $('Normalize Daily Usage').item.json.sender\n    },\n    source: {\n      type: \"email\",\n      aiGenerated: true,\n      messageId: $('Email Intake - Daily Limit').item.json.metadata[\"message-id\"]\n    },\n    createdAt: $now.toISO()\n  }\n}}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -82,11 +94,22 @@
     },
     {
       "parameters": {
-        "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/automationUsage/{{ $now.toFormat('yyyy-MM-dd') }}.json",
+        "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/automationUsage/{{ $('Reservation Context').item.json.usageDate }}/count.json",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Firebase-ETag",
+              "value": "true"
+            }
+          ]
+        },
         "options": {
           "response": {
             "response": {
-              "fullResponse": true
+              "fullResponse": true,
+              "neverError": true
             }
           }
         }
@@ -109,38 +132,62 @@
             {
               "id": "8499a326-9b12-4812-a79a-b941d0edfefe",
               "name": "sender",
-              "value": "={{ $('Edit Fields').item.json.sender }}",
+              "value": "={{ $('Reservation Context').item.json.sender }}",
               "type": "string"
             },
             {
               "id": "3a4c6378-a224-4a99-b3b3-645c32ebf9b8",
               "name": "subject",
-              "value": "={{ $('Edit Fields').item.json.subject }}",
+              "value": "={{ $('Reservation Context').item.json.subject }}",
               "type": "string"
             },
             {
               "id": "70245101-e9de-4259-a705-5c2c53fd654e",
               "name": "body",
-              "value": "={{ $('Edit Fields').item.json.body }}",
+              "value": "={{ $('Reservation Context').item.json.body }}",
               "type": "string"
             },
             {
               "id": "5e592877-646e-45b1-aa71-39a589500464",
               "name": "messageId",
-              "value": "={{ $('Edit Fields').item.json.messageID }}",
+              "value": "={{ $('Reservation Context').item.json.messageId }}",
               "type": "string"
+            },
+            {
+              "id": "c82839ac-f797-43ea-ac34-8230058d9f26",
+              "name": "usageDate",
+              "value": "={{ $('Reservation Context').item.json.usageDate }}",
+              "type": "string"
+            },
+            {
+              "id": "e0b14037-4940-46f5-b49b-43149b6ac99c",
+              "name": "reservationAttempt",
+              "value": "={{ $('Reservation Context').item.json.reservationAttempt }}",
+              "type": "number"
             },
             {
               "id": "e937aae0-b3d9-46ce-9d71-1544a3dd75c0",
               "name": "requestsUsed",
-              "value": "={{ Number($json.body?.count ?? 0) }}",
+              "value": "={{ $json.body === null ? 0 : (typeof $json.body === 'number' ? $json.body : -1) }}",
               "type": "number"
             },
             {
-              "id": "ad1a72dd-9dca-4b0b-a63f-6e506d57b722",
-              "name": "ticketsCreated",
-              "value": "={{ Number($json.body?.ticketsCreated ?? 0) }}",
+              "id": "eb932c47-ce2f-477b-9c1d-4080b4eeb817",
+              "name": "usageStatus",
+              "value": "={{ typeof $json.statusCode === 'number' ? $json.statusCode : -1 }}",
               "type": "number"
+            },
+            {
+              "id": "e929a5e4-87b7-4b92-8d3f-dfac9e2dc6d1",
+              "name": "usageEtag",
+              "value": "={{ String($json.headers?.etag ?? $json.headers?.ETag ?? '') }}",
+              "type": "string"
+            },
+            {
+              "id": "6a1a6e5e-4f02-482c-9c68-52aef9676e83",
+              "name": "usageResponseValid",
+              "value": "={{ $json.statusCode === 200 && typeof ($json.headers?.etag ?? $json.headers?.ETag) === 'string' && ($json.headers?.etag ?? $json.headers?.ETag).length > 0 && ($json.body === null || (typeof $json.body === 'number' && Number.isInteger($json.body) && $json.body >= 0)) }}",
+              "type": "boolean"
             }
           ]
         },
@@ -478,17 +525,29 @@
     },
     {
       "parameters": {
-        "method": "PATCH",
-        "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/automationUsage/{{ $now.toFormat('yyyy-MM-dd') }}.json",
-        "sendBody": true,
-        "specifyBody": "=json",
-        "bodyParameters": {
+        "method": "PUT",
+        "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/automationUsage/{{ $('Normalize Daily Usage').item.json.usageDate }}/count.json",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
           "parameters": [
-            {}
+            {
+              "name": "if-match",
+              "value": "={{ $('Normalize Daily Usage').item.json.usageEtag }}"
+            }
           ]
         },
-        "jsonBody": "={\n  \"count\": {\n    \".sv\": {\n      \"increment\": 1\n    }\n  }\n}",
-        "options": {}
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ Number($('Normalize Daily Usage').item.json.requestsUsed) + 1 }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
@@ -497,13 +556,13 @@
         -160
       ],
       "id": "1fb4bd4f-7974-4ebb-af23-491019e4b4e8",
-      "name": "Increment Requests Used",
+      "name": "Reserve Daily AI Slot",
       "onError": "continueErrorOutput"
     },
     {
       "parameters": {
         "method": "PATCH",
-        "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/automationUsage/{{ $now.toFormat('yyyy-MM-dd') }}.json",
+        "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/automationUsage/{{ $('Normalize Daily Usage').item.json.usageDate }}.json",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "{\n  \"ticketsCreated\": {\n    \".sv\": {\n      \"increment\": 1\n    }\n  }\n}",
@@ -518,6 +577,319 @@
       "id": "6aab57c0-b3cc-4505-abb7-585281f7bdb7",
       "name": "Increment Tickets Created",
       "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3c8a281a-11c1-4c7b-b4d0-bbf1ac69b87a",
+              "name": "sender",
+              "value": "={{ $json.sender }}",
+              "type": "string"
+            },
+            {
+              "id": "cbe9996d-a110-4126-aaf6-42a28e72af61",
+              "name": "subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "76c737a6-e496-4886-9afb-ed14ee95917c",
+              "name": "body",
+              "value": "={{ $json.body }}",
+              "type": "string"
+            },
+            {
+              "id": "25538be0-5ed6-4dde-a7cb-1f8d37a367fc",
+              "name": "messageId",
+              "value": "={{ $json.messageId ?? $json.messageID }}",
+              "type": "string"
+            },
+            {
+              "id": "a04df58b-e726-4057-87d9-95f7ded1ddf8",
+              "name": "usageDate",
+              "value": "={{ $json.usageDate }}",
+              "type": "string"
+            },
+            {
+              "id": "8b11165e-cdfe-4420-81c2-1cf597ef96af",
+              "name": "reservationAttempt",
+              "value": "={{ Number($json.reservationAttempt ?? 0) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        448,
+        -240
+      ],
+      "id": "0b906233-0f53-4d7a-8cdd-a03f5dfa967e",
+      "name": "Reservation Context"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4ba43173-4aaa-4ac7-b9d5-d706280c8dbd",
+              "leftValue": "={{ $json.usageResponseValid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        -256
+      ],
+      "id": "e89a6702-b318-4b43-aa04-271eea3e5617",
+      "name": "Daily Usage Read Valid?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cf6de3a2-d467-4de9-9394-46dfaf8cff9d",
+              "name": "sender",
+              "value": "={{ $('Normalize Daily Usage').item.json.sender }}",
+              "type": "string"
+            },
+            {
+              "id": "2d741b79-8ddd-4cf6-9005-d664080c24b2",
+              "name": "subject",
+              "value": "={{ $('Normalize Daily Usage').item.json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "294906bf-a084-499f-b203-45f9e7a982a0",
+              "name": "body",
+              "value": "={{ $('Normalize Daily Usage').item.json.body }}",
+              "type": "string"
+            },
+            {
+              "id": "56c785dc-c94f-4408-97db-9c107878ebdf",
+              "name": "messageId",
+              "value": "={{ $('Normalize Daily Usage').item.json.messageId }}",
+              "type": "string"
+            },
+            {
+              "id": "f89086fa-c7db-4e1a-a501-3e0148bebaf7",
+              "name": "usageDate",
+              "value": "={{ $('Normalize Daily Usage').item.json.usageDate }}",
+              "type": "string"
+            },
+            {
+              "id": "36a6b336-d8e4-4928-b92a-7b8ad2fac418",
+              "name": "reservationAttempt",
+              "value": "={{ $('Normalize Daily Usage').item.json.reservationAttempt }}",
+              "type": "number"
+            },
+            {
+              "id": "5d61bad2-7d2a-4d11-b613-026108ced20d",
+              "name": "reservationStatus",
+              "value": "={{ typeof $json.statusCode === 'number' ? $json.statusCode : -1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1296,
+        -320
+      ],
+      "id": "fc01ba5b-d87b-4e7e-9f94-4d460d87f8af",
+      "name": "Normalize Reservation Result"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6adac427-06d5-4eb0-bd8a-1048e7cfc41f",
+              "leftValue": "={{ $json.reservationStatus }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1512,
+        -320
+      ],
+      "id": "a843e89a-9b7f-4cf9-a993-8877cc630f79",
+      "name": "Reservation Succeeded?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3b8d146c-da81-45d7-8a25-f38f8c97df7c",
+              "leftValue": "={{ $json.reservationStatus }}",
+              "rightValue": 412,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1728,
+        -320
+      ],
+      "id": "97e2f2e4-7abf-4d62-a8d7-e7cf58f9995e",
+      "name": "Reservation Conflict?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "610fe6a2-cd09-408f-b391-0eb38bb6f9af",
+              "leftValue": "={{ $json.reservationAttempt }}",
+              "rightValue": 20,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1728,
+        -480
+      ],
+      "id": "ef8dccfd-dff8-4e7a-9b60-c82f198727fa",
+      "name": "Retry Available?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f8e5b5ee-c981-4306-af76-b3f64872ceca",
+              "name": "sender",
+              "value": "={{ $('Reservation Context').item.json.sender }}",
+              "type": "string"
+            },
+            {
+              "id": "cb935590-79f8-43d4-98d7-bbdb7ebfe7dc",
+              "name": "subject",
+              "value": "={{ $('Reservation Context').item.json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "142d955e-2fb1-47e4-8b4b-ab1c9aa5935d",
+              "name": "body",
+              "value": "={{ $('Reservation Context').item.json.body }}",
+              "type": "string"
+            },
+            {
+              "id": "8d0a6d19-7385-4c7d-9003-5952c55bd1b4",
+              "name": "messageId",
+              "value": "={{ $('Reservation Context').item.json.messageId }}",
+              "type": "string"
+            },
+            {
+              "id": "ca7fdf69-3351-457f-8676-69a93307138e",
+              "name": "usageDate",
+              "value": "={{ $('Reservation Context').item.json.usageDate }}",
+              "type": "string"
+            },
+            {
+              "id": "b70441a5-e831-423f-acac-b18223334389",
+              "name": "reservationAttempt",
+              "value": "={{ Number($json.reservationAttempt) + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1512,
+        -480
+      ],
+      "id": "2b6b441d-f10e-4a02-814a-e93f52707c44",
+      "name": "Prepare Reservation Retry"
+    },
+    {
+      "parameters": {
+        "amount": "={{ Math.floor(Math.random() * 3) + 1 }}",
+        "unit": "seconds"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        1296,
+        -480
+      ],
+      "id": "a673fa53-2c21-4b36-8136-a1f229f3d780",
+      "name": "Wait Before Reservation Retry",
+      "webhookId": "2d102d15-cb4a-4595-a10e-874576150d40"
     }
   ],
   "pinData": {},
@@ -526,7 +898,7 @@
       "main": [
         [
           {
-            "node": "Get Daily Usage",
+            "node": "Reservation Context",
             "type": "main",
             "index": 0
           }
@@ -566,7 +938,7 @@
       "main": [
         [
           {
-            "node": "Under Daily Limit?",
+            "node": "Daily Usage Read Valid?",
             "type": "main",
             "index": 0
           }
@@ -646,7 +1018,7 @@
       "main": [
         [
           {
-            "node": "Increment Requests Used",
+            "node": "Reserve Daily AI Slot",
             "type": "main",
             "index": 0
           }
@@ -693,24 +1065,6 @@
         ]
       ]
     },
-    "Increment Requests Used": {
-      "main": [
-        [
-          {
-            "node": "Information Extractor",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Send Usage Lookup Failure Email",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Increment Tickets Created": {
       "main": [
         [
@@ -728,14 +1082,149 @@
           }
         ]
       ]
+    },
+    "Reservation Context": {
+      "main": [
+        [
+          {
+            "node": "Get Daily Usage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Usage Read Valid?": {
+      "main": [
+        [
+          {
+            "node": "Under Daily Limit?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Usage Lookup Failure Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reserve Daily AI Slot": {
+      "main": [
+        [
+          {
+            "node": "Normalize Reservation Result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Usage Lookup Failure Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Reservation Result": {
+      "main": [
+        [
+          {
+            "node": "Reservation Succeeded?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reservation Succeeded?": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reservation Conflict?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reservation Conflict?": {
+      "main": [
+        [
+          {
+            "node": "Retry Available?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Usage Lookup Failure Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Available?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Reservation Retry",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Usage Lookup Failure Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Reservation Retry": {
+      "main": [
+        [
+          {
+            "node": "Wait Before Reservation Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Before Reservation Retry": {
+      "main": [
+        [
+          {
+            "node": "Reservation Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1",
-    "binaryMode": "separate"
+    "binaryMode": "separate",
+    "timezone": "Europe/Berlin"
   },
-  "versionId": "b40a997e-e499-4894-ad41-65f41a1ee4b9",
+  "versionId": "51fada4a-8a19-44f9-af6f-108a8ff5e128",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "68bd1b93b41d2a8db7d4592ac2344c592298685a126e0865e3ab5f3339d425b2"
