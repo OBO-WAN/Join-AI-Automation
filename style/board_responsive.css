@@ -11,6 +11,18 @@
   }
 }
 
+@media (max-width: 1024px) and (pointer: coarse) {
+  .kanban_section {
+    transition: box-shadow 0.12s ease;
+  }
+
+  .kanban_section.drag-over {
+    padding-bottom: 0;
+    border-radius: 16px;
+    box-shadow: 0 0 0 2px #2a3647;
+  }
+}
+
 @media(max-width: 1013px){
   .board_container {
     padding-right: 50px;
