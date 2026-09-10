@@ -125,6 +125,12 @@ test("workflow has a bounded ETag reservation before AI", async () => {
   assert.equal(reserve.parameters.method, "PUT");
   assert.match(reserve.parameters.url, /usageDate.*count\.json/);
   assert.equal(reserve.parameters.headerParameters.parameters[0].name, "if-match");
+  assert.equal(reserve.parameters.contentType, "raw");
+  assert.equal(reserve.parameters.rawContentType, "application/json");
+  assert.equal(reserve.parameters.body,
+    "={{ String(Number($('Normalize Daily Usage').item.json.requestsUsed) + 1) }}");
+  assert.equal("specifyBody" in reserve.parameters, false);
+  assert.equal("jsonBody" in reserve.parameters, false);
   assert.equal(reserve.parameters.options.response.response.neverError, true);
   assert.equal(nodes.get("Retry Available?").parameters.conditions.conditions[0].rightValue, 20);
   assert.deepEqual(targets(workflow, "Under Daily Limit?", 0), ["Reserve Daily AI Slot"]);
