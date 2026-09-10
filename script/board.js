@@ -174,7 +174,7 @@ function attachTaskEventHandlers() {
  */
 function prepareTaskForTemplate(task) {
   const assignedTo = [...new Set(task.assignedTo || [])].map((name) => {
-    const user = Object.values(Contacts).find((u) => u.name === name);
+    const user = Object.values(Contacts).find((u) => u?.name === name);
     const initials = name
       .split(" ")
       .map((n) => n[0])
