@@ -114,9 +114,9 @@
 
 @media (max-width: 768px) {
   .summary-request-row {
-    width: calc(100% + 40px);
-    grid-template-columns: minmax(0, 1fr) clamp(84px, 27.1vw, 116px);
-    gap: clamp(12px, 5.6vw, 24px);
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr) clamp(96px, 18vw, 116px);
+    gap: clamp(12px, 3vw, 20px);
   }
 
   .summary-request-row .urgent,
