@@ -229,7 +229,7 @@
             },
             {
               "name": "subTasks",
-              "description": "Extract only subtasks explicitly requested by the sender. Return them as one string separated exactly by |||. Remove numbering and bullet characters. If no explicit subtasks exist, return an empty string. Do not invent subtasks. Example: Holz kaufen|||Schrauben kaufen"
+              "description": "Extract explicitly requested action items that are part of the main task, including numbered or bulleted lists even when the sender does not use the word \"subtasks\". Return them as one string separated exactly by |||. Remove numbering and bullet characters. If no explicit action items exist, return an empty string. Do not invent subtasks. Example: Beamer testen|||Namensschilder vorbereiten|||Getränke bestellen"
             }
           ]
         },
