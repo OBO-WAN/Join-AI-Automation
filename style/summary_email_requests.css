@@ -125,23 +125,60 @@
   }
 }
 
-@media (max-width: 360px) {
+@media (max-width: 388px) {
   .summary-request-row {
-    grid-template-columns: minmax(0, 1fr) 84px;
-    gap: 12px;
+    grid-template-columns: minmax(0, 1fr) 88px;
+    gap: 10px;
+  }
+
+  .summary-request-row .urgent {
+    gap: 4px;
+    padding-inline: 6px;
   }
 
   .summary-request-row .numimg {
-    flex-direction: column;
+    gap: 3px;
   }
 
-  .summary-request-row .nmbtext {
-    display: flex;
-    align-items: baseline;
-    gap: 4px;
+  .summary-request-row .urgentimg {
+    width: 34px;
+    height: 34px;
   }
 
   .summary-request-row .urgentnmb {
-    font-size: 32px;
+    font-size: 34px;
+    line-height: 1;
+  }
+
+  .summary-request-row .urgenttext {
+    font-size: 12px;
+  }
+
+  .summary-request-row .vectorurgent {
+    flex-shrink: 0;
+  }
+
+  .summary-request-row .datetext {
+    gap: 3px;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  .summary-request-row .date {
+    font-size: 13px;
+    line-height: 1.15;
+  }
+
+  .summary-request-row .underdate {
+    font-size: 12px;
+    line-height: 1.15;
+  }
+
+  .summary-email-count {
+    font-size: 40px;
+  }
+
+  .summary-email-label {
+    font-size: 14px;
   }
 }
