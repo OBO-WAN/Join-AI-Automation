@@ -129,3 +129,9 @@
     order: 3;
   }
 }
+
+@media (min-width: 1025px) {
+  .stakeholder-top-row {
+    width: min(1121px, 78vw);
+  }
+}
