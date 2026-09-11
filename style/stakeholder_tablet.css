@@ -14,11 +14,13 @@
     gap: 36px;
     max-width: none;
     min-height: 0;
-    padding: 72px clamp(32px, 5vw, 56px) 36px;
+    padding: 85px clamp(32px, 5vw, 56px) 36px;
     width: 100%;
   }
 
   .stakeholder-top-row {
+    box-sizing: border-box;
+    padding-inline: clamp(40px, 7vw, 72px);
     width: 100%;
   }
 
