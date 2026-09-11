@@ -1,5 +1,7 @@
 let tasks = [];
 let users = [];
+let taskRealtimeSource = null;
+let taskLoadRequest = 0;
 
 window.onclick = (event) => {
   if (event.target.id === "overlay") {
@@ -11,8 +13,14 @@ window.onclick = (event) => {
  * Loads all tasks from Firebase and updates the global tasks array
  */
 async function loadTasksFromFirebase() {
-  const response = await fetch(`${BASE_URL}tasks.json`);
+  const requestId = ++taskLoadRequest;
+  const response = await fetch(`${BASE_URL}tasks.json`, { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`Failed to load tasks: ${response.status}`);
+  }
   const data = await response.json();
+
+  if (requestId !== taskLoadRequest) return;
 
   tasks = [];
   for (const [id, task] of Object.entries(data || {})) {
@@ -22,6 +30,52 @@ async function loadTasksFromFirebase() {
   }
 
   renderCurrentTasks();
+  refreshOpenTaskOverlay();
+}
+
+/**
+ * Keeps the board synchronized with Firebase Realtime Database changes.
+ */
+function startTaskRealtimeSync() {
+  if (taskRealtimeSource || typeof EventSource === "undefined") return;
+
+  taskRealtimeSource = new EventSource(`${BASE_URL}tasks.json`);
+  const refreshTasks = () => {
+    loadTasksFromFirebase().catch((error) => {
+      console.error("Realtime task refresh failed", error);
+    });
+  };
+
+  taskRealtimeSource.addEventListener("put", refreshTasks);
+  taskRealtimeSource.addEventListener("patch", refreshTasks);
+}
+
+/**
+ * Refreshes an open task detail overlay after Firebase task data changes.
+ */
+function refreshOpenTaskOverlay() {
+  const overlay = document.getElementById("overlay");
+  const taskId = overlay?.dataset.openTaskId;
+  if (
+    !taskId ||
+    overlay.classList.contains("d-none") ||
+    !overlay.querySelector(".task_container_overlay")
+  ) {
+    return;
+  }
+
+  const task = tasks.find((item) => String(item.id) === String(taskId));
+  if (!task) {
+    closeOverlay();
+    delete overlay.dataset.openTaskId;
+    return;
+  }
+
+  const index = tasks.findIndex((item) => String(item.id) === String(taskId));
+  const data = prepareTaskForTemplate(task);
+  const assignedUsersHTML = buildAssignedUsersHTML(task.assignedTo);
+  openTask(data, assignedUsersHTML, index);
+  overlay.dataset.openTaskId = task.id;
 }
 
 /**
@@ -30,6 +84,7 @@ async function loadTasksFromFirebase() {
 async function init() {
   await loadUsersFromFirebase();
   await loadTasksFromFirebase();
+  startTaskRealtimeSync();
 
   let index = 0;
   let userColor = users[index]?.color;
@@ -162,7 +217,11 @@ function attachTaskEventHandlers() {
 
     const data = prepareTaskForTemplate(task),
       users = buildAssignedUsersHTML(task.assignedTo);
-    c.addEventListener("click", () => openTask(data, users, idx));
+    c.addEventListener("click", () => {
+      openTask(data, users, idx);
+      const overlay = document.getElementById("overlay");
+      if (overlay) overlay.dataset.openTaskId = task.id;
+    });
     c.addEventListener("dragstart", () => startDragging(task.id));
   });
 }
