@@ -1,21 +1,33 @@
 /**
- * Keeps a creator email popover inside the viewport on tablet and mobile.
+ * Keeps a creator email popover inside the visible task sheet on tablet and mobile.
  * @param {HTMLElement} popover - Email popover to position.
  */
 function positionCreatorEmailPopover(popover) {
   popover.style.transform = "";
+  popover.style.maxWidth = "";
   if (window.innerWidth > 768) return;
 
-  const viewportMargin = 16;
+  const margin = 16;
+  const container = popover.closest(".task_container_overlay");
+  const containerRect = container?.getBoundingClientRect();
+  const leftBoundary = Math.max(margin, (containerRect?.left ?? 0) + margin);
+  const rightBoundary = Math.min(
+    window.innerWidth - margin,
+    (containerRect?.right ?? window.innerWidth) - margin
+  );
+  const availableWidth = Math.max(0, rightBoundary - leftBoundary);
+
+  popover.style.maxWidth = `${Math.min(320, availableWidth)}px`;
+
   const rect = popover.getBoundingClientRect();
   let offset = 0;
 
-  if (rect.left < viewportMargin) {
-    offset += viewportMargin - rect.left;
+  if (rect.left < leftBoundary) {
+    offset += leftBoundary - rect.left;
   }
 
-  if (rect.right > window.innerWidth - viewportMargin) {
-    offset -= rect.right - (window.innerWidth - viewportMargin);
+  if (rect.right + offset > rightBoundary) {
+    offset -= rect.right + offset - rightBoundary;
   }
 
   popover.style.transform = offset ? `translateX(${offset}px)` : "";
@@ -65,4 +77,12 @@ document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
   const trigger = document.querySelector(".task_creator_email_trigger[aria-expanded='true']");
   if (trigger) closeCreatorEmailDisclosures(trigger);
+});
+
+window.addEventListener("resize", () => {
+  document.querySelectorAll(".task_creator_email_trigger[aria-expanded='true']")
+    .forEach((trigger) => {
+      const popover = document.getElementById(trigger.getAttribute("aria-controls"));
+      if (popover) positionCreatorEmailPopover(popover);
+    });
 });
