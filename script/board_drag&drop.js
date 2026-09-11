@@ -1,7 +1,7 @@
 /**
  * Drag & Drop controller for the Kanban board (desktop + mobile/touch).
  * - Desktop uses native HTML5 DnD.
- * - Mobile uses a long-press gesture, ghost element and edge auto-scrolling.
+ * - Mobile starts dragging when a touched card is moved, while a tap stays a tap.
  * - Placeholders stay hidden during touch drag to avoid flicker.
  */
 
@@ -13,38 +13,36 @@ let mobileGhost = null,
 /**
  * Touch state:
  * - `touchStartX`, `touchStartY`: starting coordinates
- * - `isTouchDragging`: becomes true after the long press activates
+ * - `isTouchDragging`: becomes true after movement activates the drag
  * - `pointerX`, `pointerY`: last pointer position for targeting/auto-scroll
  */
 let touchStartX = 0,
   touchStartY = 0,
   isTouchDragging = false,
   pointerX = 0,
-  pointerY = 0;
+  pointerY = 0,
+  touchOffsetX = 0,
+  touchOffsetY = 0;
 /** Source card for the active/pending touch gesture. */
 let touchSourceCard = null;
 /** Original draggable state restored when the touch gesture finishes. */
 let touchSourceWasDraggable = true;
-/** Long-press timer used to distinguish scrolling/tapping from dragging. */
-let touchLongPressTimer = 0;
 /** Timestamp until which the synthetic click after a touch drag is ignored. */
 let suppressTouchClickUntil = 0;
 /** requestAnimationFrame id for the auto-scroll loop (0 when not running). */
 let autoScrollRAF = 0;
-/** Hold duration before a touch becomes a drag. */
-const TOUCH_LONG_PRESS_DELAY = 400;
-/** Movement allowed while waiting for long-press activation. */
-const TOUCH_CANCEL_THRESHOLD = 12;
+/** Movement needed to distinguish a drag from a tap. */
+const TOUCH_DRAG_THRESHOLD = 8;
 /** Short haptic pulse used when touch drag activates. */
 const TOUCH_HAPTIC_DURATION = 35;
 /** Distance from viewport edges (px) where auto-scroll starts. */
-const SCROLL_EDGE_MARGIN = 170;
+const SCROLL_EDGE_MARGIN = 96;
 /** Gentle minimum scroll speed (px per frame) inside the edge zone. */
-const SCROLL_MIN_SPEED = 4;
+const SCROLL_MIN_SPEED = 2;
 /** Maximum scroll speed (px per frame) at the viewport edge. */
-const SCROLL_MAX_SPEED = 30;
+const SCROLL_MAX_SPEED = 18;
 /** Maximum distance (px) for a nearby visible section to become a drop target. */
-const DROP_TARGET_MAGNET_DISTANCE = 180;
+const DROP_TARGET_MAGNET_DISTANCE = 96;
 /** Local n8n production webhook for task status change notifications. */
 const STATUS_NOTIFICATION_WEBHOOK_URL =
   "https://n8n.naranjo.io/webhook/task-status-changed";
@@ -88,13 +86,6 @@ async function notifyTaskStatusChanged({
   }
 }
 
-/** Clears a pending long-press activation timer. */
-function clearTouchLongPressTimer() {
-  if (!touchLongPressTimer) return;
-  clearTimeout(touchLongPressTimer);
-  touchLongPressTimer = 0;
-}
-
 /** Restores the source card's native draggable state after touch handling. */
 function restoreTouchSourceCard() {
   if (touchSourceCard?.isConnected) {
@@ -102,15 +93,6 @@ function restoreTouchSourceCard() {
   }
   touchSourceCard = null;
   touchSourceWasDraggable = true;
-}
-
-/** Cancels a pending long press while leaving native scrolling untouched. */
-function cancelPendingTouchDrag() {
-  clearTouchLongPressTimer();
-  restoreTouchSourceCard();
-  currentDraggedElement = null;
-  activeDropSection = null;
-  isTouchDragging = false;
 }
 
 /**
@@ -121,7 +103,6 @@ function cancelPendingTouchDrag() {
  * - Stops the auto-scroll loop
  */
 function cleanupDrag() {
-  clearTouchLongPressTimer();
   document
     .querySelectorAll(".dragging-swing,.invisible-during-drag")
     .forEach((el) =>
@@ -152,6 +133,8 @@ function cleanupDrag() {
   currentDraggedElement = null;
   activeDropSection = null;
   isTouchDragging = false;
+  touchOffsetX = 0;
+  touchOffsetY = 0;
   stopAutoScroll();
 }
 
@@ -178,9 +161,33 @@ function setSectionActive(section, active) {
  */
 function getDropSectionAtPoint(x, y) {
   const el = document.elementFromPoint(x, y);
+  if (el?.closest("header,.sidebar,.nav-links")) return null;
   const directTarget = el ? el.closest(".kanban_section") : null;
   if (directTarget || !isTouchDragging) return directTarget;
   return getNearestVisibleDropSection(x, y);
+}
+
+/**
+ * Returns the visible vertical board area between fixed navigation elements.
+ * @returns {{top: number, bottom: number}} Usable viewport bounds in pixels.
+ */
+function getDragViewportBounds() {
+  const header = document.querySelector("header");
+  const mobileNav = document.querySelector(".nav-links");
+  const headerRect = header?.getBoundingClientRect();
+  const mobileNavRect = mobileNav?.getBoundingClientRect();
+  const headerIsFixed = header && getComputedStyle(header).position === "fixed";
+  const mobileNavIsFixed =
+    mobileNav &&
+    getComputedStyle(mobileNav).position === "fixed" &&
+    mobileNavRect.height > 0;
+
+  return {
+    top: headerIsFixed ? Math.max(0, headerRect.bottom) : 0,
+    bottom: mobileNavIsFixed
+      ? Math.min(window.innerHeight, mobileNavRect.top)
+      : window.innerHeight,
+  };
 }
 
 /**
@@ -193,12 +200,13 @@ function getDropSectionAtPoint(x, y) {
 function getNearestVisibleDropSection(x, y) {
   let nearestSection = null;
   let nearestDistance = Infinity;
+  const viewport = getDragViewportBounds();
 
   document.querySelectorAll(".kanban_section").forEach((section) => {
     const rect = section.getBoundingClientRect();
     if (
-      rect.bottom < 0 ||
-      rect.top > window.innerHeight ||
+      rect.bottom < viewport.top ||
+      rect.top > viewport.bottom ||
       rect.right < 0 ||
       rect.left > window.innerWidth
     )
@@ -265,54 +273,76 @@ async function moveTo(newStatus) {
   if (currentDraggedElement == null) return;
   const taskId = String(currentDraggedElement);
   const task = tasks.find((t) => String(t.id) === taskId);
-  if (!task) return;
+  if (!task) {
+    cleanupDrag();
+    return;
+  }
   const oldStatus = task.status;
   if (oldStatus === newStatus) {
     cleanupDrag();
     return;
   }
+
+  const oldStatusChangedAt = task.statusChangedAt;
   task.status = newStatus;
   task.statusChangedAt = new Date().toISOString();
-  
-  const response = await fetch(`${BASE_URL}tasks/${taskId}.json`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(serializeTaskForFirebase(task)),
-  });
-  if (!response.ok) {
-    throw new Error(`Firebase status update failed: ${response.status}`);
-  }
-  if (task.creator?.email) {
-    try {
-      await notifyTaskStatusChanged({
+
+  cleanupDrag();
+  renderCurrentTasks();
+
+  try {
+    const response = await fetch(`${BASE_URL}tasks/${taskId}.json`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status: task.status,
+        statusChangedAt: task.statusChangedAt,
+      }),
+    });
+    if (!response.ok) {
+      throw new Error(`Firebase status update failed: ${response.status}`);
+    }
+
+    if (task.creator?.email) {
+      notifyTaskStatusChanged({
         taskId,
         title: task.title || task.task || "Untitled",
         oldStatus,
         newStatus,
         creatorEmail: task.creator.email,
         creatorType: task.creator.type,
-      });
-    } catch (error) {
-      console.warn("Status notification failed:", error);
+      }).catch((error) => console.warn("Status notification failed:", error));
     }
+
+    await loadTasksFromFirebase();
+  } catch (error) {
+    task.status = oldStatus;
+    if (oldStatusChangedAt === undefined) delete task.statusChangedAt;
+    else task.statusChangedAt = oldStatusChangedAt;
+    renderCurrentTasks();
+    if (typeof showToast === "function") {
+      showToast("Task could not be moved", "./assets/icons/error.png");
+    }
+    console.error("Task status update failed:", error);
   }
-  cleanupDrag();
-  await loadTasksFromFirebase();
 }
 
 /**
- * Mobile: prepares a potential drag and starts the long-press timer.
- * Normal finger movement before activation remains available for scrolling.
+ * Mobile: prepares a potential drag. A stationary touch remains a normal tap;
+ * moving beyond the threshold activates dragging immediately.
  * Native HTML drag is temporarily disabled so it cannot steal the touch stream.
  * @param {TouchEvent} ev - The touchstart event.
  */
 function onTouchStart(ev) {
-  if (ev.touches.length !== 1) return;
+  if (ev.touches.length !== 1) {
+    if (currentDraggedElement != null) cleanupDrag();
+    return;
+  }
   const card = ev.target.closest(".task_container");
   if (!card) return;
 
-  clearTouchLongPressTimer();
   restoreTouchSourceCard();
+  suppressTouchClickUntil = 0;
   touchSourceCard = card;
   touchSourceWasDraggable = card.draggable;
   card.draggable = false;
@@ -323,15 +353,30 @@ function onTouchStart(ev) {
   pointerX = t.clientX;
   pointerY = t.clientY;
   isTouchDragging = false;
+  const rect = card.getBoundingClientRect();
+  touchOffsetX = t.clientX - rect.left;
+  touchOffsetY = t.clientY - rect.top;
+}
 
-  touchLongPressTimer = window.setTimeout(() => {
-    touchLongPressTimer = 0;
-    if (
-      currentDraggedElement !== card.dataset.taskId ||
-      isTouchDragging ||
-      !card.isConnected
-    )
-      return;
+/**
+ * Handles touch-move during mobile interaction.
+ * - Movement beyond the tap threshold activates dragging
+ * - After activation, scrolling is locked and the ghost follows the finger
+ *
+ * @param {TouchEvent} ev - The touchmove event from the document.
+ * @returns {void}
+ */
+function onTouchMove(ev) {
+  if (currentDraggedElement == null) return;
+  if (ev.touches.length !== 1) return cleanupDrag();
+  const t = ev.touches[0];
+  pointerX = t.clientX;
+  pointerY = t.clientY;
+
+  if (!isTouchDragging) {
+    const dx = t.clientX - touchStartX,
+      dy = t.clientY - touchStartY;
+    if (Math.hypot(dx, dy) < TOUCH_DRAG_THRESHOLD) return;
 
     suppressTouchClickUntil = Date.now() + 800;
     try {
@@ -343,32 +388,6 @@ function onTouchStart(ev) {
     }
 
     initTouchDrag();
-    positionGhostAt(pointerX, pointerY);
-    updateActiveDropTarget(pointerX, pointerY);
-  }, TOUCH_LONG_PRESS_DELAY);
-}
-
-/**
- * Handles touch-move during mobile interaction.
- * - Before long-press activation, movement cancels the pending drag and stays native scrolling
- * - After activation, scrolling is locked and the ghost follows the finger
- *
- * @param {TouchEvent} ev - The touchmove event from the document.
- * @returns {void}
- */
-function onTouchMove(ev) {
-  if (currentDraggedElement == null || ev.touches.length !== 1) return;
-  const t = ev.touches[0];
-  pointerX = t.clientX;
-  pointerY = t.clientY;
-
-  if (!isTouchDragging) {
-    const dx = t.clientX - touchStartX,
-      dy = t.clientY - touchStartY;
-    if (Math.hypot(dx, dy) >= TOUCH_CANCEL_THRESHOLD) {
-      cancelPendingTouchDrag();
-    }
-    return;
   }
 
   if (ev.cancelable) ev.preventDefault();
@@ -377,7 +396,7 @@ function onTouchMove(ev) {
 }
 
 /**
- * Initializes a mobile drag session after the long press completes.
+ * Initializes a mobile drag session after movement passes the tap threshold.
  * - Locks body scroll
  * - Hides original card visually, creates a visible ghost clone, and starts auto-scroll loop
  *
@@ -410,8 +429,7 @@ function initTouchDrag() {
 }
 
 /**
- * Positions the mobile ghost element at a given viewport point.
- * Centers the ghost under the finger based on its dimensions.
+ * Positions the mobile ghost at the same finger-to-card offset used on pickup.
  *
  * @param {number} x - Client X coordinate.
  * @param {number} y - Client Y coordinate.
@@ -420,8 +438,8 @@ function initTouchDrag() {
  */
 function positionGhostAt(x, y) {
   if (!mobileGhost) return;
-  mobileGhost.style.left = `${x - mobileGhost.offsetWidth / 2}px`;
-  mobileGhost.style.top = `${y - mobileGhost.offsetHeight / 2}px`;
+  mobileGhost.style.left = `${x - touchOffsetX}px`;
+  mobileGhost.style.top = `${y - touchOffsetY}px`;
 }
 
 /**
@@ -446,12 +464,11 @@ function updateActiveDropTarget(x, y) {
 
 /**
  * Mobile: drops into the active section if available; otherwise cancels.
- * Always clears pending long-press state and drag visuals afterward.
+ * A stationary touch is cleaned up so its synthetic click can open details.
  * @async
  * @returns {Promise<void>}
  */
 async function onTouchEnd() {
-  clearTouchLongPressTimer();
   if (!currentDraggedElement) return cleanupDrag();
   if (isTouchDragging && activeDropSection?.dataset?.status)
     await moveTo(activeDropSection.dataset.status);
@@ -474,7 +491,7 @@ function suppressContextMenuDuringTouch(ev) {
 }
 
 /**
- * Prevents the synthetic click generated after a long-press drag from opening
+ * Prevents the synthetic click generated after a touch drag from opening
  * the task overlay. Normal taps remain unaffected.
  * @param {MouseEvent} ev - Click event captured at the document level.
  */
@@ -494,16 +511,20 @@ function suppressClickAfterTouchDrag(ev) {
  * @returns {number} Signed pixels per animation frame.
  */
 function getVerticalAutoScrollSpeed(position, viewportSize) {
-  const margin = Math.min(SCROLL_EDGE_MARGIN, viewportSize / 3);
+  const viewport = getDragViewportBounds();
+  const top = Math.max(0, viewport.top);
+  const bottom = Math.min(viewportSize, viewport.bottom);
+  const usableHeight = Math.max(1, bottom - top);
+  const margin = Math.min(SCROLL_EDGE_MARGIN, usableHeight / 3);
   let direction = 0;
   let ratio = 0;
 
-  if (position < margin) {
+  if (position < top + margin) {
     direction = -1;
-    ratio = (margin - position) / margin;
-  } else if (position > viewportSize - margin) {
+    ratio = (top + margin - position) / margin;
+  } else if (position > bottom - margin) {
     direction = 1;
-    ratio = (position - (viewportSize - margin)) / margin;
+    ratio = (position - (bottom - margin)) / margin;
   }
 
   if (!direction) return 0;
