@@ -79,7 +79,7 @@
         "url": "https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/tasks.json",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{\n  {\n    title: $json.output.title,\n    description: $json.output.description,\n    dueDate: $json.output.deadline\n      ? DateTime.fromISO($json.output.deadline).toFormat('dd-MM-yyyy')\n      : \"\",\n    category: $json.output.category,\n    priority: $json.output.priority,\n    status: \"triage\",\n    assignedTo: [],\n    subTasks: [],\n    creator: {\n      type: \"external\",\n      name: $('Normalize Daily Usage').item.json.sender\n        .replace(/\\s*<[^>]+>\\s*$/, '')\n        .trim() || null,\n      email:\n        (\n          $('Normalize Daily Usage').item.json.sender.match(/<([^>]+)>/) || []\n        )[1] || $('Normalize Daily Usage').item.json.sender\n    },\n    source: {\n      type: \"email\",\n      aiGenerated: true,\n      messageId: $('Email Intake - Daily Limit').item.json.metadata[\"message-id\"]\n    },\n    createdAt: $now.toISO()\n  }\n}}",
+        "jsonBody": "={{\n  {\n    title: $json.output.title,\n    description: $json.output.description,\n    dueDate: $json.output.deadline\n      ? DateTime.fromISO($json.output.deadline).toFormat(\"dd-MM-yyyy\")\n      : \"\",\n    category: $json.output.category,\n    priority: $json.output.priority,\n    status: \"triage\",\n    assignedTo: [],\n    subTasks: String($json.output.subTasks || \"\")\n      .split(\"|||\")\n      .map((task) => task.trim())\n      .filter(Boolean)\n      .map((task) => ({\n        task,\n        done: false\n      })),\n    creator: {\n      type: \"external\",\n      name:\n        $(\"Normalize Daily Usage\")\n          .item.json.sender\n          .replace(/\\s*<[^>]+>\\s*$/, \"\")\n          .trim() || null,\n      email:\n        (\n          $(\"Normalize Daily Usage\")\n            .item.json.sender\n            .match(/<([^>]+)>/) || []\n        )[1] || $(\"Normalize Daily Usage\").item.json.sender\n    },\n    source: {\n      type: \"email\",\n      aiGenerated: true,\n      messageId:\n        $(\"Email Intake - Daily Limit\")\n          .item.json.metadata[\"message-id\"]\n    },\n    createdAt: $now.toISO()\n  }\n}}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -226,6 +226,10 @@
             {
               "name": "description",
               "description": "Summarize the requested work clearly and concisely while preserving the important requirements."
+            },
+            {
+              "name": "subTasks",
+              "description": "Extract only subtasks explicitly requested by the sender. Return them as one string separated exactly by |||. Remove numbering and bullet characters. If no explicit subtasks exist, return an empty string. Do not invent subtasks. Example: Holz kaufen|||Schrauben kaufen"
             }
           ]
         },

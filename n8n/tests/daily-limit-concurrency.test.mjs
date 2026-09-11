@@ -114,6 +114,9 @@ test("workflow has a bounded ETag reservation before AI", async () => {
   const nodes = new Map(workflow.nodes.map((node) => [node.name, node]));
   const getUsage = nodes.get("Get Daily Usage");
   const reserve = nodes.get("Reserve Daily AI Slot");
+  const subTasks = nodes.get("Information Extractor").parameters.attributes.attributes
+    .find(({ name }) => name === "subTasks");
+  const taskBody = nodes.get("Create Firebase Task").parameters.jsonBody;
   assert.equal(workflow.settings.timezone, "Europe/Berlin");
   assert.match(nodes.get("Edit Fields").parameters.assignments.assignments
     .find(({ name }) => name === "usageDate").value, /Europe\/Berlin/);
@@ -146,6 +149,58 @@ test("workflow has a bounded ETag reservation before AI", async () => {
   assert.deepEqual(targets(workflow, "Send Daily Limit Email"), ["Move Limit Email to zu bearbeiten"]);
   assert.match(nodes.get("Increment Tickets Created").parameters.url,
     /Normalize Daily Usage.*usageDate/);
+  assert.match(subTasks.description, /separated exactly by \|\|\|/);
+  assert.match(subTasks.description, /Do not invent subtasks/);
+  assert.match(taskBody, /String\(\$json\.output\.subTasks \|\| ""\)/);
+  assert.match(taskBody, /\.split\("\|\|\|"\)/);
+  assert.match(taskBody, /done: false/);
+});
+
+test("email subtasks map to board subtask objects", async () => {
+  const workflow = JSON.parse(await readFile(workflowPath, "utf8"));
+  const expression = workflow.nodes
+    .find(({ name }) => name === "Create Firebase Task").parameters.jsonBody;
+  assert.ok(expression.startsWith("={{") && expression.endsWith("}}"));
+
+  const buildTask = new Function(
+    "$json",
+    "DateTime",
+    "$",
+    "$now",
+    `return (${expression.slice(3, -2)});`,
+  );
+  const DateTime = { fromISO: (value) => ({ toFormat: () => value }) };
+  const references = {
+    "Normalize Daily Usage": {
+      item: { json: { sender: "Waldemar Matthies <waldemar@example.com>" } },
+    },
+    "Email Intake - Daily Limit": {
+      item: { json: { metadata: { "message-id": "test-message" } } },
+    },
+  };
+  const $ = (name) => references[name];
+  const $now = { toISO: () => "2026-09-11T00:00:00.000Z" };
+  const output = (subTasks) => buildTask({
+    output: {
+      title: "Baumhaus bauen",
+      description: "Ein Baumhaus bauen.",
+      deadline: "",
+      category: "Technical Task",
+      priority: "Urgent",
+      subTasks,
+    },
+  }, DateTime, $, $now).subTasks;
+
+  assert.deepEqual(output("Holz kaufen|||Schrauben kaufen"), [
+    { task: "Holz kaufen", done: false },
+    { task: "Schrauben kaufen", done: false },
+  ]);
+  assert.deepEqual(output(""), []);
+  assert.deepEqual(output(undefined), []);
+  assert.deepEqual(output(" Holz kaufen |||   ||| Schrauben kaufen "), [
+    { task: "Holz kaufen", done: false },
+    { task: "Schrauben kaufen", done: false },
+  ]);
 });
 
 test("15 parallel attempts reserve exactly 10 slots", async () => {
