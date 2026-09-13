@@ -564,3 +564,33 @@
     display: none;
   }
 }
+
+@media (min-width: 1600px) {
+  .main-summary {
+    width: calc(100% - 232px);
+    min-height: calc(100vh - 80px);
+    margin-left: 232px;
+    padding: 100px clamp(64px, 5vw, 120px) 80px;
+  }
+
+  .titeljoin,
+  .details {
+    width: min(100%, 1760px);
+    margin-inline: auto;
+  }
+
+  .details {
+    gap: clamp(64px, 5vw, 120px);
+  }
+
+  .content-details {
+    flex: 1 1 720px;
+    max-width: 1000px;
+  }
+
+  .goodmorning {
+    flex: 1 1 360px;
+    min-width: 0;
+    padding-right: 0;
+  }
+}

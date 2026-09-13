@@ -187,3 +187,41 @@
     width: 180px;
   }
 }
+
+@media (min-width: 1600px) {
+  .board_container {
+    width: calc(100% - 232px);
+    min-height: calc(100vh - 80px);
+    margin-left: 232px;
+    padding: 170px clamp(64px, 5vw, 120px) 0;
+  }
+
+  .headline_container,
+  .kanban_container {
+    width: min(100%, 1760px);
+    margin-inline: auto;
+  }
+
+  .kanban_container {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(220px, 320px));
+    gap: 16px;
+    justify-content: space-between;
+    align-items: start;
+    overflow-x: visible;
+  }
+
+  .kanban_section {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .section_header,
+  .no_task_placeholder,
+  .task_information,
+  .task_creator {
+    width: 100%;
+    max-width: 100%;
+  }
+}

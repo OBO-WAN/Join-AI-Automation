@@ -157,9 +157,10 @@ nav.sidebar {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 232px;
   background-color: #2a3647;
   border: none;
-  padding: 10px 65px;
+  padding: 8px 56px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -176,16 +177,20 @@ nav.sidebar {
   filter: brightness(0) invert(1);
 }
 
+.menu-button.active span {
+  color: #ffffff;
+}
+
 .menu-button img {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
 }
 
 .menu-button span {
   font-family: "Inter";
-  font-weight: 200;
+  font-weight: 400;
   font-size: 16px;
-  color: #cdcdcd;
+  color: #e7e7e7;
 }
 
 .menu-login {

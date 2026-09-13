@@ -113,4 +113,28 @@
     .form-left, .form-right{
         width: 280px;
    }
-}  
+}
+
+@media (min-width: 1600px) {
+    .add-task-container {
+        width: calc(100% - 232px);
+        min-height: calc(100vh - 100px);
+        margin-left: 232px;
+        padding-inline: clamp(64px, 5vw, 120px);
+        align-items: center;
+    }
+
+    .add-task-container > h2,
+    .add-task-container > .form-grid-add,
+    .add-task-container > .form-footer {
+        width: min(100%, 976px);
+    }
+
+    .form-grid-add {
+        gap: 48px;
+    }
+
+    .form-grid-add .form-divider {
+        margin-inline: 0;
+    }
+}
