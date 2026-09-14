@@ -299,15 +299,15 @@ function getAddNewContactTemplate() {
           </div>
 
           <div  class="add_new_contact_form_pc" >
-          <form id="contact_form_pc" method = "GET"> <!--   <form onsubmit="handleContactFormSubmit(event)" id="contact_form_pc">-->
-            <input id="name_input_pc" class="add_new_contact_input" type="text" placeholder="Name"  minlength="2" title="Please enter at least 2 characters">
-              <div class="form_erro_pc" id="form_name_erro_pc"></div>
+          <form id="contact_form_pc" novalidate>
+            <input id="name_input_pc" class="add_new_contact_input" type="text" placeholder="Name" minlength="2" required aria-describedby="form_name_erro_pc" title="Please enter your first and last name">
+              <div class="form_erro_pc" id="form_name_erro_pc" aria-live="polite"></div>
             
-              <input id="mail_input_pc" class="add_new_contact_input" type="email" placeholder="Mail"  title="Please enter a valid email address">
-              <div class="form_erro_pc" id="form_mail_erro_pc"></div>
+              <input id="mail_input_pc" class="add_new_contact_input" type="email" placeholder="Mail" required aria-describedby="form_mail_erro_pc" title="Please enter a valid email address">
+              <div class="form_erro_pc" id="form_mail_erro_pc" aria-live="polite"></div>
             
-              <input id="phone_input_pc" class="add_new_contact_input" type="tel" placeholder="Phone" pattern="[0-9+\\s\\-\\/]{7,}" title="Enter a valid phone number (min. 7 characters, numbers, +, /, or -)">
-              <div class="form_erro_pc" id="form_phone_erro_pc"></div>
+              <input id="phone_input_pc" class="add_new_contact_input" type="tel" placeholder="Phone" required aria-describedby="form_phone_erro_pc" title="Enter a valid phone number (at least 7 digits)">
+              <div class="form_erro_pc" id="form_phone_erro_pc" aria-live="polite"></div>
             
               <div class="add_new_contact_btn_section">
               <button type="button" class="cancel_btn" onclick="closeContactDialog()">
@@ -355,7 +355,7 @@ function getAddNewContactMobileTemplate() {
           </div>
         </div>
 
-        <form id="contact_form_mobile" method = "GET"">
+        <form id="contact_form_mobile" novalidate>
           <div class="mobile_contact_dialog_input_section">
             <input
               id="name_input"
@@ -363,28 +363,33 @@ function getAddNewContactMobileTemplate() {
               type="text"
               placeholder="Name"
               minlength="2"
-              title="Please enter at least 2 characters"
+              required
+              aria-describedby="form_name_erro_mobile"
+              title="Please enter your first and last name"
             >
-            <div class="form_erro_mobile" id="form_name_erro_mobile"></div>
+            <div class="form_erro_mobile" id="form_name_erro_mobile" aria-live="polite"></div>
 
             <input
               id="mail_input"
               class="add_new_contact_input_mobile"
               type="email"
               placeholder="Mail"
+              required
+              aria-describedby="form_mail_erro_mobile"
               title="Please enter a valid email address"
             >
-            <div class="form_erro_mobile" id="form_mail_erro_mobile"></div>
+            <div class="form_erro_mobile" id="form_mail_erro_mobile" aria-live="polite"></div>
 
             <input
               id="phone_input"
               class="add_new_contact_input_mobile"
               type="tel"
               placeholder="Phone"
-              pattern="[0-9+\\s\\-\\/]{7,}"
-              title="Enter a valid phone number (min. 7 characters, numbers, +, /, or -)"
+              required
+              aria-describedby="form_phone_erro_mobile"
+              title="Enter a valid phone number (at least 7 digits)"
             >
-            <div class="form_erro_mobile" id="form_phone_erro_mobile"></div>
+            <div class="form_erro_mobile" id="form_phone_erro_mobile" aria-live="polite"></div>
 
             <button class="create_btn_mobile" type="submit" id="id_Edit_Btn"  >
               <span id="id_Edit_Btn_Text">Create</span>
