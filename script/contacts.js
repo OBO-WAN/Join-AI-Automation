@@ -55,8 +55,16 @@ function updateDatabase(data) {
 /**
  * Creates a new contact from the form and updates the UI.
  */
-function createContact() {
-    let newContact = buildContactFromForm();
+function createContact(dlg) {
+    const suffix = typeof dlg === "string"
+        ? dlg
+        : getViewMode() === 1 ? "_pc" : "";
+    const isValid = suffix === "_pc"
+        ? validateContactFormPc()
+        : validateContactFormMobile();
+    if (!isValid) return;
+
+    const newContact = buildContactFromForm(suffix);
     if (!newContact) return;
 
     addContactAndUpdateUI(newContact);
@@ -66,16 +74,20 @@ function createContact() {
  * Builds a contact object from the form inputs.
  * @returns {Object|null} The contact object or null if validation fails.
  */
-function buildContactFromForm() {
-    let kindOfDlgPc = "";
-    if (getViewMode() === 1) kindOfDlgPc = "_pc";
+function buildContactFromForm(dlg) {
+    const kindOfDlgPc = typeof dlg === "string"
+        ? dlg
+        : getViewMode() === 1 ? "_pc" : "";
 
     let name = document.getElementById("name_input" + kindOfDlgPc)?.value.trim();
     let mail = document.getElementById("mail_input" + kindOfDlgPc)?.value.trim();
     let phone = document.getElementById("phone_input" + kindOfDlgPc)?.value.trim();
 
-    if (!name || !mail || !phone || !emailIsValid(mail)) {
-        console.warn("Invalid form input", { name, mail, phone });
+    if (
+        !validateName_LowLevel(name) ||
+        !validateMail_LowLevel(mail) ||
+        !validatePhone_LowLevel(phone)
+    ) {
         return null;
     }
     name = capitalizeWords(name);
@@ -123,25 +135,21 @@ function findContactNewIndex(contact) {
  * Edits an existing contact with new data from the form.
  * @param {number} id - The contact index.
  */
-function editContact(id) {
-    let kindOfDlgPc = "";
-    let viewMode = getViewMode();
-    if (viewMode === 1) {
-        kindOfDlgPc = "_pc";
-    }
+function editContact(id, dlg) {
+    const viewMode = getViewMode();
+    const kindOfDlgPc = typeof dlg === "string"
+        ? dlg
+        : viewMode === 1 ? "_pc" : "";
+    const isValid = kindOfDlgPc === "_pc"
+        ? validateContactFormPc()
+        : validateContactFormMobile();
+    if (!isValid) return;
 
     let name = document.getElementById("name_input" + kindOfDlgPc).value.trim();
     let mail = document.getElementById("mail_input" + kindOfDlgPc).value.trim();
     let phone = document
         .getElementById("phone_input" + kindOfDlgPc)
         .value.trim();
-
-    if (!name || !mail || !phone) {
-        return;
-    }
-    if (emailIsValid(mail) == false) {
-        return;
-    }
 
    saveEditedContact(id, kindOfDlgPc, name, mail, phone, viewMode)
 }
