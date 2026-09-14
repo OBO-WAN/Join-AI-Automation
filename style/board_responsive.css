@@ -225,3 +225,20 @@
     max-width: 100%;
   }
 }
+
+/**
+ * Uses more of the available canvas on ultrawide displays while keeping
+ * the board heading and five Kanban columns centered together.
+ */
+@media (min-width: 2561px) {
+  .headline_container,
+  .kanban_container {
+    width: min(100%, 2200px);
+  }
+
+  .kanban_container {
+    grid-template-columns: repeat(5, minmax(280px, 1fr));
+    gap: 32px;
+    justify-content: stretch;
+  }
+}
