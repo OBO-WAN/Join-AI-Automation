@@ -11,6 +11,7 @@ function configEditDlgBox(id) {
     const kind = id < 0 ? "createContact" : "editContact";
     kind === "editContact" ? setupEditContactDialog(id, dlg) : setupCreateContactDialog(id, dlg);
     addValidationListeners();
+    addContactSubmitListener(id, dlg);
 }
   
 /**
@@ -23,7 +24,6 @@ function configEditDlgBox(id) {
 */
 function setupEditContactDialog(id, dlg) {
     document.getElementById("Kind_Of_Dlg" + dlg).innerHTML = "Edit contact";
-    document.getElementById("id_Edit_Btn" + dlg).onclick = () => editContact(id);
     document.getElementById("id_Edit_Btn_Text" + dlg).innerText = "Save";
     const c = Contacts[id]; ["name","mail","phone"].forEach(f => document.getElementById(f+"_input"+dlg).value = c[f]);
     [configAvatar_pc, configAvatar_mobile].forEach(fn => fn(c, getColor(id)));
@@ -38,7 +38,6 @@ function setupEditContactDialog(id, dlg) {
 * @param {string} dlg - Dialog suffix used to target PC (`"_pc"`) or other modes (`""`).
 */
 function setupCreateContactDialog(id, dlg) {
-    document.getElementById("id_Edit_Btn" + dlg).onclick = () => createContact(id);
     createContactDialog(dlg);
     document.getElementById("id_Edit_Btn_Text" + dlg).innerText = "Create";
 }
@@ -49,11 +48,33 @@ function setupCreateContactDialog(id, dlg) {
 * Runs validation functions for name, email, and phone fields on each keyup event.
 */
 function addValidationListeners() {
-    document.getElementById("contact_form_pc")?.addEventListener("keyup", e => { 
-      validateName(e); validateMail(e); validatePhone(e); 
+    const validators = [
+        ["name_input_pc", validateName],
+        ["mail_input_pc", validateMail],
+        ["phone_input_pc", validatePhone],
+        ["name_input", validateNameMobile],
+        ["mail_input", validateMailMobile],
+        ["phone_input", validatePhoneMobile],
+    ];
+
+    validators.forEach(([inputId, validator]) => {
+        document.getElementById(inputId)?.addEventListener("input", validator);
     });
-    document.getElementById("contact_form_mobile")?.addEventListener("keyup", e => { 
-      validateNameMobile(e); validateMailMobile(e); validatePhoneMobile(e); 
+}
+
+/**
+ * Handles creation and editing through the dynamically rendered contact form.
+ * @param {number} id - Contact index, or a negative value for a new contact.
+ * @param {string} dlg - "_pc" for desktop and an empty string for mobile.
+ */
+function addContactSubmitListener(id, dlg) {
+    const formId = dlg === "_pc" ? "contact_form_pc" : "contact_form_mobile";
+    const form = document.getElementById(formId);
+    if (!form) return;
+
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        id < 0 ? createContact(dlg) : editContact(id, dlg);
     });
 }
 
@@ -148,9 +169,6 @@ function openContactDialogMobile(id) {
     mobileDialogTemplate;
     configEditDlgBox(id);
     editContactsMobileMenuOff();
-    document.getElementById("contact_form_mobile")?.addEventListener("submit", function(event) {
-    event.preventDefault()
-});
 }
 
 /**
