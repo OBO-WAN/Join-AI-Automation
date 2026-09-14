@@ -233,12 +233,12 @@
 @media (min-width: 2561px) {
   .headline_container,
   .kanban_container {
-    width: min(100%, 2200px);
+    width: min(100%, 3000px);
   }
 
   .kanban_container {
-    grid-template-columns: repeat(5, minmax(280px, 1fr));
-    gap: 32px;
+    grid-template-columns: repeat(5, minmax(320px, 1fr));
+    gap: clamp(32px, 1.25vw, 48px);
     justify-content: stretch;
   }
 }
