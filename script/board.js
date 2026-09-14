@@ -112,6 +112,7 @@ function renderCurrentTasks() {
   });
 
   showStatusPlaceholder(statusCounts, statusContainers);
+  applyTaskSearch();
   setTimeout(attachTaskEventHandlers, 0);
 }
 
@@ -304,36 +305,42 @@ async function loadUsersFromFirebase() {
 }
 
 /**
- * A live HTMLCollection of all elements with the class "task_container hover".
- * Used to access and manipulate all task container elements currently present in the DOM.
- *
- * @type {HTMLCollectionOf<Element>}
+ * Filters the currently rendered task cards by title or description.
+ * The cards are queried on every run because Firebase renders and replaces
+ * them asynchronously after DOMContentLoaded.
+ */
+function applyTaskSearch() {
+  const searchInput = document.getElementById("search-task");
+  if (!searchInput) return;
+
+  const term = searchInput.value.trim().toLowerCase();
+  document.querySelectorAll(".task_container.hover").forEach((task) => {
+    const title =
+      task.querySelector(".task_title")?.textContent.toLowerCase() || "";
+    const details =
+      task.querySelector(".task_details")?.textContent.toLowerCase() || "";
+    task.style.display =
+      title.includes(term) || details.includes(term) ? "" : "none";
+  });
+
+  showSearchPlaceholders(
+    [
+      "triageContainer",
+      "toDoContainer",
+      "inProgressContainer",
+      "awaitFeedbackContainer",
+      "doneContainer",
+    ],
+    "task_container",
+  );
+}
+
+/**
+ * Attaches the board search handler once the search input is available.
  */
 window.addEventListener("DOMContentLoaded", () => {
-  const searchInput = document.querySelector(".search_input");
-  const taskElements = document.querySelectorAll(".task_container.hover");
-
-  searchInput.addEventListener("input", () => {
-    const term = searchInput.value.toLowerCase();
-    taskElements.forEach((task) => {
-      const title =
-        task.querySelector(".task_title")?.textContent.toLowerCase() || "";
-      const details =
-        task.querySelector(".task_details")?.textContent.toLowerCase() || "";
-      task.style.display =
-        title.includes(term) || details.includes(term) ? "block" : "none";
-    });
-    showSearchPlaceholders(
-      [
-        "triageContainer",
-        "toDoContainer",
-        "inProgressContainer",
-        "awaitFeedbackContainer",
-        "doneContainer",
-      ],
-      "task_container",
-    );
-  });
+  const searchInput = document.getElementById("search-task");
+  searchInput?.addEventListener("input", applyTaskSearch);
 });
 
 /**
