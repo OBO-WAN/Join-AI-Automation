@@ -27,7 +27,7 @@
     display: none;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1099px) {
 
 .mobil_view_card_edit_section{
     display: none;
@@ -220,5 +220,11 @@ h1{
 
     .contactslist_container{
         height: calc(100% - 90px);
+    }
+}
+
+@media (min-width: 1100px) {
+    .add_new_contact_Mobile_section {
+        display: none !important;
     }
 }
