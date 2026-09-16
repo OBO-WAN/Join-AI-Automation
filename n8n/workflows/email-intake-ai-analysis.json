@@ -1,5 +1,5 @@
 {
-  "name": "Email Intake - AI Analysis",
+  "name": "Email Intake - AI Analysis (new ETag)",
   "nodes": [
     {
       "parameters": {
@@ -48,10 +48,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        224,
-        0
+        -848,
+        496
       ],
-      "id": "d54e8766-3ed5-4a6b-b52b-875ac1ba6878",
+      "id": "716500a0-5a85-4755-a5b1-bfd7e5ec1c90",
       "name": "Edit Fields"
     },
     {
@@ -61,10 +61,10 @@
       "type": "n8n-nodes-base.emailReadImap",
       "typeVersion": 2.2,
       "position": [
-        0,
-        0
+        -1296,
+        480
       ],
-      "id": "82cf10e2-e18c-4f1f-b15f-80b66a487f9b",
+      "id": "4add500e-3936-40e5-b87b-85b51fbee950",
       "name": "Email Intake - Daily Limit",
       "credentials": {
         "imap": {
@@ -85,10 +85,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        1648,
-        -256
+        576,
+        272
       ],
-      "id": "d03121f0-41fa-4269-99f2-e15c8bd446b4",
+      "id": "3eb6ed62-f32d-428f-a208-30abbf5f5d15",
       "name": "Create Firebase Task",
       "onError": "continueRegularOutput"
     },
@@ -96,7 +96,6 @@
       "parameters": {
         "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/automationUsage/{{ $('Reservation Context').item.json.usageDate }}/count.json",
         "sendHeaders": true,
-        "specifyHeaders": "keypair",
         "headerParameters": {
           "parameters": [
             {
@@ -117,10 +116,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        448,
-        0
+        -624,
+        480
       ],
-      "id": "a797642e-8d98-4822-8895-cfe4774e6fb9",
+      "id": "5d827be3-98d0-45f4-b1d1-fd1405cb37d7",
       "name": "Get Daily Usage",
       "alwaysOutputData": false,
       "onError": "continueErrorOutput"
@@ -196,10 +195,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        672,
-        -80
+        -400,
+        400
       ],
-      "id": "abf435c9-5964-4146-92bd-239ec5012639",
+      "id": "db822d32-51e4-4065-a22a-c1bcd2bf1473",
       "name": "Normalize Daily Usage"
     },
     {
@@ -238,10 +237,10 @@
       "type": "@n8n/n8n-nodes-langchain.informationExtractor",
       "typeVersion": 1.2,
       "position": [
-        1360,
-        -96
+        288,
+        384
       ],
-      "id": "4919b66c-46db-4016-a80e-acf9477db3fb",
+      "id": "278b1130-3a77-4c60-9824-270820f28f0a",
       "name": "Information Extractor",
       "onError": "continueErrorOutput"
     },
@@ -252,10 +251,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1.1,
       "position": [
-        1472,
-        112
+        400,
+        592
       ],
-      "id": "1a42e8bf-0856-4308-95b0-4a9275bae0c9",
+      "id": "93e3b2f8-dd47-4ac9-91fd-88571129e23b",
       "name": "Google Gemini Chat Model",
       "credentials": {
         "googlePalmApi": {
@@ -275,10 +274,10 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        2208,
-        -176
+        1136,
+        304
       ],
-      "id": "83e82618-5ef3-4497-a963-a11613e62569",
+      "id": "13ad9f60-da24-45d6-b0d1-01d5f3ffef3f",
       "name": "Send an Email",
       "webhookId": "d136d3a1-eda4-46a9-9b31-23025c094855",
       "credentials": {
@@ -299,10 +298,10 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        2000,
-        240
+        928,
+        720
       ],
-      "id": "13e90d07-9965-4d0c-aca4-9fd20332d803",
+      "id": "408259f2-7175-4b9e-931b-21d480b31b42",
       "name": "Send Failure Email",
       "webhookId": "a02bcfa6-f769-4bec-9583-056b5c431e1f",
       "credentials": {
@@ -340,10 +339,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1824,
-        -176
+        752,
+        304
       ],
-      "id": "adf9cf51-1281-4c14-956b-270df60fe0e8",
+      "id": "1fb694ea-402f-443b-a4f9-7f4fab55b628",
       "name": "Task created?"
     },
     {
@@ -373,10 +372,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        896,
-        0
+        -176,
+        480
       ],
-      "id": "b58151ca-fc7f-4cbe-b5f8-c5738e31aa4f",
+      "id": "b5751b3c-771d-45b5-9006-8ba5dbbddffb",
       "name": "Under Daily Limit?"
     },
     {
@@ -390,10 +389,10 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        1088,
-        64
+        16,
+        544
       ],
-      "id": "cc5df5ee-a215-4f0e-b83a-592c474da668",
+      "id": "6f764a9e-9e6c-4c62-b36e-a8c39a5fe514",
       "name": "Send Daily Limit Email",
       "webhookId": "9383630e-24b0-4a6c-b965-e93c7a71d756",
       "credentials": {
@@ -424,10 +423,10 @@
       "type": "n8n-nodes-imap.imap",
       "typeVersion": 1,
       "position": [
-        2336,
-        -80
+        1264,
+        400
       ],
-      "id": "bd532ff3-27a9-4372-a65e-789516bf8cc7",
+      "id": "3d4aad21-2feb-4dfd-b3a9-ce22ea88904b",
       "name": "Destination Mailbox → erledigt",
       "credentials": {
         "imap": {
@@ -457,10 +456,10 @@
       "type": "n8n-nodes-imap.imap",
       "typeVersion": 1,
       "position": [
-        2336,
-        128
+        1264,
+        608
       ],
-      "id": "e212a7e3-8a50-48fa-962c-ebc41966e872",
+      "id": "2fc90f6f-d136-4eee-927f-ff002bfb6384",
       "name": "Move Email to zu bearbeiten",
       "credentials": {
         "imap": {
@@ -490,10 +489,10 @@
       "type": "n8n-nodes-imap.imap",
       "typeVersion": 1,
       "position": [
-        1264,
-        128
+        192,
+        608
       ],
-      "id": "952da5fb-2cb6-4eec-8e07-4ce1335a5773",
+      "id": "3c27150e-26d0-48e7-8e49-be409dd8c9ea",
       "name": "Move Limit Email to zu bearbeiten",
       "credentials": {
         "imap": {
@@ -513,10 +512,10 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        672,
-        96
+        -400,
+        576
       ],
-      "id": "04bc8fd0-fea9-4834-9bb8-6629ab36ccf0",
+      "id": "2f706b81-1ec0-489c-901f-9514822eb291",
       "name": "Send Usage Lookup Failure Email",
       "webhookId": "c7811433-a795-46ef-8580-02fcd30e7ffb",
       "credentials": {
@@ -532,7 +531,6 @@
         "method": "PUT",
         "url": "=https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/automationUsage/{{ $('Normalize Daily Usage').item.json.usageDate }}/count.json",
         "sendHeaders": true,
-        "specifyHeaders": "keypair",
         "headerParameters": {
           "parameters": [
             {
@@ -557,10 +555,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        1088,
-        -160
+        16,
+        320
       ],
-      "id": "1fb4bd4f-7974-4ebb-af23-491019e4b4e8",
+      "id": "f1b81528-7242-4f4e-a97e-03fa4b4fd2e6",
       "name": "Reserve Daily AI Slot",
       "onError": "continueErrorOutput"
     },
@@ -576,10 +574,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        2016,
-        -176
+        944,
+        304
       ],
-      "id": "6aab57c0-b3cc-4505-abb7-585281f7bdb7",
+      "id": "554950df-ce51-47db-8989-5bb0de0d06fb",
       "name": "Increment Tickets Created",
       "onError": "continueErrorOutput"
     },
@@ -630,10 +628,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        448,
-        -240
+        -624,
+        240
       ],
-      "id": "0b906233-0f53-4d7a-8cdd-a03f5dfa967e",
+      "id": "01ad53bc-d539-42e7-a821-d3140361efd0",
       "name": "Reservation Context"
     },
     {
@@ -664,10 +662,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        896,
-        -256
+        -176,
+        224
       ],
-      "id": "e89a6702-b318-4b43-aa04-271eea3e5617",
+      "id": "f35afd01-3ac5-4ed5-badb-e74b78eb2e82",
       "name": "Daily Usage Read Valid?"
     },
     {
@@ -723,10 +721,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        1296,
-        -320
+        224,
+        160
       ],
-      "id": "fc01ba5b-d87b-4e7e-9f94-4d460d87f8af",
+      "id": "8dd31f81-e61b-496a-9edf-e390a1842502",
       "name": "Normalize Reservation Result"
     },
     {
@@ -756,10 +754,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1512,
-        -320
+        448,
+        160
       ],
-      "id": "a843e89a-9b7f-4cf9-a993-8877cc630f79",
+      "id": "f5284546-4870-4c60-8d5a-aea098f1a9be",
       "name": "Reservation Succeeded?"
     },
     {
@@ -789,10 +787,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1728,
-        -320
+        656,
+        160
       ],
-      "id": "97e2f2e4-7abf-4d62-a8d7-e7cf58f9995e",
+      "id": "b16fec54-8456-4839-abd4-e74a7494be99",
       "name": "Reservation Conflict?"
     },
     {
@@ -822,10 +820,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1728,
-        -480
+        656,
+        0
       ],
-      "id": "ef8dccfd-dff8-4e7a-9b60-c82f198727fa",
+      "id": "8485ebbd-fdb3-40dc-a4ab-596829c0abfa",
       "name": "Retry Available?"
     },
     {
@@ -875,10 +873,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        1512,
-        -480
+        448,
+        0
       ],
-      "id": "2b6b441d-f10e-4a02-814a-e93f52707c44",
+      "id": "77c76675-9514-4fd6-94f9-393044954a33",
       "name": "Prepare Reservation Retry"
     },
     {
@@ -889,12 +887,46 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1,
       "position": [
-        1296,
-        -480
+        224,
+        0
       ],
-      "id": "a673fa53-2c21-4b36-8136-a1f229f3d780",
+      "id": "99e54d11-1aeb-44dc-9236-ad3f4c05bb69",
       "name": "Wait Before Reservation Retry",
       "webhookId": "2d102d15-cb4a-4595-a10e-874576150d40"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d6e1b291-303b-4504-a985-75b3d45ee2fa",
+              "leftValue": "={{\n  /mailer-daemon|postmaster/i.test($json.from || '') ||\n  /mailer-daemon|postmaster/i.test($json.metadata?.['return-path'] || '') ||\n  /report-type=delivery-status/i.test($json.metadata?.['content-type'] || '') ||\n  /undelivered|returned to sender|delivery failed|delivery failure|mail delivery system/i.test($json.subject || '')\n}}",
+              "rightValue": "={{\n  /mailer-daemon|postmaster/i.test($json.from || '') ||\n  /mailer-daemon|postmaster/i.test($json.metadata?.['return-path'] || '') ||\n  /report-type=delivery-status/i.test($json.metadata?.['content-type'] || '') ||\n  /undelivered|returned to sender|delivery failed|delivery failure|mail delivery system/i.test($json.subject || '')\n}}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1072,
+        480
+      ],
+      "id": "f0e93ab5-7ccf-4671-b401-abf4ac79a8ce",
+      "name": "Bounce Email?"
     }
   ],
   "pinData": {},
@@ -914,7 +946,7 @@
       "main": [
         [
           {
-            "node": "Edit Fields",
+            "node": "Bounce Email?",
             "type": "main",
             "index": 0
           }
@@ -1221,20 +1253,34 @@
           }
         ]
       ]
+    },
+    "Bounce Email?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
-    "timezone": "Europe/Berlin"
+    "timeSavedMode": "fixed",
+    "timezone": "Europe/Berlin",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
   },
-  "versionId": "51fada4a-8a19-44f9-af6f-108a8ff5e128",
+  "versionId": "b7be0ae8-3b3c-4ca4-bd90-5a3a26a6b4ca",
   "meta": {
-    "templateCredsSetupCompleted": true,
     "instanceId": "68bd1b93b41d2a8db7d4592ac2344c592298685a126e0865e3ab5f3339d425b2"
   },
   "nodeGroups": [],
-  "id": "4I4dcXWTsgP4GBW1",
+  "id": "JiwTSceUyJFRRbtE",
   "tags": []
 }
