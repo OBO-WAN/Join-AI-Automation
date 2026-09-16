@@ -6,7 +6,7 @@
         "httpMethod": "POST",
         "path": "task-status-changed",
         "options": {
-          "allowedOrigins": "https://join.naranjo.io,https://obo-wan.github.io,http://127.0.0.1:5501"
+          "allowedOrigins": "https://join.naranjo.io,https://obo-wan.github.io"
         }
       },
       "type": "n8n-nodes-base.webhook",
@@ -202,7 +202,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "2bfac320-85db-4a2a-b402-83482cfb5b62",
+  "versionId": "e8d731a5-cf80-4488-80ab-14b1eb80bd8f",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "68bd1b93b41d2a8db7d4592ac2344c592298685a126e0865e3ab5f3339d425b2"
