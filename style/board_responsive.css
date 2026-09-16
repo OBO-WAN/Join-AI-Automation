@@ -207,7 +207,7 @@
     grid-template-columns: repeat(5, minmax(220px, 320px));
     gap: 16px;
     justify-content: space-between;
-    align-items: start;
+    align-items: stretch;
     overflow-x: visible;
   }
 

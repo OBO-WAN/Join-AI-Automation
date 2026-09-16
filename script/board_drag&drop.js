@@ -33,8 +33,6 @@ let suppressTouchClickUntil = 0;
 let autoScrollRAF = 0;
 /** Movement needed to distinguish a drag from a tap. */
 const TOUCH_DRAG_THRESHOLD = 8;
-/** Short haptic pulse used when touch drag activates. */
-const TOUCH_HAPTIC_DURATION = 35;
 /** Distance from viewport edges (px) where auto-scroll starts. */
 const SCROLL_EDGE_MARGIN = 96;
 /** Gentle minimum scroll speed (px per frame) inside the edge zone. */
@@ -68,17 +66,18 @@ async function notifyTaskStatusChanged({
   creatorEmail,
   creatorType,
 }) {
+  const body = new URLSearchParams({
+    taskId: String(taskId),
+    title: title || "",
+    oldStatus: oldStatus || "",
+    newStatus: newStatus || "",
+    creatorEmail: creatorEmail || "",
+    creatorType: creatorType || "",
+  });
+
   const response = await fetch(STATUS_NOTIFICATION_WEBHOOK_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      taskId,
-      title,
-      oldStatus,
-      newStatus,
-      creatorEmail,
-      creatorType,
-    }),
+    body,
   });
 
   if (!response.ok) {
@@ -222,9 +221,7 @@ function getNearestVisibleDropSection(x, y) {
     }
   });
 
-  return nearestDistance <= DROP_TARGET_MAGNET_DISTANCE
-    ? nearestSection
-    : null;
+  return nearestDistance <= DROP_TARGET_MAGNET_DISTANCE ? nearestSection : null;
 }
 
 /**
@@ -379,14 +376,6 @@ function onTouchMove(ev) {
     if (Math.hypot(dx, dy) < TOUCH_DRAG_THRESHOLD) return;
 
     suppressTouchClickUntil = Date.now() + 800;
-    try {
-      if (typeof navigator.vibrate === "function") {
-        navigator.vibrate(TOUCH_HAPTIC_DURATION);
-      }
-    } catch (error) {
-      console.debug("Touch haptics unavailable:", error);
-    }
-
     initTouchDrag();
   }
 
