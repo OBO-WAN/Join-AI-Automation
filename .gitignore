@@ -3,6 +3,9 @@
 .env.*
 !.env.example
 
+# Local editor settings
+.vscode/
+
 # Local n8n data and credentials
 .n8n/
 
