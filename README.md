@@ -140,6 +140,12 @@ Exported workflows are stored in `n8n/workflows/`.
 - **Public webhook:** Cloudflare Tunnel
 - **Deployment:** GitHub Pages
 
+## Production Backend
+
+The production n8n backend runs independently on a Netcup VPS.
+
+Server setup, operations, backup, and recovery notes are documented in [`docs/server-setup.md`](docs/server-setup.md).
+
 ## Run Locally
 
 From the repository root, start a local web server. For example:
