@@ -30,8 +30,8 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        752,
-        -224
+        672,
+        -16
       ],
       "id": "bebebf9e-97d8-49f0-ae42-268b1973deed",
       "name": "Send an Email",
@@ -143,8 +143,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        608,
-        -128
+        880,
+        -16
       ],
       "id": "6be7eabd-a657-4477-9b50-d2484a69bda4",
       "name": "Mark Status Notification Sent"
@@ -178,18 +178,24 @@
       "main": [
         [
           {
-            "node": "Mark Status Notification Sent",
+            "node": "Send an Email",
             "type": "main",
             "index": 0
           }
-        ]
+        ],
+        []
       ]
     },
     "Mark Status Notification Sent": {
       "main": [
+        []
+      ]
+    },
+    "Send an Email": {
+      "main": [
         [
           {
-            "node": "Send an Email",
+            "node": "Mark Status Notification Sent",
             "type": "main",
             "index": 0
           }
@@ -202,7 +208,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "e8d731a5-cf80-4488-80ab-14b1eb80bd8f",
+  "versionId": "c1ae063e-e5ac-4f5c-ac2c-766e4d6a431f",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "68bd1b93b41d2a8db7d4592ac2344c592298685a126e0865e3ab5f3339d425b2"
