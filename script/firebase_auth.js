@@ -10,6 +10,19 @@ const FIREBASE_WEB_CONFIG = {
 };
 
 const FIREBASE_AUTH_STORAGE_KEY = "joinFirebaseAuth";
+let firebaseAuthGeneration = 0;
+let firebaseRefreshRequest = null;
+
+function firebaseAuthError(code, message) {
+  return Object.assign(new Error(message), { code });
+}
+
+function validFirebaseSession(session) {
+  return session && !Array.isArray(session) &&
+    [session.localId, session.idToken, session.refreshToken].every(
+      (value) => typeof value === "string" && value.trim(),
+    ) && typeof session.email === "string" && Number.isFinite(session.expiresAt);
+}
 
 function getStoredFirebaseAuth() {
   const sessionValue = sessionStorage.getItem(FIREBASE_AUTH_STORAGE_KEY);
@@ -18,17 +31,35 @@ function getStoredFirebaseAuth() {
   if (!raw) return null;
 
   try {
-    return JSON.parse(raw);
+    const session = JSON.parse(raw);
+    if (!validFirebaseSession(session)) throw new Error("Invalid session shape");
+    return session;
   } catch (error) {
-    console.warn("Invalid stored Firebase auth session", error);
+    console.warn("Invalid stored Firebase auth session");
     clearFirebaseAuthStorage();
     return null;
   }
 }
 
 function clearFirebaseAuthStorage() {
+  // Invalidate pending login/refresh work before removing its credentials.
+  firebaseAuthGeneration++;
+  firebaseRefreshRequest = null;
   sessionStorage.removeItem(FIREBASE_AUTH_STORAGE_KEY);
   localStorage.removeItem(FIREBASE_AUTH_STORAGE_KEY);
+  localStorage.removeItem("isGuest");
+  clearJoinAuthIdentity();
+}
+
+function clearJoinAuthIdentity() {
+  for (const key of ["loggedInUserId", "userEmail", "firstName", "lastName", "userInitials", "loggedIn", "activePage"]) {
+    sessionStorage.removeItem(key);
+  }
+  sessionStorage.setItem("isUser", "false");
+  sessionStorage.setItem("linksSidebarBoolienKey", "false");
+  window.showButtonLinksSidebar = false;
+  document.querySelectorAll?.(".name").forEach((element) => { element.textContent = "guest"; });
+  if (typeof window.setUserInitials === "function") window.setUserInitials();
 }
 
 function storeFirebaseAuth(authData, remember = false) {
@@ -37,8 +68,11 @@ function storeFirebaseAuth(authData, remember = false) {
     refreshToken: authData.refreshToken,
     localId: authData.localId || authData.user_id || "",
     email: authData.email || "",
-    expiresAt: Date.now() + Number(authData.expiresIn || authData.expires_in || 3600) * 1000,
+    expiresAt: Date.now() + Number(authData.expiresIn ?? authData.expires_in ?? 3600) * 1000,
   };
+  if (!validFirebaseSession(session)) {
+    throw firebaseAuthError("AUTH_INVALID_RESPONSE", "Authentication returned an invalid session. Please retry logging in.");
+  }
 
   clearFirebaseAuthStorage();
   const storage = remember ? localStorage : sessionStorage;
@@ -46,41 +80,90 @@ function storeFirebaseAuth(authData, remember = false) {
   return session;
 }
 
-async function refreshFirebaseIdToken(session) {
-  const body = new URLSearchParams({
-    grant_type: "refresh_token",
-    refresh_token: session.refreshToken,
-  });
+function firebaseAuthSnapshot() {
+  const session = getStoredFirebaseAuth();
+  const storage = sessionStorage.getItem(FIREBASE_AUTH_STORAGE_KEY) ? sessionStorage : localStorage;
+  return { session, storage, raw: storage.getItem(FIREBASE_AUTH_STORAGE_KEY), generation: firebaseAuthGeneration };
+}
 
-  const response = await fetch(
-    `https://securetoken.googleapis.com/v1/token?key=${FIREBASE_WEB_CONFIG.apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body,
-    },
-  );
+function requireFirebaseAuthSnapshot(snapshot) {
+  const storage = sessionStorage.getItem(FIREBASE_AUTH_STORAGE_KEY) ? sessionStorage : localStorage;
+  if (snapshot.generation !== firebaseAuthGeneration || storage !== snapshot.storage ||
+      snapshot.raw !== storage.getItem(FIREBASE_AUTH_STORAGE_KEY)) {
+    throw firebaseAuthError("AUTH_SESSION_CHANGED", "Your session changed. Please retry or log in again.");
+  }
+}
 
-  if (!response.ok) {
-    clearFirebaseAuthStorage();
-    throw new Error("Firebase session expired. Please log in again.");
+function refreshFirebaseIdToken(session) {
+  const snapshot = firebaseAuthSnapshot();
+  if (!snapshot.session || snapshot.session.localId !== session?.localId ||
+      snapshot.session.idToken !== session.idToken || snapshot.session.refreshToken !== session.refreshToken) {
+    return Promise.reject(firebaseAuthError("AUTH_SESSION_CHANGED", "Your session changed. Please log in again."));
+  }
+  if (firebaseRefreshRequest?.snapshot.raw === snapshot.raw &&
+      firebaseRefreshRequest.snapshot.storage === snapshot.storage &&
+      firebaseRefreshRequest.snapshot.generation === snapshot.generation) {
+    return firebaseRefreshRequest.promise;
   }
 
-  const data = await response.json();
-  const remember = Boolean(localStorage.getItem(FIREBASE_AUTH_STORAGE_KEY));
-  return storeFirebaseAuth(
-    {
-      idToken: data.id_token,
-      refreshToken: data.refresh_token,
-      localId: data.user_id,
-      email: session.email,
-      expiresIn: data.expires_in,
-    },
-    remember,
-  );
+  const request = { snapshot, promise: null };
+  request.promise = performFirebaseTokenRefresh(snapshot).finally(() => {
+    if (firebaseRefreshRequest === request) firebaseRefreshRequest = null;
+  });
+  firebaseRefreshRequest = request;
+  return request.promise;
+}
+
+async function performFirebaseTokenRefresh(snapshot) {
+  const unavailable = () => firebaseAuthError("AUTH_REFRESH_FAILED", "Your session could not be refreshed. Please retry.");
+  let response;
+  try {
+    response = await fetch(
+      `https://securetoken.googleapis.com/v1/token?key=${FIREBASE_WEB_CONFIG.apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ grant_type: "refresh_token", refresh_token: snapshot.session.refreshToken }),
+      },
+    );
+  } catch (error) {
+    requireFirebaseAuthSnapshot(snapshot);
+    throw unavailable();
+  }
+  requireFirebaseAuthSnapshot(snapshot);
+  let data;
+  try {
+    data = await response.json();
+  } catch (error) {
+    requireFirebaseAuthSnapshot(snapshot);
+    throw unavailable();
+  }
+  requireFirebaseAuthSnapshot(snapshot);
+  if (!response.ok) {
+    const permanentErrors = ["TOKEN_EXPIRED", "USER_DISABLED", "USER_NOT_FOUND", "INVALID_REFRESH_TOKEN", "MISSING_REFRESH_TOKEN"];
+    if (response.status >= 400 && response.status < 500 && response.status !== 429 &&
+        permanentErrors.includes(data?.error?.message)) {
+      clearFirebaseAuthStorage();
+      throw firebaseAuthError("AUTH_SESSION_EXPIRED", "Your session expired. Please log in again.");
+    }
+    throw unavailable();
+  }
+
+  const expiresIn = Number(data?.expires_in);
+  const refreshed = {
+    idToken: data?.id_token, refreshToken: data?.refresh_token, localId: data?.user_id,
+    email: snapshot.session.email, expiresAt: Date.now() + expiresIn * 1000,
+  };
+  if (!validFirebaseSession(refreshed) || refreshed.localId !== snapshot.session.localId || !(expiresIn > 0)) {
+    throw unavailable();
+  }
+  // Keep the original persistence choice and UI identity. A refresh is not a new login.
+  snapshot.storage.setItem(FIREBASE_AUTH_STORAGE_KEY, JSON.stringify(refreshed));
+  return refreshed;
 }
 
 async function getFirebaseIdToken() {
+  const generation = firebaseAuthGeneration;
   let session = getStoredFirebaseAuth();
   if (!session?.idToken) return null;
 
@@ -89,11 +172,19 @@ async function getFirebaseIdToken() {
   }
 
   session = await refreshFirebaseIdToken(session);
+  const current = getStoredFirebaseAuth();
+  if (generation !== firebaseAuthGeneration || current?.idToken !== session.idToken || current?.localId !== session.localId) {
+    throw firebaseAuthError("AUTH_SESSION_CHANGED", "Your session changed. Please log in again.");
+  }
   return session.idToken;
 }
 
 async function authenticatedFirebaseFetch(url, options = {}) {
+  const generation = firebaseAuthGeneration;
   const token = await getFirebaseIdToken();
+  if (generation !== firebaseAuthGeneration || (token && getStoredFirebaseAuth()?.idToken !== token)) {
+    throw firebaseAuthError("AUTH_SESSION_CHANGED", "Your session changed. Please retry or log in again.");
+  }
   if (!token) return fetch(url, options);
 
   const requestUrl = new URL(url, window.location.href);
@@ -123,28 +214,46 @@ async function firebaseEmailPasswordRequest(endpoint, email, password) {
 }
 
 async function firebaseSignIn(email, password, remember = false) {
-  const data = await firebaseEmailPasswordRequest("signInWithPassword", email, password);
-  return storeFirebaseAuth(data, remember);
+  return firebaseAuthenticate("signInWithPassword", email, password, remember);
 }
 
 async function firebaseSignUp(email, password) {
-  const data = await firebaseEmailPasswordRequest("signUp", email, password);
-  return storeFirebaseAuth(data, false);
+  return firebaseAuthenticate("signUp", email, password, false);
+}
+
+async function firebaseAuthenticate(endpoint, email, password, remember) {
+  // A deliberate login takes precedence over a refresh of the previous session.
+  firebaseAuthGeneration++;
+  firebaseRefreshRequest = null;
+  const snapshot = firebaseAuthSnapshot();
+  let data;
+  try {
+    data = await firebaseEmailPasswordRequest(endpoint, email, password);
+  } catch (error) {
+    requireFirebaseAuthSnapshot(snapshot);
+    throw error;
+  }
+  requireFirebaseAuthSnapshot(snapshot);
+  if (!(Number(data?.expiresIn) > 0)) {
+    throw firebaseAuthError("AUTH_INVALID_RESPONSE", "Authentication returned an invalid session. Please retry logging in.");
+  }
+  return storeFirebaseAuth(data, remember);
 }
 
 function firebaseAuthLogout() {
   clearFirebaseAuthStorage();
-  sessionStorage.removeItem("loggedInUserId");
-  sessionStorage.removeItem("userEmail");
-  sessionStorage.removeItem("firstName");
-  sessionStorage.removeItem("lastName");
-  sessionStorage.removeItem("userInitials");
-  sessionStorage.setItem("isUser", "false");
+}
+
+function logOut() {
+  firebaseAuthLogout();
+  window.location.href = "login.html";
 }
 
 async function hydrateAuthenticatedUserProfile(session) {
+  const generation = firebaseAuthGeneration;
+  requireJoinProfileSession(session.localId, generation);
   const profile = await window.loadJoinUserProfile(session.localId);
-  requireJoinProfileSession(session.localId);
+  requireJoinProfileSession(session.localId, generation);
   applyJoinProfileToSession(profile);
   return profile;
 }
@@ -156,12 +265,17 @@ function applyJoinProfileToSession(profile) {
   sessionStorage.setItem("firstName", firstName);
   sessionStorage.setItem("lastName", lastName);
   sessionStorage.setItem("userInitials", profile?.initials || "");
+  if (typeof window.setUserInitials === "function") window.setUserInitials();
 }
 
 function applyJoinAuthIdentity(session) {
+  const current = getStoredFirebaseAuth();
+  if (!current || current.localId !== session.localId) {
+    throw firebaseAuthError("AUTH_SESSION_CHANGED", "Your session changed. Please log in again.");
+  }
   sessionStorage.setItem("isUser", "true");
-  sessionStorage.setItem("loggedInUserId", session.localId);
-  sessionStorage.setItem("userEmail", session.email);
+  sessionStorage.setItem("loggedInUserId", current.localId);
+  sessionStorage.setItem("userEmail", current.email);
   localStorage.removeItem("isGuest");
   applyJoinProfileToSession(null);
 }
@@ -241,7 +355,8 @@ async function handleFirebaseLogin() {
     return await finishJoinLogin(session);
   } catch (error) {
     console.warn("Firebase login failed", error);
-    if (typeof showLoginError === "function") showLoginError();
+    if (error.code === "AUTH_SESSION_CHANGED") showJoinLoginStatus(error.message);
+    else if (typeof showLoginError === "function") showLoginError();
     else if (typeof showLoginOverlayErrorOnly === "function") showLoginOverlayErrorOnly();
     return false;
   } finally {
@@ -256,3 +371,17 @@ window.firebaseSignUp = firebaseSignUp;
 window.firebaseAuthLogout = firebaseAuthLogout;
 window.firebaseAuthIsSignedIn = () => Boolean(getStoredFirebaseAuth());
 window.handleFirebaseLogin = handleFirebaseLogin;
+
+window.addEventListener?.("storage", (event) => {
+  if (event.storageArea !== localStorage || (event.key !== FIREBASE_AUTH_STORAGE_KEY && event.key !== null) ||
+      sessionStorage.getItem(FIREBASE_AUTH_STORAGE_KEY)) return;
+  firebaseAuthGeneration++;
+  firebaseRefreshRequest = null;
+  const current = getStoredFirebaseAuth();
+  if (!current || current.localId !== sessionStorage.getItem("loggedInUserId")) clearJoinAuthIdentity();
+});
+
+{
+  const session = getStoredFirebaseAuth();
+  if (!session || session.localId !== sessionStorage.getItem("loggedInUserId")) clearJoinAuthIdentity();
+}

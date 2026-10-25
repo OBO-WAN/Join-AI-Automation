@@ -5,9 +5,9 @@ function joinProfileError(code, message, status) {
   return error;
 }
 
-function requireJoinProfileSession(uid) {
+function requireJoinProfileSession(uid, generation = firebaseAuthGeneration) {
   const session = getStoredFirebaseAuth();
-  if (typeof uid !== 'string' || !uid || session?.localId !== uid ||
+  if (generation !== firebaseAuthGeneration || typeof uid !== 'string' || !uid || session?.localId !== uid ||
       typeof session.idToken !== 'string' || !session.idToken) {
     throw joinProfileError('PROFILE_AUTH_REQUIRED', 'Please log in again.');
   }
@@ -27,29 +27,32 @@ function normalizeJoinProfile(profile) {
 
 // Private profile requests must never fall back to an unauthenticated write.
 async function joinProfileRequest(uid, options = {}) {
-  requireJoinProfileSession(uid);
+  const generation = firebaseAuthGeneration;
+  requireJoinProfileSession(uid, generation);
   const token = await getFirebaseIdToken();
-  requireJoinProfileSession(uid);
+  requireJoinProfileSession(uid, generation);
   if (!token) throw joinProfileError('PROFILE_AUTH_REQUIRED', 'Please log in again.');
 
   const url = new URL(`${FIREBASE_WEB_CONFIG.databaseURL}/user/${encodeURIComponent(uid)}.json`);
   url.searchParams.set('auth', token);
   const response = await fetch(url.toString(), { cache: 'no-store', ...options });
-  requireJoinProfileSession(uid);
+  requireJoinProfileSession(uid, generation);
   return response;
 }
 
 async function loadJoinUserProfile(uid) {
+  const generation = firebaseAuthGeneration;
   const response = await joinProfileRequest(uid);
   if (!response.ok) {
     throw joinProfileError('PROFILE_READ_FAILED', 'Your profile could not be loaded.', response.status);
   }
   const profile = await response.json();
-  requireJoinProfileSession(uid);
+  requireJoinProfileSession(uid, generation);
   return profile === null ? null : normalizeJoinProfile(profile);
 }
 
 async function provisionJoinUserProfile(uid, profile) {
+  const generation = firebaseAuthGeneration;
   const session = requireJoinProfileSession(uid);
   const data = {
     firstname: profile.firstname,
@@ -68,6 +71,7 @@ async function provisionJoinUserProfile(uid, profile) {
   // A previous attempt may have committed even when its response was lost.
   if (response.status === 412) {
     const existing = await loadJoinUserProfile(uid);
+    requireJoinProfileSession(uid, generation);
     if (existing) return existing;
     throw joinProfileError('PROFILE_CONFLICT', 'Your profile changed. Please retry the profile check.');
   }
@@ -75,7 +79,7 @@ async function provisionJoinUserProfile(uid, profile) {
     throw joinProfileError('PROFILE_WRITE_FAILED', 'Your profile could not be saved.', response.status);
   }
   const saved = await response.json();
-  requireJoinProfileSession(uid);
+  requireJoinProfileSession(uid, generation);
   return normalizeJoinProfile(saved);
 }
 

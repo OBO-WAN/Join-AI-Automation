@@ -57,36 +57,20 @@ function toHrefFocus(targetHref, anchor) {
 function setUserInitials() {
   const firstInitial = document.getElementById('first_icon_initials');
   const lastInitial = document.getElementById('last_icon_initials');
+  if (!firstInitial || !lastInitial) return;
   let firstName = sessionStorage.getItem('firstName');
   let lastName = sessionStorage.getItem('lastName');
-  let prooofLokedIn = sessionStorage.getItem("isUser");
+  const auth = typeof getStoredFirebaseAuth === 'function' ? getStoredFirebaseAuth() : null;
 
-  if (prooofLokedIn == "true" && firstName && lastName) {
+  if (auth?.localId === sessionStorage.getItem('loggedInUserId') && firstName && lastName) {
     firstInitial.textContent = firstName[0].toUpperCase();
     lastInitial.textContent = lastName[0].toUpperCase();
     lastInitial.style.display = "flex";
   }
   else{
-      let AvatarInitialFirst = document.getElementById("first_icon_initials");
-      let AvatarInitialLast = document.getElementById("last_icon_initials");
-      AvatarInitialFirst.innerHTML ="G";
-      AvatarInitialLast.innerHTML = "";
+      firstInitial.textContent = "G";
+      lastInitial.textContent = "";
   }
-}
-
-/**
- * Logs out the user by clearing session storage and redirecting to login page.
- */
-function logOut() {
-  if (typeof window.firebaseAuthLogout === "function") {
-    window.firebaseAuthLogout();
-  } else {
-    sessionStorage.removeItem("joinFirebaseAuth");
-    localStorage.removeItem("joinFirebaseAuth");
-    sessionStorage.clear();
-  }
-  localStorage.removeItem("isGuest");
-  window.location.href = "login.html";
 }
 
 window.addEventListener('DOMContentLoaded', setUserInitials);
