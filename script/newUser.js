@@ -134,8 +134,10 @@ function validateName(nameInputField) {
 async function createUserProfileDataFromParts(nameParts){
     const firstName = nameParts[0];
     const lastName = nameParts.slice(1).join(' ');
-    const randomColor = await getRandomColor();
     const initials = firstName[0].toUpperCase() + lastName[0].toUpperCase();
+    const palette = ["#FF7A00", "#9327FF", "#6E52FF", "#FC71FF", "#FFBB2B", "#1FD7C1", "#462F8A", "#00BEE8"];
+    const colorIndex = [...initials].reduce((sum, char) => sum + char.charCodeAt(0), 0) % palette.length;
+    const randomColor = palette[colorIndex];
     return { firstName, lastName, randomColor, initials };
 }
 
