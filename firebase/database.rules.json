@@ -1,0 +1,31 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "tasks": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+
+    "automationUsage": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+
+    "contacts": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+
+    "randomColorsJson": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+
+    "user": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    }
+  }
+}
