@@ -1,0 +1,39 @@
+.auth-status.d-none,
+.auth-profile-actions .d-none,
+#signup_password_field.d-none,
+#signup_confirm_field.d-none,
+#signup_login_link.d-none,
+#retry_profile_button.d-none {
+  display: none !important;
+}
+
+.auth-status {
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid #d1d1d1;
+  border-radius: 8px;
+  background: #f6f7f8;
+  color: #2a3647;
+  font-size: 14px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.auth-profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.body-sign-up.auth-status-visible,
+.body-log-in.auth-status-visible {
+  height: auto;
+  min-height: 100dvh;
+  overflow-y: auto;
+  padding-block: 96px;
+}

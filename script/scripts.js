@@ -263,32 +263,17 @@ function showLoggedInLinks() {
 /**
  * 
  * @function loadUserData
- * @description Asynchronously loads user data based on the 'loggedInUserId' stored in sessionStorage.
- * If a user ID is found, it attempts to fetch the user data from the `/user/${userId}` endpoint.
- * If the data is successfully loaded, it calls `removeLoginError` and returns the user object.
- * If the user data is not found or an error occurs, it logs an error and returns an object with `initials: null`.
- * If no 'loggedInUserId' is found in sessionStorage, it also returns `{ initials: null }`.
- * @returns {Promise<object>} A Promise that resolves with the user data object if found,
- * or an object `{ initials: null }` if not found or an error occurs.
+ * @description Loads the current Auth UID's profile and restores its JOIN display data.
+ * @returns {Promise<object>} Profile data with state `ready`, or state `guest` or `missing`.
+ * @throws {Error} If the authenticated profile cannot be read or is malformed.
  */
 async function loadUserData() {
-  const userId = sessionStorage.getItem('loggedInUserId');
-  if (userId) {
-    try {
-      const user = await loadData(`/user/${userId}`);
-      if (user) {
-        return user;
-      } else {
-        console.error('User data not found.');
-        return { initials: null };
-      }
-    } catch (error) {
-      console.error('Error loading user data', error);
-      return { initials: null };
-    }
-  } else {
-    return { initials: null };
-  }
+  const session = typeof getStoredFirebaseAuth === 'function' ? getStoredFirebaseAuth() : null;
+  if (!session?.localId) return { profileState: 'guest', initials: null };
+  applyJoinAuthIdentity(session);
+  const user = await hydrateAuthenticatedUserProfile(session);
+  requireJoinProfileSession(session.localId);
+  return user ? { ...user, profileState: 'ready' } : { profileState: 'missing', initials: null };
 }
 
 /**

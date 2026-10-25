@@ -18,41 +18,144 @@ function setIdRefValueTrimSignUp() {
     };
 }
 
-/**
- * 
- * @async
- * @function handleSignUp
- * @description Asynchronously handles the sign-up process. It retrieves user input values (name, email, password),
- * creates profile data, checks if the password confirmation is valid, and then attempts to create a new user.
- * Upon successful user creation, it calls the `handleSignUpSuccess` function. If any error occurs during the process,
- * it logs the error to the console.
- * @returns {void} - This function does not return a value directly but performs asynchronous operations
- * that may result in user creation or an error.
- */
+let joinSignupMode = 'signup';
+let joinSignupBusy = false;
+let joinSignupUid = null;
+
+function showSignUpStatus(message) {
+    const status = document.getElementById('signup_status');
+    status.textContent = message;
+    status.classList.toggle('d-none', !message);
+    document.getElementById('signup_login_link').classList.toggle('d-none', !message);
+    document.getElementById('body_sign_up')?.classList.toggle('auth-status-visible', Boolean(message));
+}
+
+function renderSignUpMode(validate = true) {
+    const profileMode = joinSignupMode !== 'signup';
+    document.getElementById('signup_password_field').classList.toggle('d-none', profileMode);
+    document.getElementById('signup_confirm_field').classList.toggle('d-none', profileMode);
+    document.getElementById('email_sign-up').readOnly = profileMode || joinSignupBusy;
+    document.getElementById('password_sign_up').disabled = joinSignupBusy;
+    document.getElementById('confirm_sign_up').disabled = joinSignupBusy;
+    document.getElementById('signup_heading').textContent = profileMode ? 'Complete profile' : 'Sign up';
+    const labels = {
+      signup: 'Sign up', profile: 'Save profile', checking: 'Checking profile…',
+      'check-failed': 'Retry profile check', complete: 'Continue to summary',
+      'login-required': 'Log in', finished: 'Completed',
+    };
+    document.getElementById('sign_up_button').textContent = labels[joinSignupMode];
+    const editable = !joinSignupBusy && ['signup', 'profile'].includes(joinSignupMode);
+    document.getElementById('name_sign_up').disabled = !editable;
+    document.getElementById('checkbox').disabled = !editable;
+    if (validate) enableOrDisableSignUpButton();
+    else document.getElementById('sign_up_button').disabled = true;
+}
+
+async function initializeSignUpPage() {
+    if (joinSignupBusy) return;
+    const session = getStoredFirebaseAuth();
+    if (!session?.localId) {
+      joinSignupMode = new URLSearchParams(window.location.search).has('completeProfile')
+        ? 'login-required' : 'signup';
+      if (joinSignupMode === 'login-required') showSignUpStatus('Please log in to complete your JOIN profile.');
+      renderSignUpMode(joinSignupMode !== 'signup');
+      return;
+    }
+    joinSignupBusy = true;
+    joinSignupUid = session.localId;
+    joinSignupMode = 'checking';
+    document.getElementById('email_sign-up').value = session.email;
+    document.getElementById('password_sign_up').value = '';
+    document.getElementById('confirm_sign_up').value = '';
+    renderSignUpMode();
+    try {
+      const profile = await window.loadJoinUserProfile(session.localId);
+      requireJoinProfileSession(session.localId);
+      joinSignupMode = profile ? 'complete' : 'profile';
+      showSignUpStatus(profile ? 'Your JOIN profile is complete.' : 'Your account exists. Please complete your JOIN profile.');
+    } catch (error) {
+      joinSignupMode = getStoredFirebaseAuth()?.localId === joinSignupUid ? 'check-failed' : 'login-required';
+      showSignUpStatus(error.code === 'PROFILE_INVALID'
+        ? 'The existing profile needs review. No data was replaced.'
+        : 'Your profile could not be checked. Please retry, or log in again.');
+    } finally {
+      joinSignupBusy = false;
+      renderSignUpMode();
+    }
+}
+
+/** Creates an Auth account once, then provisions or resumes its JOIN profile. */
 async function handleSignUp() {
+    if (joinSignupBusy || joinSignupMode === 'finished') return;
+    if (joinSignupMode === 'login-required') return goToUrl('login.html');
+    if (joinSignupMode === 'complete') return goToUrl('summary.html');
+    if (joinSignupMode === 'check-failed' ||
+        (joinSignupMode === 'signup' && getStoredFirebaseAuth()?.localId)) {
+      return initializeSignUpPage();
+    }
+    const completingProfile = joinSignupMode === 'profile';
     const { name, email, password } = setIdRefValueTrimSignUp();
-    const validation = validateSignUpInputs();
+    const validation = completingProfile
+      ? { name: validateName(document.getElementById('name_sign_up')), privacy: document.getElementById('checkbox').checked }
+      : validateSignUpInputs();
     if (!Object.values(validation).every(Boolean)) return;
 
+    joinSignupBusy = true;
+    renderSignUpMode();
+    showSignUpStatus('');
+    let authSession;
     try {
       const profileData = await createUserProfileDataFromParts(name.split(/\s+/));
-      const authSession = await window.firebaseSignUp(email, password);
-      await createUser(
-        authSession.localId,
-        profileData.firstName,
-        profileData.lastName,
-        email,
-        profileData.randomColor,
-        profileData.initials
+      authSession = completingProfile ? getStoredFirebaseAuth() : await window.firebaseSignUp(email, password);
+      if (!authSession?.localId || (completingProfile && authSession.localId !== joinSignupUid)) {
+        throw joinProfileError('PROFILE_AUTH_REQUIRED', 'Please log in again.');
+      }
+      joinSignupUid = authSession.localId;
+      document.getElementById('password_sign_up').value = '';
+      document.getElementById('confirm_sign_up').value = '';
+      const profile = await createUser(
+        authSession.localId, profileData.firstName, profileData.lastName,
+        authSession.email, profileData.randomColor, profileData.initials
       );
-      handleSignUpSuccess(profileData);
+      requireJoinProfileSession(authSession.localId);
+      joinSignupMode = 'finished';
+      if (completingProfile) {
+        applyJoinAuthIdentity(authSession);
+        applyJoinProfileToSession(profile);
+        goToUrl('summary.html');
+      } else {
+        handleSignUpSuccess(profileData);
+      }
     } catch (error) {
       console.error('Error creating user', error);
-      const { emailSignUpRef, errorMessageEmailRef } = getIdRefs();
-      if (String(error.message).includes('EMAIL_EXISTS')) {
-        errorMessageEmailRef?.classList.add('d-flex');
-        emailSignUpRef?.classList.add('not-valide-error');
+      const session = getStoredFirebaseAuth();
+      if (error.code === 'PROFILE_AUTH_REQUIRED' ||
+          (authSession?.localId && session?.localId !== authSession.localId)) {
+        joinSignupMode = 'login-required';
+        showSignUpStatus('Your session changed or expired. Please log in again.');
+      } else if (['PROFILE_INVALID', 'PROFILE_CONFLICT'].includes(error.code)) {
+        joinSignupMode = 'check-failed';
+        showSignUpStatus('The existing profile needs review. No data was replaced. Retry the profile check.');
+      } else if (authSession?.localId && session?.localId === authSession.localId) {
+        joinSignupMode = 'profile';
+        showSignUpStatus('Your account exists, but your profile could not be saved. Retry saving your profile.');
+      } else if (completingProfile) {
+        joinSignupMode = 'login-required';
+        showSignUpStatus('Your session changed or expired. Please log in again.');
+      } else {
+        const { emailSignUpRef, errorMessageEmailRef } = getIdRefs();
+        const exists = String(error.message).includes('EMAIL_EXISTS');
+        if (exists) {
+          errorMessageEmailRef?.classList.add('d-flex');
+          emailSignUpRef?.classList.add('not-valide-error');
+        }
+        showSignUpStatus(exists
+          ? 'An account with this email already exists. Log in to complete your profile.'
+          : 'Account creation could not be confirmed. Try logging in before registering again.');
       }
+    } finally {
+      joinSignupBusy = false;
+      renderSignUpMode();
     }
 }
 
@@ -161,19 +264,18 @@ function handleSignUpSuccess(profileData){
 /**
  * 
  * @function createUser
- * @description Asynchronously sends user data to the '/user' endpoint using the `postData` function.
- * It constructs a new user object with the provided details and handles potential errors during the data posting process.
+ * @description Creates the authenticated user's profile only if it does not already exist.
+ * @param {string} uid - The authenticated user's UID.
  * @param {string} firstname - The first name of the user.
  * @param {string} lastname - The last name of the user.
  * @param {string} email - The email address of the user.
- * @param {string} password - The password of the user.
  * @param {string} randomColor - A randomly generated color associated with the user.
  * @param {string} initials - The initials of the user (e.g., first and last name initials).
  */
 async function createUser(uid, firstname, lastname, email, randomColor, initials) {
     const newUser = { firstname, lastname, email, randomColor, initials };
     try {
-      await updateData(`/user/${uid}`, newUser);
+      return await window.provisionJoinUserProfile(uid, newUser);
     } catch (error) {
       console.error('Error posting profile data', error);
       throw error;
@@ -206,14 +308,25 @@ function toggleCheckbox(element = false) {
  * 
  * @async
  * @function enableOrDisableSignUpButton
- * @description Asynchronously enables or disables the sign-up button based on the validation status of the sign-up input fields
- * (name, email, password, confirm password), the checked state of the terms and conditions checkbox,
- * and whether the entered email address already exists. It calls `validateSignUpInputs` to retrieve the validation statuses
- * and `checkUserIsPresent` to check for existing users.
+ * @description Enables signup or profile completion only when its inputs are valid and no request is in flight.
  * @returns {void} - This function does not return a value directly but modifies the `disabled` property of the sign-up button.
  */
 async function enableOrDisableSignUpButton() {
     const { signUpButtonRef } = getIdRefs();
+    if (joinSignupBusy || ['checking', 'finished'].includes(joinSignupMode)) {
+      signUpButtonRef.disabled = true;
+      return;
+    }
+    if (['check-failed', 'complete', 'login-required'].includes(joinSignupMode)) {
+      signUpButtonRef.disabled = false;
+      return;
+    }
+    if (joinSignupMode === 'profile') {
+      signUpButtonRef.disabled = !(
+        validateName(document.getElementById('name_sign_up')) && document.getElementById('checkbox').checked
+      );
+      return;
+    }
     const {
       isNameValid,
       isEmailValid,
