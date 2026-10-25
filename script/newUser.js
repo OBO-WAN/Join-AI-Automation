@@ -30,15 +30,29 @@ function setIdRefValueTrimSignUp() {
  * that may result in user creation or an error.
  */
 async function handleSignUp() {
-    const { name, email, password} = setIdRefValueTrimSignUp();
+    const { name, email, password } = setIdRefValueTrimSignUp();
+    const validation = validateSignUpInputs();
+    if (!Object.values(validation).every(Boolean)) return;
+
     try {
-      const nameParts = name.split(' ');
-      const profileData = await createUserProfileDataFromParts(nameParts);
-      if (!checkPasswordConfirm()) return;
-      await createUser(profileData.firstName, profileData.lastName, email, password, profileData.randomColor, profileData.initials);
+      const authSession = await window.firebaseSignUp(email, password);
+      const profileData = await createUserProfileDataFromParts(name.split(' '));
+      await createUser(
+        authSession.localId,
+        profileData.firstName,
+        profileData.lastName,
+        email,
+        profileData.randomColor,
+        profileData.initials
+      );
       handleSignUpSuccess(profileData);
     } catch (error) {
       console.error('Error creating user', error);
+      const { emailSignUpRef, errorMessageEmailRef } = getIdRefs();
+      if (String(error.message).includes('EMAIL_EXISTS')) {
+        errorMessageEmailRef?.classList.add('d-flex');
+        emailSignUpRef?.classList.add('not-valide-error');
+      }
     }
 }
 
@@ -138,7 +152,7 @@ function handleSignUpSuccess(profileData){
     sessionStorage.setItem('userInitials', profileData.initials);
     sessionStorage.setItem('firstName', profileData.firstName);
     sessionStorage.setItem('lastName', profileData.lastName);
-    delayedRedirectAndReset();
+    window.firebaseAuthLogout?.();
     delayedRedirectAndReset();
 }
 
@@ -154,12 +168,13 @@ function handleSignUpSuccess(profileData){
  * @param {string} randomColor - A randomly generated color associated with the user.
  * @param {string} initials - The initials of the user (e.g., first and last name initials).
  */
-async function createUser(firstname, lastname, email, password, randomColor, initials) {
-    const newUser = { firstname, lastname, email, password, randomColor, initials };
+async function createUser(uid, firstname, lastname, email, randomColor, initials) {
+    const newUser = { firstname, lastname, email, randomColor, initials };
     try {
-      await postData('/user', newUser);
+      await updateData(`/user/${uid}`, newUser);
     } catch (error) {
-      console.error('Error posting data', error);
+      console.error('Error posting profile data', error);
+      throw error;
     }
 }
 
@@ -197,16 +212,21 @@ function toggleCheckbox(element = false) {
  */
 async function enableOrDisableSignUpButton() {
     const { signUpButtonRef } = getIdRefs();
-    const { isNameValid, isEmailValid, isPasswordValid, isConfirmValid, isCheckboxChecked } = validateSignUpInputs();
-    let isEmailAlreadyExists = false;
-    if (isNameValid && isEmailValid && isPasswordValid && isConfirmValid && isCheckboxChecked) {
-      isEmailAlreadyExists = await checkUserIsPresent(true);
-    }
-    if (isNameValid && isEmailValid && isPasswordValid && isConfirmValid && isCheckboxChecked && !isEmailAlreadyExists) {
-      signUpButtonRef.disabled = false;
-    } else {
-      signUpButtonRef.disabled = true;
-    }
+    const {
+      isNameValid,
+      isEmailValid,
+      isPasswordValid,
+      isConfirmValid,
+      isCheckboxChecked
+    } = validateSignUpInputs();
+
+    signUpButtonRef.disabled = !(
+      isNameValid &&
+      isEmailValid &&
+      isPasswordValid &&
+      isConfirmValid &&
+      isCheckboxChecked
+    );
 }
 
 /**
