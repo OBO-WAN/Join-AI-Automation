@@ -68,16 +68,11 @@ function revealElement(element) {
     }
 }
 
-function login() {
-    console.log("Login function triggered");
-
-    sessionStorage.setItem("isUser", "true");
-}
-
 function guestLogin() {
+    window.firebaseAuthLogout?.();
     localStorage.setItem("isGuest", "true");
-    window.location.href = "summary.html";
     sessionStorage.setItem("isUser", "false");
+    window.location.href = "summary.html";
 }
 
 function togglePasswordVisibility(inputId, iconElement) {

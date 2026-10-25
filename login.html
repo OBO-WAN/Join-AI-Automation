@@ -36,7 +36,7 @@
         <form
           novalidate
           id="login_form"
-          onsubmit="checkUserIsPresent(); return false;"
+          onsubmit="handleFirebaseLogin(); return false;"
           class="form with-100-percent-max-width-422px"
         >
           <label class="input-base-container" for="email_log_in">
@@ -99,7 +99,7 @@
           </div>
 
           <div class="button-container">
-            <button type="submit" class="button-log-in" onclick="login()">Log in</button>
+            <button type="submit" class="button-log-in">Log in</button>
             <button
               type="button"
               class="button-guest-log-in"
@@ -124,6 +124,7 @@
       <a href="legal_notice_login.html">Legal Notice</a>
     </footer>
 
+    <script src="script/firebase_auth.js"></script>
     <script src="script/login.js" defer></script>
     <script src="script/scripts.js"></script>
     <script src="script/firebase.js"></script>

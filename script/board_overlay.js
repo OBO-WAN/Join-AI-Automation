@@ -241,7 +241,7 @@ async function saveEditedTask(taskId) {
   updatedTask.createdAt = task.createdAt;
   updatedTask.status = task.status;
 
-  await fetch(`${BASE_URL}tasks/${taskId}.json`, {
+  await window.authenticatedFirebaseFetch(`${BASE_URL}tasks/${taskId}.json`, {
     method: 'PUT',
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(serializeTaskForFirebase(updatedTask))
@@ -282,7 +282,7 @@ async function saveTaskEdits(taskId){
   task.dueDate = formattedDate;
   task.priority = newPriority;
 
-  await fetch(`${BASE_URL}tasks/${taskId}.json`, {
+  await window.authenticatedFirebaseFetch(`${BASE_URL}tasks/${taskId}.json`, {
     method: "PUT",
     body: JSON.stringify(serializeTaskForFirebase(task)),
   });
@@ -305,7 +305,7 @@ async function toggleSubtaskCheckbox(element, taskId, subtaskIndex) {
   img.src = `assets/icons/${
     task.subTasks[subtaskIndex].done ? "checkbox-checked" : "checkbox-empty"
   }.svg`;
-  await fetch(`${BASE_URL}tasks/${taskId}.json`, {
+  await window.authenticatedFirebaseFetch(`${BASE_URL}tasks/${taskId}.json`, {
     method: "PUT",
     body: JSON.stringify(serializeTaskForFirebase(task)),
   });

@@ -107,12 +107,13 @@ const getSubtasks = () => [...document.querySelectorAll("#subtask-list li")]
 function getManualTaskCreator() {
   const firstName = sessionStorage.getItem("firstName");
   const lastName = sessionStorage.getItem("lastName");
+  const email = sessionStorage.getItem("userEmail");
   const fullName = [firstName, lastName].filter(Boolean).join(" ");
 
   return {
     type: "internal",
-    name: fullName || "Guest",
-    email: null,
+    name: fullName || email || "Member",
+    email: email || null,
   };
 }
 
@@ -165,7 +166,7 @@ function normalizeAssignedTo(task) {
  * @returns {Promise<Response>} The fetch response object.
  */
 function postTaskToFirebase(task) {
-  return fetch(`${BASE_URL}tasks.json`, {
+  return window.authenticatedFirebaseFetch(`${BASE_URL}tasks.json`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(serializeTaskForFirebase(task)),
@@ -221,7 +222,7 @@ function validateCategory() {
  */
 async function loadContacts() {
   try {
-    const res = await fetch(`${BASE_URL}contacts.json`);
+    const res = await window.authenticatedFirebaseFetch(`${BASE_URL}contacts.json`);
     const data = await res.json();
 
     if (!Array.isArray(data)) {

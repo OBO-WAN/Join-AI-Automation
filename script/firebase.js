@@ -1,5 +1,12 @@
 const BASE_URL = 'https://join-ai-automation-default-rtdb.europe-west1.firebasedatabase.app/'; // Updated Database
 
+function firebaseRequest(url, options = {}) {
+  if (typeof window.authenticatedFirebaseFetch === 'function') {
+    return window.authenticatedFirebaseFetch(url, options);
+  }
+  return fetch(url, options);
+}
+
 /**
  * Fetches data from a Firebase Realtime Database using the provided path.
  * Returns the parsed JSON data if the request is successful, or `null` if an error occurs.
@@ -9,7 +16,7 @@ const BASE_URL = 'https://join-ai-automation-default-rtdb.europe-west1.firebased
  */
 async function loadData(path = '') {
   try {
-    const response = await fetch(BASE_URL + path + '.json');
+    const response = await firebaseRequest(BASE_URL + path + '.json');
     if (!response.ok) {
       throw new Error(`HTTP Fehler! Status: ${response.status}`);
     }
@@ -31,7 +38,7 @@ async function loadData(path = '') {
  */
 async function postData(path = '', data = {}) {
   try {
-    const response = await fetch(BASE_URL + path + '.json', {
+    const response = await firebaseRequest(BASE_URL + path + '.json', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -81,7 +88,7 @@ async function updateData(path = '', data = {}) {
  */
 async function deleteData(path = '', taskKey) {
   try {
-    const response = await fetch(`${BASE_URL}${path}/${taskKey}.json`, {
+    const response = await firebaseRequest(`${BASE_URL}${path}/${taskKey}.json`, {
       method: 'DELETE',
     });
     if (response.headers.get('content-length') !== '0') {
