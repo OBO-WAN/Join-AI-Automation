@@ -78,8 +78,15 @@ function setUserInitials() {
  * Logs out the user by clearing session storage and redirecting to login page.
  */
 function logOut() {
-  sessionStorage.clear(); 
-  window.location.href = 'login.html';
+  if (typeof window.firebaseAuthLogout === "function") {
+    window.firebaseAuthLogout();
+  } else {
+    sessionStorage.removeItem("joinFirebaseAuth");
+    localStorage.removeItem("joinFirebaseAuth");
+    sessionStorage.clear();
+  }
+  localStorage.removeItem("isGuest");
+  window.location.href = "login.html";
 }
 
 window.addEventListener('DOMContentLoaded', setUserInitials);
