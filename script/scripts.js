@@ -200,29 +200,6 @@ function loginSuccessful() {
 
 /**
  * 
- * @function logOut
- * @description Handles the logout process. It sets the `window.showButtonLinksSidebar` to `false`,
- * updates the 'linksSidebarBoolienKey' in sessionStorage, removes 'loggedIn', 'loggedInUserId',
- * and 'activePage' from sessionStorage, and then navigates the user back to the login page.
- */
-
-function logOut() {
-
-  goToUrl('login.html');
-
-  window.showButtonLinksSidebar = false;
-  sessionStorage.setItem('linksSidebarBoolienKey', window.showButtonLinksSidebar);
-
-  sessionStorage.removeItem('loggedIn');
-  sessionStorage.removeItem('loggedInUserId');
-  sessionStorage.removeItem('activePage');
-  sessionStorage.removeItem('firstName');
-  sessionStorage.removeItem('lastName');
-  sessionStorage.removeItem('userInitials');
-}
-
-/**
- * 
  * @function hideLoggedInLinks
  * @description Hides HTML elements with the class 'hide-before-log-in' by adding the 'd-none' class to them.
  * This is typically used to hide links or sections that should only be visible to logged-in users.
