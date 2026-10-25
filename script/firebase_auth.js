@@ -146,26 +146,13 @@ async function hydrateAuthenticatedUserProfile(session) {
   if (!session?.localId) return;
 
   try {
-    const ownProfileResponse = await authenticatedFirebaseFetch(
+    const response = await authenticatedFirebaseFetch(
       `${FIREBASE_WEB_CONFIG.databaseURL}/user/${session.localId}.json`,
     );
-    if (ownProfileResponse.ok) {
-      const ownProfile = await ownProfileResponse.json();
-      if (ownProfile) {
-        applyJoinProfileToSession(ownProfile);
-        return;
-      }
-    }
+    if (!response.ok) return;
 
-    const legacyResponse = await authenticatedFirebaseFetch(
-      `${FIREBASE_WEB_CONFIG.databaseURL}/user.json`,
-    );
-    if (!legacyResponse.ok) return;
-    const users = await legacyResponse.json();
-    const legacyProfile = Object.values(users || {}).find(
-      (user) => user?.email?.toLowerCase() === session.email?.toLowerCase(),
-    );
-    if (legacyProfile) applyJoinProfileToSession(legacyProfile);
+    const profile = await response.json();
+    if (profile) applyJoinProfileToSession(profile);
   } catch (error) {
     console.warn("Could not load JOIN profile", error);
   }
