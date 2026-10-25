@@ -5,27 +5,36 @@
 
     "tasks": {
       ".read": true,
-      ".write": "auth != null"
+      ".write": "auth != null && root.child('members').child(auth.uid).child('role').val() === 'editor'"
     },
 
     "automationUsage": {
       ".read": true,
-      ".write": "auth != null"
+      ".write": "auth != null && root.child('members').child(auth.uid).child('role').val() === 'editor'"
     },
 
     "contacts": {
-      ".read": "auth != null",
-      ".write": "auth != null"
+      ".read": "auth != null && root.child('members').child(auth.uid).child('role').val() === 'editor'",
+      ".write": "auth != null && root.child('members').child(auth.uid).child('role').val() === 'editor'"
     },
 
     "randomColorsJson": {
-      ".read": "auth != null",
-      ".write": "auth != null"
+      ".read": "auth != null && root.child('members').child(auth.uid).child('role').val() === 'editor'",
+      ".write": "auth != null && root.child('members').child(auth.uid).child('role').val() === 'editor'"
     },
 
     "user": {
-      ".read": "auth != null",
-      ".write": "auth != null"
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "members": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": false
+      }
     }
   }
 }
