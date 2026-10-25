@@ -107,12 +107,13 @@ const getSubtasks = () => [...document.querySelectorAll("#subtask-list li")]
 function getManualTaskCreator() {
   const firstName = sessionStorage.getItem("firstName");
   const lastName = sessionStorage.getItem("lastName");
+  const email = sessionStorage.getItem("userEmail");
   const fullName = [firstName, lastName].filter(Boolean).join(" ");
 
   return {
     type: "internal",
-    name: fullName || "Guest",
-    email: null,
+    name: fullName || email || "Member",
+    email: email || null,
   };
 }
 
