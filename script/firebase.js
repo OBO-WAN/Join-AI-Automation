@@ -63,7 +63,7 @@ async function postData(path = '', data = {}) {
  */
 async function updateData(path = '', data = {}) {
   try {
-    const response = await fetch(BASE_URL + path + '.json', {
+    const response = await firebaseRequest(BASE_URL + path + '.json', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
