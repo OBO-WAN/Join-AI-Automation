@@ -1,5 +1,4 @@
 let tasks = [];
-let users = [];
 let taskRealtimeSource = null;
 let taskLoadRequest = 0;
 
@@ -79,15 +78,13 @@ function refreshOpenTaskOverlay() {
 }
 
 /**
- * Initializes the application by loading users and tasks from Firebase
+ * Initializes the public board from task data.
+ * User records are intentionally not loaded here because they contain
+ * private account data and are not required to render the board.
  */
 async function init() {
-  await loadUsersFromFirebase();
   await loadTasksFromFirebase();
   startTaskRealtimeSync();
-
-  let index = 0;
-  let userColor = users[index]?.color;
   showCurrentBoard();
 }
 
@@ -293,15 +290,6 @@ function getCreatorDisplayInfo(creator) {
  */
 function showCurrentBoard() {
   renderCurrentTasks();
-}
-
-/**
- * Loads user data from Firebase
- */
-async function loadUsersFromFirebase() {
-  const response = await fetch(`${BASE_URL}user.json`);
-  const data = await response.json();
-  users = data || [];
 }
 
 /**
