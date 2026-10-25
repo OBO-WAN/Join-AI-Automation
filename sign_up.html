@@ -9,9 +9,10 @@
     <link rel="stylesheet" href="style/style.css" />
     <link rel="stylesheet" href="style/login.css" />
     <link rel="stylesheet" href="style/sign_up.css" />
+    <link rel="stylesheet" href="style/auth_status.css" />
   </head>
 
-  <body id="body_sign_up" class="body-sign-up">
+  <body id="body_sign_up" class="body-sign-up" onload="initializeSignUpPage()">
     <div class="join-logo-box">
       <img src="assets/img/loginLogo.svg" alt="Join Logo" />
     </div>
@@ -23,7 +24,7 @@
             <div onclick="goToUrl('login.html')" class="arrow-left-sign-up">
               <img src="assets/icons/arrow-left.svg" alt="go back" />
             </div>
-            <h1>Sign up</h1>
+            <h1 id="signup_heading">Sign up</h1>
             <div class="vector-sign-up"></div>
           </div>
 
@@ -74,7 +75,7 @@
               </div>
             </label>
 
-            <label class="input-base-container" for="password_sign_up">
+            <label class="input-base-container" for="password_sign_up" id="signup_password_field">
               <input
                 title="Please enter your password."
                 minlength="8"
@@ -107,7 +108,7 @@
               >
             </label>
 
-            <label class="input-base-container" for="confirm_sign_up">
+            <label class="input-base-container" for="confirm_sign_up" id="signup_confirm_field">
               <input
                 title="Please repeat your password."
                 minlength="8"
@@ -162,11 +163,13 @@
               </label>
             </div>
 
+            <p id="signup_status" class="auth-status d-none" role="status" aria-live="polite"></p>
             <div class="button-sign-up-container">
               <button class="button-sign-up" id="sign_up_button" disabled>
                 Sign up
               </button>
             </div>
+            <a id="signup_login_link" class="d-none" href="login.html" onclick="firebaseAuthLogout(); goToUrl('login.html'); return false;">Log in with an existing account</a>
           </form>
         </div>
       </section>
@@ -194,11 +197,12 @@
     </div>
   </body>
 
-  <script src="./script/firebase_auth.js?v=20261025-2"></script>
-  <script src="./script/scripts.js"></script>
+  <script src="./script/firebase_auth.js?v=20261025-profile2"></script>
+  <script src="./script/firebase_profile.js?v=20261025-profile2"></script>
+  <script src="./script/scripts.js?v=20261025-profile2"></script>
   <script src="script/register.part1.js"></script>
   <script src="script/register.part2.js"></script>
-  <script src="./script/newUser.js"></script>
+  <script src="./script/newUser.js?v=20261025-profile2"></script>
   <script src="./script/firebase.js?v=20261025-2"></script>
-  <script src="./script/summary.js"></script>
+  <script src="./script/summary.js?v=20261025-profile2"></script>
 </html>

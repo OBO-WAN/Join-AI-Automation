@@ -20,8 +20,10 @@ function updateGreeting() {
 function greetingName(user) {
   const nameElements = document.querySelectorAll('.name');
   if (nameElements && user) {
-    const nameText = user.firstname && user.lastname ? `${user.firstname} ${user.lastname}` : 'guest';
-    nameElements.forEach(el => el.innerHTML = nameText);
+    const nameText = user.firstname && user.lastname ? `${user.firstname} ${user.lastname}`
+      : user.profileState === 'missing' ? 'Profile incomplete'
+      : user.profileState === 'error' ? 'Profile unavailable' : 'guest';
+    nameElements.forEach(el => el.textContent = nameText);
   }
 }
 
@@ -151,6 +153,8 @@ function addHoverEffect(container, imgElement, defaultSrc, hoverSrc) {
   container.onmouseout = () => imgElement.src = defaultSrc;
 }
 
+let joinSummaryProfileRequest = 0;
+
 /**
  * Initializes summary-related data, including greeting the user
  * and updating task data.
@@ -158,8 +162,32 @@ function addHoverEffect(container, imgElement, defaultSrc, hoverSrc) {
  * @async
  */
 async function initializeSummaryData() {
-  const user = await loadUserData();
-  greetingName(user);
+  const request = ++joinSummaryProfileRequest;
+  const uid = getStoredFirebaseAuth()?.localId;
+  const status = document.getElementById('summary_profile_status');
+  const complete = document.getElementById('summary_complete_profile');
+  const retry = document.getElementById('summary_retry_profile');
+  try {
+    const user = await loadUserData();
+    if (request !== joinSummaryProfileRequest) return;
+    if (getStoredFirebaseAuth()?.localId !== uid) {
+      throw new Error('The account changed while loading the profile.');
+    }
+    greetingName(user);
+    const missing = user.profileState === 'missing';
+    status.classList.toggle('d-none', !missing);
+    document.getElementById('summary_profile_message').textContent = missing ? 'Complete your JOIN profile to display your name.' : '';
+    complete.classList.toggle('d-none', !missing);
+    retry.classList.add('d-none');
+  } catch (error) {
+    if (request !== joinSummaryProfileRequest) return;
+    console.warn('Could not load JOIN profile', error);
+    greetingName({ profileState: 'error' });
+    status.classList.remove('d-none');
+    document.getElementById('summary_profile_message').textContent = 'Your profile could not be loaded. Please retry or log in again.';
+    complete.classList.add('d-none');
+    retry.classList.remove('d-none');
+  }
   updateTaskData();
 }
 

@@ -143,31 +143,84 @@ function firebaseAuthLogout() {
 }
 
 async function hydrateAuthenticatedUserProfile(session) {
-  if (!session?.localId) return;
-
-  try {
-    const response = await authenticatedFirebaseFetch(
-      `${FIREBASE_WEB_CONFIG.databaseURL}/user/${session.localId}.json`,
-    );
-    if (!response.ok) return;
-
-    const profile = await response.json();
-    if (profile) applyJoinProfileToSession(profile);
-  } catch (error) {
-    console.warn("Could not load JOIN profile", error);
-  }
+  const profile = await window.loadJoinUserProfile(session.localId);
+  requireJoinProfileSession(session.localId);
+  applyJoinProfileToSession(profile);
+  return profile;
 }
 
 function applyJoinProfileToSession(profile) {
-  const firstName = profile.firstname || profile.firstName || "";
-  const lastName = profile.lastname || profile.lastName || "";
+  const firstName = profile?.firstname || profile?.firstName || "";
+  const lastName = profile?.lastname || profile?.lastName || "";
 
-  if (firstName) sessionStorage.setItem("firstName", firstName);
-  if (lastName) sessionStorage.setItem("lastName", lastName);
-  if (profile.initials) sessionStorage.setItem("userInitials", profile.initials);
+  sessionStorage.setItem("firstName", firstName);
+  sessionStorage.setItem("lastName", lastName);
+  sessionStorage.setItem("userInitials", profile?.initials || "");
+}
+
+function applyJoinAuthIdentity(session) {
+  sessionStorage.setItem("isUser", "true");
+  sessionStorage.setItem("loggedInUserId", session.localId);
+  sessionStorage.setItem("userEmail", session.email);
+  localStorage.removeItem("isGuest");
+  applyJoinProfileToSession(null);
+}
+
+function showJoinLoginStatus(message, retry = false) {
+  const status = document.getElementById("login_status");
+  if (status) {
+    status.textContent = message;
+    status.classList.toggle("d-none", !message);
+  }
+  document.getElementById("body_log_in")?.classList.toggle("auth-status-visible", Boolean(message));
+  document.getElementById("retry_profile_button")?.classList.toggle("d-none", !retry);
+}
+
+let joinLoginBusy = false;
+
+function setJoinLoginBusy(busy) {
+  joinLoginBusy = busy;
+  const button = document.getElementById("login_button");
+  if (button) button.disabled = busy;
+  const retry = document.getElementById("retry_profile_button");
+  if (retry) retry.disabled = busy;
+}
+
+async function finishJoinLogin(session) {
+  try {
+    const profile = await hydrateAuthenticatedUserProfile(session);
+    requireJoinProfileSession(session.localId);
+    window.location.href = profile ? "summary.html" : "sign_up.html?completeProfile=1";
+    return true;
+  } catch (error) {
+    console.warn("Could not load JOIN profile", error);
+    const signedIn = Boolean(getStoredFirebaseAuth()?.localId);
+    const message = signedIn
+      ? "You are signed in, but your JOIN profile could not be loaded. Please retry."
+      : "Your session is unavailable. Please log in again.";
+    showJoinLoginStatus(message, signedIn);
+    return false;
+  }
+}
+
+async function retryJoinLoginProfile() {
+  if (joinLoginBusy) return false;
+  const session = getStoredFirebaseAuth();
+  if (!session?.localId) {
+    showJoinLoginStatus("Please log in again.");
+    return false;
+  }
+  setJoinLoginBusy(true);
+  try {
+    applyJoinAuthIdentity(session);
+    return await finishJoinLogin(session);
+  } finally {
+    setJoinLoginBusy(false);
+  }
 }
 
 async function handleFirebaseLogin() {
+  if (joinLoginBusy) return false;
   const emailInput = document.getElementById("email_log_in");
   const passwordInput = document.getElementById("password_log_in");
   if (!emailInput || !passwordInput) return false;
@@ -180,21 +233,19 @@ async function handleFirebaseLogin() {
     return false;
   }
 
+  setJoinLoginBusy(true);
+  showJoinLoginStatus("");
   try {
     const session = await firebaseSignIn(email, password, remember);
-    sessionStorage.setItem("isUser", "true");
-    sessionStorage.setItem("loggedInUserId", session.localId);
-    sessionStorage.setItem("userEmail", session.email);
-    localStorage.removeItem("isGuest");
-
-    await hydrateAuthenticatedUserProfile(session);
-    window.location.href = "summary.html";
-    return true;
+    applyJoinAuthIdentity(session);
+    return await finishJoinLogin(session);
   } catch (error) {
     console.warn("Firebase login failed", error);
     if (typeof showLoginError === "function") showLoginError();
     else if (typeof showLoginOverlayErrorOnly === "function") showLoginOverlayErrorOnly();
     return false;
+  } finally {
+    setJoinLoginBusy(false);
   }
 }
 
