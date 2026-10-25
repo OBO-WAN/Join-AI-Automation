@@ -59,7 +59,8 @@ async function postData(path = '', data = {}) {
  *
  * @param {string} [path=''] - The path in the Firebase Realtime Database where the data should be updated. Defaults to an empty string.
  * @param {Object} [data={}] - The data to update in the database. Defaults to an empty object.
- * @returns {Promise<Object|null>} A promise that resolves to the server's response as a JSON object, or `null` if an error occurs.
+ * @returns {Promise<*>} A promise that resolves to the parsed server response after a successful update.
+ * @throws {Error} If the HTTP request fails or its response cannot be parsed.
  */
 async function updateData(path = '', data = {}) {
   try {
@@ -70,11 +71,14 @@ async function updateData(path = '', data = {}) {
       },
       body: JSON.stringify(data),
     });
+    if (!response.ok) {
+      throw new Error(`Firebase PUT failed: ${response.status}`);
+    }
     const responseToJson = await response.json();
     return responseToJson;
   } catch (error) {
     console.error('Error updating data', error);
-    return null;
+    throw error;
   }
 }
 
