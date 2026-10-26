@@ -112,7 +112,7 @@ function handlePasswordConfirmationResult(passwordsMatch, errorMessageConfirmPas
  * @description Checks if the password and confirm password input fields match.
  * It utilizes the `handlePasswordConfirmationResult` function to manage the visual feedback
  * based on the comparison. It also handles the case where the confirm password field is empty.
- * @returns {boolean} - Returns `true` if the passwords match or if the confirm password field is empty, `false` otherwise.
+ * @returns {boolean} - Returns `true` if the confirmation is non-empty and the passwords match, `false` otherwise.
  */
 function checkPasswordConfirm() {
   const { password, confirmPassword } = setIdRefValueTrimSignUp();
@@ -120,7 +120,7 @@ function checkPasswordConfirm() {
 
   if (confirmPassword === "") {
     clearConfirmPasswordError();
-    return true;
+    return false;
   }
 
   const passwordsMatch = password === confirmPassword;

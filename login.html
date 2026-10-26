@@ -7,6 +7,7 @@
     <link rel="icon" href="./assets/img/favicon.png" />
     <link rel="stylesheet" href="style/style.css" />
     <link rel="stylesheet" href="style/login.css" />
+    <link rel="stylesheet" href="style/auth_status.css" />
   </head>
 
   <body id="body_log_in" class="body-log-in">
@@ -99,7 +100,7 @@
           </div>
 
           <div class="button-container">
-            <button type="submit" class="button-log-in">Log in</button>
+            <button type="submit" class="button-log-in" id="login_button">Log in</button>
             <button
               type="button"
               class="button-guest-log-in"
@@ -108,6 +109,8 @@
               Guest Log in
             </button>
           </div>
+          <p id="login_status" class="auth-status d-none" role="status" aria-live="polite"></p>
+          <button id="retry_profile_button" class="button-base-gray d-none" type="button" onclick="retryJoinLoginProfile()">Retry profile loading</button>
         </form>
       </section>
     </main>
@@ -124,9 +127,10 @@
       <a href="legal_notice_login.html">Legal Notice</a>
     </footer>
 
-    <script src="script/firebase_auth.js?v=20261025-2"></script>
+    <script src="script/firebase_auth.js?v=20261025-session3"></script>
+    <script src="script/firebase_profile.js?v=20261025-session3"></script>
     <script src="script/login.js" defer></script>
-    <script src="script/scripts.js"></script>
+    <script src="script/scripts.js?v=20261025-session3"></script>
     <script src="script/firebase.js?v=20261025-2"></script>
     <script src="script/register.part1.js"></script>
     <script src="script/register.part2.js"></script>

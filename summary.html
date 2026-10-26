@@ -11,9 +11,11 @@
     <link rel="stylesheet" href="style/summary_email_requests.css" />
     <link rel="stylesheet" href="style/nav_mobile.css" />
     <link rel="stylesheet" href="style/user_icon_menu.css" />
+    <link rel="stylesheet" href="style/auth_status.css" />
 
-    <script src="./script/firebase_auth.js?v=20261025-2"></script>
-    <script src="./script/script.js"></script>
+    <script src="./script/firebase_auth.js?v=20261025-session3"></script>
+    <script src="./script/firebase_profile.js?v=20261025-session3"></script>
+    <script src="./script/script.js?v=20261025-session3"></script>
   </head>
 
   <body class="body-summary" onload="initializeSummaryPage(); setUserInitials();">
@@ -106,6 +108,14 @@
         <h1>Join 456</h1>
         <div class="vector"></div>
         <p>Key Metrics at a Glance</p>
+      </div>
+      <div id="summary_profile_status" class="auth-status d-none" role="status" aria-live="polite">
+        <span id="summary_profile_message"></span>
+        <div class="auth-profile-actions">
+          <a id="summary_complete_profile" href="sign_up.html?completeProfile=1">Complete profile</a>
+          <button id="summary_retry_profile" type="button" onclick="initializeSummaryData()">Retry profile loading</button>
+          <a href="login.html">Log in again</a>
+        </div>
       </div>
       <div class="details">
         <div class="content-details">
@@ -243,6 +253,6 @@
     </ul>
   </body>
   <script src="script/firebase.js?v=20261025-2"></script>
-  <script src="script/summary.js"></script>
-  <script src="script/scripts.js"></script>
+  <script src="script/summary.js?v=20261025-profile2"></script>
+  <script src="script/scripts.js?v=20261025-session3"></script>
 </html>
