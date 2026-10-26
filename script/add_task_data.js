@@ -218,19 +218,19 @@ function validateCategory() {
  * @function
  * @returns {Promise<void>} A promise that resolves when contacts are successfully loaded and rendered.
  *
- * @throws {Error} Logs a warning if the fetch operation fails or if the returned data is not an array.
+ * Accepts Firebase arrays and keyed collections; guests never request private contacts.
  */
 async function loadContacts() {
+  if (!window.firebaseAuthIsSignedIn()) return;
+  const uid = getStoredFirebaseAuth().localId;
+  const generation = firebaseAuthGeneration;
   try {
     const res = await window.authenticatedFirebaseFetch(`${BASE_URL}contacts.json`);
+    if (!res.ok) throw new Error(`Contacts request failed (${res.status}).`);
     const data = await res.json();
-
-    if (!Array.isArray(data)) {
-      console.warn("⚠️ Contacts ist kein Array.");
-      return;
-    }
-
-    Contacts = data;
+    if (generation !== firebaseAuthGeneration || getStoredFirebaseAuth()?.localId !== uid) return;
+    if (data !== null && typeof data !== "object") throw new Error("Invalid contacts data.");
+    Contacts = Object.values(data || {}).filter(Boolean);
     renderAssigneeDropdown();
   } catch (error) {
     console.warn("⚠️ Fehler beim Laden der Kontakte:", error);
