@@ -9,47 +9,17 @@ let colorsArray = [
   "#FFC400", "#FF9100", "#FF7043", "#F06292", "#FF6E40", "#C51162", "#8E24AA", "#651FFF", "#00BFA5", "#76FF03"
 ];
 
-/**
- * Fetches contacts from the remote database and renders them.
- * @param {any} data - Unused parameter.
- * @returns {any} The input data.
- */
-function getContacts(data) {
-    fetch(
-        "https://joinstorage-ef266-default-rtdb.europe-west1.firebasedatabase.app/contacts.json"
-    )
-        .then((response) => response.json())
-        .then((data) => {
-            Contacts = data;
-            renderContacts(data);
-        });
-
+/** Load contacts or display an access error in the list. */
+async function getContacts() {
     if (getViewMode() === 1) clearViewCard();
     setActualContactIndex(-1);
-    /*versionHandling();*/
-    return data;
-}
-
-/**
- * Updates the remote database with the provided contacts data.
- * @param {Array} data - The contacts array to store.
- */
-function updateDatabase(data) {
-    fetch(
-        "https://joinstorage-ef266-default-rtdb.europe-west1.firebasedatabase.app/contacts.json",
-        {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        }
-    )
-        .then((response) => response.json())
-        .then((data) => {
-        })
-        .catch((error) => {
-        });
+    try {
+        Contacts = await readJoinContacts();
+        renderContacts(Contacts);
+    } catch (error) {
+        const section = document.getElementById("contact_card_section");
+        if (section) section.textContent = error.message;
+    }
 }
 
 /**
@@ -98,37 +68,18 @@ function buildContactFromForm(dlg) {
     };
 }
 
-/**
- * Adds a contact to the list, updates the database, and refreshes the UI.
- * @param {Object} contact - The contact object.
- */
-function addContactAndUpdateUI(contact) {
-    Contacts.push(contact);
-    updateDatabase(Contacts);
-    renderContacts(Contacts);
-
-    const index = findContactNewIndex(contact);
-
-    closeContactDialog();
-    closeContactDialogMobile();
-}
-
-/**
- * Finds the new index of a contact after sorting the contacts array by name.
- * @param {Object} contact - The contact object to search for.
- * @returns {number} - The new index of the contact in the sorted Contacts array, or -1 if not found.
- */
-function findContactNewIndex(contact) {
-    for (let i = 0; i < Contacts.length; i++) {
-        if (
-            Contacts[i].name === contact.name &&
-            Contacts[i].mail === contact.mail &&
-            Contacts[i].phone === contact.phone
-        ) {
-            return i;
-        }
+/** Add a contact to the visible list only after Firebase confirms its creation. */
+async function addContactAndUpdateUI(contact) {
+    try {
+        const saved = await saveJoinContact(contact);
+        if (!saved) return;
+        Contacts.push(saved);
+        renderContacts(Contacts);
+        closeContactDialog();
+        closeContactDialogMobile();
+    } catch (error) {
+        showContactError(error);
     }
-    return -1;
 }
 
 /**
@@ -163,17 +114,24 @@ function editContact(id, dlg) {
  * @param {string} phone - The contact phone.
  * @param {number} viewMode - The current view mode.
  */
-function saveEditedContact(id, dlgType, name, mail, phone, viewMode) {
-    name = capitalizeWords(document.getElementById("name_input" + dlgType).value.trim());
-    const newContact = { mail, name, phone: phone || "No phone number available" };
-    Contacts[id] = newContact; updateDatabase(Contacts);
-    id = findContactNewIndex(newContact);
-  
-    switch (viewMode) {
-      case 1: renderContacts(Contacts); renderViewCard(id); closeContactDialog(); break;
-      case 2: renderViewCard(id); closeContactDialogMobile(); break;
-      case 3: closeContactDialogMobile(); renderTabletVievCard(id); break;
-      case 4: MobileVievCard(id); closeContactDialogMobile(); break;
+async function saveEditedContact(id, dlgType, name, mail, phone, viewMode) {
+    try {
+        name = capitalizeWords(document.getElementById("name_input" + dlgType).value.trim());
+        const newContact = { ...Contacts[id], mail, name, phone: phone || "No phone number available" };
+        const saved = await saveJoinContact(newContact);
+        if (!saved) return;
+        Contacts[id] = saved;
+        sortContacts(Contacts);
+        id = Contacts.indexOf(saved);
+
+        switch (viewMode) {
+          case 1: renderContacts(Contacts); renderViewCard(id); closeContactDialog(); break;
+          case 2: renderViewCard(id); closeContactDialogMobile(); break;
+          case 3: closeContactDialogMobile(); renderTabletVievCard(id); break;
+          case 4: MobileVievCard(id); closeContactDialogMobile(); break;
+        }
+    } catch (error) {
+        showContactError(error);
     }
 }
 
@@ -190,13 +148,18 @@ function emailIsValid(email) {
  * Deletes a contact by index after confirmation.
  * @param {number} id - The contact index.
  */
-function deleteContact(id) {
+async function deleteContact(id) {
     if (id < 0 || id >= Contacts.length) {
         return;
     }
 
+    try {
+        if (!await removeJoinContact(Contacts[id])) return;
+    } catch (error) {
+        showContactError(error);
+        return;
+    }
     Contacts.splice(id, 1);
-    updateDatabase(Contacts);
 
     let viewMode = getViewMode();
     if (viewMode === 1) {
@@ -421,12 +384,16 @@ function closeDeleteConfirm() {
 * Confirms the deletion of the selected contact.
 * re-renders the contact list, clears the view card, and closes the overlay.
 */
-function confirmDeleteContact() {
-    if (contactToDelete !== null) {
-      Contacts.splice(contactToDelete, 1); 
-      updateDatabase(Contacts);
-      renderContacts(Contacts); 
-      clearViewCard();
-      closeDeleteConfirm();
+async function confirmDeleteContact() {
+    if (contactToDelete === null) return;
+    try {
+        const contact = Contacts[contactToDelete];
+        if (!await removeJoinContact(contact)) return;
+        Contacts.splice(Contacts.indexOf(contact), 1);
+        renderContacts(Contacts);
+        clearViewCard();
+        closeDeleteConfirm();
+    } catch (error) {
+        showContactError(error);
     }
 }
