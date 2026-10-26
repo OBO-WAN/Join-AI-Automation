@@ -37,7 +37,7 @@ function renderSignUpMode(validate = true) {
     document.getElementById('email_sign-up').readOnly = profileMode || joinSignupBusy;
     document.getElementById('password_sign_up').disabled = joinSignupBusy;
     document.getElementById('confirm_sign_up').disabled = joinSignupBusy;
-    document.getElementById('signup_heading').textContent = profileMode ? 'Complete profile' : 'Sign up';
+    document.getElementById('signup_heading').textContent = profileMode ? 'Profile' : 'Sign up';
     const labels = {
       signup: 'Sign up', profile: 'Save profile', checking: 'Checking profile…',
       'check-failed': 'Retry profile check', complete: 'Continue to summary',
