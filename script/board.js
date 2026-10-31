@@ -359,37 +359,6 @@ function showSearchPlaceholders(statusIds, taskClass) {
 }
 
 /**
- * Deletes a task from the board after user confirmation
- * @param {string} taskId - ID of the task to delete
- */
-async function deleteTaskFromBoardPopup(taskId) {
-  const confirmDelete = await showConfirmation(
-    "Are you sure you want to delete this task?",
-  );
-  if (!confirmDelete) return;
-
-  try {
-    await fetch(`${BASE_URL}tasks/${taskId}.json`, {
-      method: "DELETE",
-    });
-    await loadTasksFromFirebase();
-    closeOverlay();
-  } catch (error) {
-    showToast("Error deleting task", "./assets/icons/error.png");
-    console.error("Delete error:", error);
-  }
-}
-
-/**
- * Closes any open overlay when the Escape key is pressed
- */
-document.addEventListener("keydown", function (event) {
-  if (event.key === "Escape") {
-    closeOverlay();
-  }
-});
-
-/**
  * Generates HTML markup for displaying assigned user avatars in a task card.
  * - Removes duplicate assignees.
  * - Shows up to a maximum number of avatars (default: 4).
