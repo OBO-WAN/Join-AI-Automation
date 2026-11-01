@@ -1,54 +1,77 @@
-# Task deletion repair
+# Task deletion and Guest mode
 
-## Confirmed defect
+## Behavior
 
-The deployed `board.js` matches main at
-`8efbd11c3f00286cb142c82832abb3071b982915`. Its Delete handler sends a raw
-unauthenticated fetch and never checks `response.ok`. After a denied response it
-reloads the unchanged tasks and closes the detail, leaving the task undeleted.
+The original Board handler sent an anonymous DELETE, ignored rejected HTTP
+responses and closed the detail even when the card remained. PR #28 repaired
+authenticated deletion. The follow-up requirement explicitly allows Guest mode
+to delete existing shared tasks too, including old numeric keys and push keys.
 
-A reproduction executing that exact old function with a mocked HTTP 401 confirms
-all three behaviors: anonymous DELETE, reload despite denial, and overlay closure
-despite denial. No live delete request was sent.
+Guest mode uses the existing `isGuest` flag set by Guest Log in. It does not create
+an anonymous Firebase Auth account or require a new provider or credential.
+Signed-in users retain the existing authentication helper and token refresh.
+A missing/expired login is not silently treated as a selected Guest session.
 
-## Repair
+Keep the existing styled confirmation dialog. Check Firebase's acknowledgement
+before removing a card, reject duplicate clicks and changed sessions, and stop
+older reads from restoring deleted cards. Errors appear inline in the matching
+task detail. A failed refresh after successful deletion uses the Board's inline
+status message instead. There are no native alert, prompt or confirm calls in
+this deletion flow. The inline message uses the existing red and font tokens.
 
-Use the existing authenticated Firebase helper and require a current login.
-Preserve the existing confirmation dialog. Guard the complete operation against
-duplicate clicks and reject a changed session before sending a confirmed delete.
-Validate and encode the Firebase key so the request can address only one task.
+## Firebase permission change
 
-Reject failed HTTP responses. A failure keeps the card and detail available and
-shows an alert; the old toast path could silently do nothing when the Board has
-no toast container. A successful acknowledgement removes only that task locally,
-invalidates older reads and refreshes the Board. Closing the deleted detail is
-limited to the matching task, so a different newly opened detail stays open.
-If the refresh fails after the delete succeeded, report that distinction and
-keep the deleted card removed.
+The requested Guest behavior makes deletion public: any visitor or unauthenticated
+REST client can permanently delete existing shared tasks. Confirmation in the
+frontend is a user interaction, not an authorization boundary. Visitors can delete
+multiple tasks individually or through permitted multi-location updates.
 
-The handler and existing Escape action move to `script/board_actions.js` (65
-lines), keeping `board.js` at 397 lines without reformatting its unrelated code.
-Board HTML loads the new helper and versions both changed scripts. No template,
-CSS, confirmation design, Firebase Rules, n8n workflow or account change is made.
+Add this child rule **inside the existing `tasks` rule**, preserving its current
+`.read`, parent `.write`, other child rules, and all unrelated paths:
 
-## Verification and release
+```json
+"$taskId": {
+  ".write": "data.exists() && !newData.exists()"
+}
+```
 
-`node --test tests/*.test.mjs n8n/tests/*.test.mjs` passes 175 checks: the previous
-156 plus 19 deletion cases. Tests load the real Board script order and exercise
-the actual confirmation handlers with mocked DOM events and network requests.
-They cover cancel, guest access, authenticated success, 401/403/500/offline errors,
-duplicate clicks, session changes, token refresh, failed follow-up reads, another
-open task, stale reads and invalid keys. Syntax and diff whitespace checks pass.
-An isolated combined-source check with the password-recovery PR also passes all
-193 checks. Neither PR has to include the other's changes.
+If `$taskId` already exists, review its current write condition before merging
+this grant. The condition allows removal of an existing whole task; it does not
+grant guest creation, editing, status changes, partial task/subtask deletion,
+contacts, profiles, usage, colors or membership access. Existing parent write
+conditions continue to control creation and editing for signed-in users.
 
-No live task was deleted or modified during implementation. Browser interaction
-with the deployed repair remains to be verified after rollout. Use only the
-user-created `JOIN Repair Test` task for that check, then refresh to verify its
-removal. Existing task creation, assignment and drag-and-drop were confirmed by
-the user before reporting this deletion defect.
+The repository Rules include this small grant. **Do not replace the live Rules
+wholesale with that file:** the previously observed live permissions differ from
+the repository's editor-role baseline. Apply only the reviewed child grant to
+the current published `tasks` block. No expiration condition is introduced.
+Frontend changes alone cannot enable Guest deletion under the old live Rules.
 
-This PR is independent of password recovery (#27) and contains none of its files.
-Deploy the changed Board files together, including `board_actions.js`. Reverting
-the frontend cannot restore an intentionally deleted task; task data restoration
-would require an existing backup.
+Publish the reviewed task child rule, then deploy Board HTML, `board_actions.js`,
+`board_templates.js` and `style/board_actions.css` together. The normal frontend
+ZIP command includes them. Validate with a disposable task; no live task or live
+Rules were changed during implementation. Removing the public child grant revokes
+this extra permission; reverting frontend files alone does not revoke it.
+
+## Verification
+
+`node --test tests/*.test.mjs n8n/tests/*.test.mjs` passes 202 checks, including
+Guest legacy-key deletion, cancellation, session changes, denied writes and inline
+feedback. Tests fail if the deletion handler calls a native browser alert.
+JavaScript syntax and diff whitespace checks pass. New code files are below
+400 lines. No new browser visual pass is claimed for the inline error state.
+
+An additional 42 actual RTDB emulator checks pass using emulator 4.11.2 and a
+disposable `demo-join-guest-delete` namespace. They verify deletion and denial of
+other guest operations under both an editor-role parent rule and an
+`auth != null` task-write parent rule. Mocked signed-in editor/member requests
+verify that the existing parent policies retain their behavior.
+
+Run the emulator on loopback port 9001, then run:
+
+```sh
+node --test firebase/tests/guest-task-delete.emulator.test.mjs
+```
+
+That suite is fixed to `http://127.0.0.1:9001` and the demo namespace. It installs
+test Rules and resets only demo fixtures. It never addresses production Firebase.
