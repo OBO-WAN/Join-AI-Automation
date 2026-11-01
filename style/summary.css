@@ -51,6 +51,7 @@
 }
 
 .goodmorning {
+  min-width: 0;
   padding-right: 80px;
 }
 
@@ -119,6 +120,11 @@
   text-align: left;
   color: #29abe2;
   margin: 0;
+}
+
+.goodmorning .name {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .details {
