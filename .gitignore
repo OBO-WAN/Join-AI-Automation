@@ -16,3 +16,8 @@
 *.pem
 *.key
 credentials.json
+
+# Local browser test dependencies and generated reports
+node_modules/
+test-results/
+playwright-report/
