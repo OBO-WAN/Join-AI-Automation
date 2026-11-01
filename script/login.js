@@ -10,6 +10,14 @@ window.addEventListener("DOMContentLoaded", () => {
   }, 1500);
 });
 
+window.addEventListener("DOMContentLoaded", resumeRememberedLogin);
+
+async function resumeRememberedLogin() {
+    if (sessionStorage.getItem(FIREBASE_AUTH_STORAGE_KEY) ||
+        !localStorage.getItem(FIREBASE_AUTH_STORAGE_KEY) || !getStoredFirebaseAuth()) return false;
+    return retryJoinLoginProfile();
+}
+
 /**
  * Runs the introductory login animation sequence.
  *
