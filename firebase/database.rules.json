@@ -5,7 +5,10 @@
 
     "tasks": {
       ".read": true,
-      ".write": "auth != null && root.child('members').child(auth.uid).child('role').val() === 'editor'"
+      ".write": "auth != null && root.child('members').child(auth.uid).child('role').val() === 'editor'",
+      "$taskId": {
+        ".write": "data.exists() && !newData.exists()"
+      }
     },
 
     "automationUsage": {

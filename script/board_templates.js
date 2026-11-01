@@ -240,6 +240,7 @@ function getTaskSheetOverlay(
             </div>
           </div>
 
+          <p id="task_action_status" class="task-action-status d-none" role="alert" aria-atomic="true"></p>
           <div class="popup-actions">
             <div class="action-box delete" onclick="deleteTaskFromBoardPopup('${task.id}')">
               <div class="delete-icon">

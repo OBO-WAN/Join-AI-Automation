@@ -1,0 +1,7 @@
+.task-action-status {
+  color: var(--red);
+  font-size: var(--font-size-16);
+  line-height: 1.4;
+  margin-block: 12px;
+  overflow-wrap: anywhere;
+}

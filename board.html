@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="style/add_task_board_responsive.css">
     <link rel="stylesheet" href="style/user_icon_menu.css"/>
     <link rel="stylesheet" href="style/board_taskoverlay_mobile.css"/>
+    <link rel="stylesheet" href="style/board_actions.css?v=20261101-guest-delete1"/>
   </head>
   <body onload="init(); setUserInitials();">
     <header>
@@ -117,6 +118,7 @@
       </div>
     
 
+      <p id="board_action_status" class="task-action-status d-none" role="alert" aria-atomic="true"></p>
       <div class="kanban_container">
         <div class="kanban_section" data-status="triage" ondrop="moveTo('triage')" ondragover="allowDrop(event)" ondragleave="hideDropPlaceholder(event)">
           <div class="section_header">
@@ -242,9 +244,9 @@
   <script src="./script/add_task_data.js?v=20261026-contacts1"></script>
   <script src="./script/add_task_form.js"></script>
   <script src="./script/board.js?v=20261031-delete1"></script>
-  <script src="./script/board_actions.js?v=20261031-delete1"></script>
+  <script src="./script/board_actions.js?v=20261101-guest-delete1"></script>
   <script src="./script/board_creator_templates.js"></script>
-  <script src="./script/board_templates.js"></script>
+  <script src="./script/board_templates.js?v=20261101-guest-delete1"></script>
   <script src="./script/board_overlay.js"></script>
   <script src="./script/board_creator_email.js"></script>
   <script src="./script/board_drag&drop.js?v=20260916-2"></script>
