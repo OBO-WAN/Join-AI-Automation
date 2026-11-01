@@ -51,11 +51,10 @@ function resetPage(reply = () => response({})) {
   };
 }
 
-test('welcome and login expose a working recovery link without JavaScript navigation', () => {
-  for (const page of ['index.html', 'login.html']) {
-    assert.match(read(page), /href="forgot_password.html">Forgot your password\?<\/a>/);
-    assert.match(read(page), /password_reset.css\?v=20261031-reset1/);
-  }
+test('only login exposes the recovery link without JavaScript navigation', () => {
+  assert.match(read('login.html'), /href="forgot_password.html">Forgot your password\?<\/a>/);
+  assert.match(read('login.html'), /password_reset.css\?v=20261031-reset1/);
+  assert.doesNotMatch(read('index.html'), /forgot_password\.html|password_reset\.css/);
   const html = read('forgot_password.html');
   assert.match(html, /href="login.html" aria-label="Back to log in"/);
   assert.match(html, /role="status" aria-live="polite"/);
