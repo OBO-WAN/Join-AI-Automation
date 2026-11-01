@@ -4,8 +4,8 @@
 
 The original Board handler sent an anonymous DELETE, ignored rejected HTTP
 responses and closed the detail even when the card remained. PR #28 repaired
-authenticated deletion. The follow-up requirement explicitly allows Guest mode
-to delete existing shared tasks too, including old numeric keys and push keys.
+authenticated deletion. Guest mode must support deletion and drag-and-drop for
+existing shared tasks, including old numeric keys and push keys.
 
 Guest mode uses the existing `isGuest` flag set by Guest Log in. It does not create
 an anonymous Firebase Auth account or require a new provider or credential.
@@ -31,21 +31,30 @@ Add this child rule **inside the existing `tasks` rule**, preserving its current
 
 ```json
 "$taskId": {
-  ".write": "data.exists() && !newData.exists()"
+  ".write": "data.exists() && !newData.exists()",
+  "status": {
+    ".write": "data.parent().exists() && newData.isString() && newData.val().matches(/^(triage|toDo|inProgress|awaitFeedback|done)$/)"
+  },
+  "statusChangedAt": {
+    ".write": "data.parent().exists() && newData.isString()"
+  }
 }
 ```
 
 If `$taskId` already exists, review its current write condition before merging
-this grant. The condition allows removal of an existing whole task; it does not
-grant guest creation, editing, status changes, partial task/subtask deletion,
-contacts, profiles, usage, colors or membership access. Existing parent write
-conditions continue to control creation and editing for signed-in users.
+these grants. Guests can remove an existing whole task or PATCH only its status
+and status-change timestamp. Valid statuses match the five Board columns.
+Creating or replacing tasks, editing their other fields, deleting subtasks, and
+accessing contacts, profiles, usage, colors or membership remain ungranted.
+Existing parent rules still control creation and editing for signed-in users.
 
 The repository Rules include this small grant. **Do not replace the live Rules
 wholesale with that file:** the previously observed live permissions differ from
 the repository's editor-role baseline. Apply only the reviewed child grant to
 the current published `tasks` block. No expiration condition is introduced.
 Frontend changes alone cannot enable Guest deletion under the old live Rules.
+The drag-permission correction changes only Rules and tests: no drag JavaScript,
+new frontend dependency, ZIP rebuild or frontend deployment is needed for it.
 
 Publish the reviewed task child rule, then deploy Board HTML, `board_actions.js`,
 `board_templates.js` and `style/board_actions.css` together. The normal frontend
@@ -61,11 +70,14 @@ feedback. Tests fail if the deletion handler calls a native browser alert.
 JavaScript syntax and diff whitespace checks pass. New code files are below
 400 lines. No new browser visual pass is claimed for the inline error state.
 
-An additional 42 actual RTDB emulator checks pass using emulator 4.11.2 and a
+An additional 64 actual RTDB emulator checks pass using emulator 4.11.2 and a
 disposable `demo-join-guest-delete` namespace. They verify deletion and denial of
 other guest operations under both an editor-role parent rule and an
 `auth != null` task-write parent rule. Mocked signed-in editor/member requests
-verify that the existing parent policies retain their behavior.
+verify that the existing parent policies retain their behavior. The suite also
+executes the actual `moveTo()` handler against the emulator: the earlier
+deletion-only policy rejects its PATCH and restores the old column; the corrected
+policy persists the move, retains other fields, and still permits deletion.
 
 Run the emulator on loopback port 9001, then run:
 

@@ -7,7 +7,13 @@
       ".read": true,
       ".write": "auth != null && root.child('members').child(auth.uid).child('role').val() === 'editor'",
       "$taskId": {
-        ".write": "data.exists() && !newData.exists()"
+        ".write": "data.exists() && !newData.exists()",
+        "status": {
+          ".write": "data.parent().exists() && newData.isString() && newData.val().matches(/^(triage|toDo|inProgress|awaitFeedback|done)$/)"
+        },
+        "statusChangedAt": {
+          ".write": "data.parent().exists() && newData.isString()"
+        }
       }
     },
 
