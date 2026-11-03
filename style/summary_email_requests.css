@@ -62,6 +62,9 @@
   color: #fff;
 }
 
+.pencil:focus-visible,
+.urgent:focus-visible,
+.tasks:focus-visible,
 .summary-email-requests:focus-visible {
   outline: 3px solid #29abe2;
   outline-offset: 4px;

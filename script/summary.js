@@ -162,15 +162,20 @@ async function updateTaskData() {
 }
 
 /**
- * Adds click events to summary elements for redirection to the board page.
+ * Makes the existing summary actions work with mouse and keyboard.
  */
 function addClickEvents() {
   const redirectToBoard = () => window.location.href = 'board.html';
-  const tasksElement = document.querySelector('.tasks');
-  if (tasksElement) tasksElement.onclick = redirectToBoard;
-  const urgentElement = document.querySelector('.urgent');
-  if (urgentElement) urgentElement.onclick = redirectToBoard;
-  document.querySelectorAll('.pencil').forEach(el => el.onclick = redirectToBoard);
+  document.querySelectorAll('.pencil, .urgent, .tasks').forEach(element => {
+    element.tabIndex = 0;
+    element.setAttribute('role', 'button');
+    element.onclick = redirectToBoard;
+    element.onkeydown = event => {
+      if (event.repeat || !['Enter', ' '].includes(event.key)) return;
+      event.preventDefault();
+      redirectToBoard();
+    };
+  });
 }
 
 /**

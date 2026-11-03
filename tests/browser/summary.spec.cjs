@@ -205,10 +205,40 @@ for (const selector of ['.pencil:first-child', '.pencil:nth-child(2)', '.urgent'
 test('interactive metric groups are reachable by keyboard', async ({ page }) => {
   await openSummary(page);
   await expectStats(page);
-  const unreachable = await page.locator('.pencil, .urgent, .tasks, .summary-email-requests')
-    .evaluateAll((elements) => elements.filter((element) => element.tabIndex < 0).map((element) => element.className));
-  expect(unreachable, 'Clickable metrics must also be keyboard reachable').toEqual([]);
+  const first = page.locator('.pencil').first();
+  await expect(first).toHaveAttribute('role', 'button');
+  for (let step = 0; step < 20; step++) {
+    await page.keyboard.press('Tab');
+    if (await first.evaluate(element => element === document.activeElement)) break;
+  }
+  await expect(first).toBeFocused();
+  for (const selector of ['.pencil:nth-child(2)', '.urgent', '.summary-email-requests', '.tasks']) {
+    await page.keyboard.press('Tab');
+    await expect(page.locator(selector)).toBeFocused();
+  }
 });
+
+for (const selector of ['.pencil:first-child', '.pencil:nth-child(2)', '.urgent', '.tasks']) {
+  for (const key of ['Enter', 'Space']) {
+    test(`keyboard ${key} on ${selector} opens Board`, async ({ page }, testInfo) => {
+      await page.route('**/board.html', route => route.fulfill({ contentType: 'text/html', body: '<title>Board destination</title>' }));
+      await openSummary(page);
+      await expectStats(page);
+      const target = page.locator(selector);
+      await expect(target).toHaveAttribute('role', 'button');
+      await page.keyboard.press('Tab');
+      await target.focus();
+      await expect(target).toBeFocused();
+      await expect(target).toHaveCSS('outline-style', 'solid');
+      await expect(target).toHaveCSS('outline-width', '3px');
+      if (selector === '.pencil:first-child' && key === 'Enter') {
+        await screenshot(page, testInfo, 'keyboard-focus');
+      }
+      await page.keyboard.press(key);
+      await expect(page).toHaveURL(/\/board\.html$/);
+    });
+  }
+}
 
 test('the first mobile greeting disappears and leaves the metrics accessible', async ({ page }) => {
   await page.setViewportSize({ width: 428, height: 926 });
