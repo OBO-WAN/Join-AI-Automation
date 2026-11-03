@@ -470,6 +470,7 @@
 
   .titeljoin p {
     order: 2;
+    padding-right: 0;
   }
 
   .titeljoin .vector {
