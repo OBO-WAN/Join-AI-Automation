@@ -137,13 +137,27 @@ function updateTaskSummaryDisplay(stats) {
  *
  * @async
  */
+let summaryTasksBusy = false;
+
 async function updateTaskData() {
+  if (summaryTasksBusy) return;
+  summaryTasksBusy = true;
+  const status = document.getElementById('summary_task_status');
+  const retry = document.getElementById('summary_retry_tasks');
+  retry.disabled = true;
   try {
     const tasks = await fetchTaskData();
     const stats = computeTaskStats(tasks);
     updateTaskSummaryDisplay(stats);
+    status.classList.add('d-none');
   } catch (error) {
     console.error('Error loading task data:', error);
+    document.querySelectorAll('.summarynmb, .urgentnmb, .summary-email-count, .tasknmb, .date')
+      .forEach(element => element.textContent = '—');
+    status.classList.remove('d-none');
+  } finally {
+    summaryTasksBusy = false;
+    retry.disabled = false;
   }
 }
 

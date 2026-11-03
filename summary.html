@@ -117,6 +117,12 @@
           <a href="login.html">Log in again</a>
         </div>
       </div>
+      <div id="summary_task_status" class="auth-status d-none" role="status" aria-live="polite" aria-atomic="true">
+        <span>Task statistics could not be loaded. Please retry.</span>
+        <div class="auth-profile-actions">
+          <button id="summary_retry_tasks" type="button" onclick="updateTaskData()">Retry task loading</button>
+        </div>
+      </div>
       <div class="details">
         <div class="content-details">
           <div class="checkpencil">
@@ -125,7 +131,7 @@
                 <img src="assets/icons/Pencil.svg" alt="pencil" />
               </div>
               <div class="summaryp">
-                <p class="summarynmb todo">2</p>
+                <p class="summarynmb todo">—</p>
                 <p class="summarymission">To-Do</p>
               </div>
             </div>
@@ -134,7 +140,7 @@
                 <img src="assets/icons/done.svg" alt="done" />
               </div>
               <div class="summaryp">
-                <p class="summarynmb done">2</p>
+                <p class="summarynmb done">—</p>
                 <p class="summarymission">Done</p>
               </div>
             </div>
@@ -148,7 +154,7 @@
                 alt="urgent"
               />
               <div class="nmbtext">
-                <p class="urgentnmb">4</p>
+                <p class="urgentnmb">—</p>
                 <p class="urgenttext">Urgent</p>
               </div>
             </div>
@@ -166,7 +172,7 @@
           <div class="tasks">
             <div class="undertask">
               <div class="underundertask">
-                <p class="tasknmb">9</p>
+                <p class="tasknmb">—</p>
                 <p class="tasktext">
                   Tasks in <br />
                   Board
@@ -175,13 +181,13 @@
             </div>
             <div class="undertask">
               <div class="underundertask">
-                <p class="tasknmb">2</p>
+                <p class="tasknmb">—</p>
                 <p class="tasktext">Tasks in <br />Progress</p>
               </div>
             </div>
             <div class="undertask">
               <div class="underundertask">
-                <p class="tasknmb">1</p>
+                <p class="tasknmb">—</p>
                 <p class="tasktext">Awaiting <br />Feedback</p>
               </div>
             </div>
@@ -253,6 +259,6 @@
     </ul>
   </body>
   <script src="script/firebase.js?v=20261025-2"></script>
-  <script src="script/summary.js?v=20261102-deadline1"></script>
+  <script src="script/summary.js?v=20261102-task-feedback1"></script>
   <script src="script/scripts.js?v=20261025-session3"></script>
 </html>

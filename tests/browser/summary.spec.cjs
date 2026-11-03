@@ -159,11 +159,13 @@ test('Upcoming Deadline comes from the urgent task, not the current day', async 
 test('an initial failed task read does not leave sample counts looking like live data', async ({ page, summaryApi }, testInfo) => {
   summaryApi.taskStatus = 500;
   await openSummary(page);
-  await expect.poll(() => summaryApi.taskReads).toBeGreaterThan(0);
+  await expect(page.locator('#summary_task_status')).toBeVisible();
+  await expect(page.locator(metricSelectors)).toHaveText(['—', '—', '—', '—', '—', '—', '—']);
   await screenshot(page, testInfo, 'task-read-error');
-  await expect.poll(() => page.locator(metricSelectors).evaluateAll((elements) => elements
-    .filter((element) => element.getClientRects().length && /^\d+$/.test(element.textContent.trim()))
-    .map((element) => element.textContent.trim())), 'Unavailable task data must not look like valid totals').toEqual([]);
+  summaryApi.taskStatus = 200;
+  await page.getByRole('button', { name: 'Retry task loading' }).click();
+  await expectStats(page);
+  await expect(page.locator('#summary_task_status')).toBeHidden();
 });
 
 for (const [time, greeting] of [
