@@ -28,15 +28,25 @@ function greetingName(user) {
 }
 
 /**
- * Updates the current date in the summary view.
+ * Updates the earliest unfinished urgent-task deadline in the summary view.
  * Uses a localized long format (e.g., "September 13, 2025").
  */
-function updateDate() {
+function updateDate(deadline = null) {
   const dateElement = document.querySelector('.date');
   if (dateElement) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    dateElement.textContent = new Date().toLocaleDateString(undefined, options);
+    dateElement.textContent = deadline ? deadline.toLocaleDateString(undefined, options) : '—';
   }
+}
+
+function parseSummaryDueDate(value) {
+  if (typeof value !== 'string') return null;
+  const parts = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(value.trim());
+  if (!parts) return null;
+  const [day, month, year] = parts.slice(1).map(Number);
+  const date = new Date(year, month - 1, day);
+  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
+    ? date : null;
 }
 
 /**
@@ -58,7 +68,10 @@ async function fetchTaskData() {
  * @returns {Object} An object with counters for different task categories
  */
 function initializeStats() {
-  return { todo: 0, done: 0, urgent: 0, tasksInBoard: 0, tasksInProgress: 0, awaitingFeedback: 0, emailRequests: 0 };
+  return {
+    todo: 0, done: 0, urgent: 0, tasksInBoard: 0, tasksInProgress: 0,
+    awaitingFeedback: 0, emailRequests: 0, upcomingDeadline: null,
+  };
 }
 
 /**
@@ -77,7 +90,13 @@ function updateStatsFromTask(task, stats) {
     case 'inProgress': stats.tasksInProgress++; break;
     case 'awaitFeedback': stats.awaitingFeedback++; break;
   }
-  if (task.priority?.toLowerCase() === 'urgent') stats.urgent++;
+  if (task.priority?.toLowerCase() === 'urgent') {
+    stats.urgent++;
+    const deadline = task.status === 'done' ? null : parseSummaryDueDate(task.dueDate);
+    if (deadline && (!stats.upcomingDeadline || deadline < stats.upcomingDeadline)) {
+      stats.upcomingDeadline = deadline;
+    }
+  }
 }
 
 /**
@@ -102,6 +121,7 @@ function computeTaskStats(tasks) {
  * @param {Object} stats - The statistics object
  */
 function updateTaskSummaryDisplay(stats) {
+  updateDate(stats.upcomingDeadline);
   document.querySelector('.summarynmb.todo').textContent = stats.todo;
   document.querySelector('.summarynmb.done').textContent = stats.done;
   document.querySelector('.urgentnmb').textContent = stats.urgent;
@@ -197,7 +217,6 @@ async function initializeSummaryData() {
  */
 function setupSummaryUI() {
   updateGreeting();
-  updateDate();
   checkAndShowAnimationSummary();
   setInterval(updateTaskData, 5000);
   addClickEvents();
