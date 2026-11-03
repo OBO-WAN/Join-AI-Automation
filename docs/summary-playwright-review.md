@@ -27,7 +27,14 @@ Smaller sizes, Guest, empty data, profile failures and the mobile introduction
 are also checked. Use the existing Figma desktop Summary node `45:2195` and
 mobile node `332:1588` for the visual comparison.
 
-## Source findings expected to fail the audit
+The current suite has 33 checks, including actual Tab traversal and Enter/Space
+activation of the four existing metric groups. A `keyboard-focus` screenshot
+records the reused focus outline.
+
+## Findings from the initial audit
+
+These describe the original baseline. Subsequent focused repairs address them;
+use the current full browser run to verify the combined result.
 
 - `updateDate()` shows today under “Upcoming Deadline”; the isolated test task
   is due November 9 while the fixed current day is November 2.
